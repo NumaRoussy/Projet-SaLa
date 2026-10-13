@@ -1,0 +1,13 @@
+game,category,title,content,extra,sips,min_players
+carnotzet,duel,Bras de Fer,{p1} et {p2} s'affrontent au bras de fer. Le perdant boit {sips} gorgées.,,3,2
+carnotzet,vote,Tente oubliée,Votez à main levée : qui est le plus susceptible d'oublier les sardines de tente ? Le désigné boit {sips}.,,2,3
+carnotzet,pub,Alerte Sanitaire,Un éclaireur a perdu une jambe en raid. Que faites-vous ?,A: Cellule de crise | B: Arnica,4,1
+carnotzet,regle,Règle Intendance,Interdiction de pointer du doigt sous peine de boire {sips} gorgées.,durée:3 tours,1,3
+debout,reflexe,Flamme Bleue,Touchez l'écran dès que la flamme devient bleue. Le plus lent est éliminé.,,0,2
+debout,chrono,Sens du Temps,Estimez 10 secondes les yeux fermés. Le pire écart boit {sips} et sort.,duree:10s,2,2
+debout,duel,Nœud de Chaise,{p1} et {p2} réalisent un nœud de chaise dans le dos. Le dernier fini est éliminé.,,0,2
+infiltre,mots,Pionnier,Brêlage,Froissartage,0,3
+infiltre,mots,Cuisine de Camp,Gamelle,Bidon,0,3
+infiltre,mots,Topographie,Boussole,Altimètre,0,3
+debrief,verite,Vérité Intendance,Quel est le pire plat que tu as servi en camp sans assumer l'échec ?,Avoue ou prends {sips} gorgées,2,2
+debrief,jamais,Je n'ai jamais,Je n'ai jamais dormi pendant mon propre tour de veille de nuit.,Tous les concernés boivent {sips},2,2
