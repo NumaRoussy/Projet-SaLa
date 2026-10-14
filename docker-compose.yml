@@ -1,0 +1,83 @@
+version: '3.8'
+
+services:
+  caddy:
+    image: caddy:alpine
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - scout_net
+    depends_on:
+      - backend
+      - hub
+
+  backend:
+    build: ./backend
+    restart: always
+    environment:
+      - ADMIN_KEY=${ADMIN_KEY:-CHANGE_THIS_SECRET_KEY_FOR_ADMIN}
+      - SMTP_HOST=${SMTP_HOST:-mail.infomaniak.com}
+      - SMTP_PORT=${SMTP_PORT:-587}
+      - SMTP_USER=${SMTP_USER:-info@scoutgame.ch}
+      - SMTP_PASS=${SMTP_PASS:-SECRET_INFOMANIAK_SMTP_PASSWORD}
+      - DB_PATH=/app/data/scoutgame.db
+    volumes:
+      - ./data:/app/data
+    networks:
+      - scout_net
+
+  hub:
+    build: ./hub
+    restart: always
+    networks:
+      - scout_net
+
+  game-infiltre:
+    build: ./games/infiltre
+    restart: always
+    networks:
+      - scout_net
+
+  game-rondedenuit:
+    build: ./games/rondedenuit
+    restart: always
+    networks:
+      - scout_net
+
+  game-chrono:
+    build: ./games/chrono
+    restart: always
+    networks:
+      - scout_net
+
+  game-carnotzet:
+    build: ./games/carnotzet
+    restart: always
+    networks:
+      - scout_net
+
+  game-debout:
+    build: ./games/debout
+    restart: always
+    networks:
+      - scout_net
+
+  game-debrief:
+    build: ./games/debrief
+    restart: always
+    networks:
+      - scout_net
+
+networks:
+  scout_net:
+    driver: bridge
+
+volumes:
+  caddy_data:
+  caddy_config:

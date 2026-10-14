@@ -3,16 +3,25 @@ app/routers/admin.py
 Routes d'administration protégées par le header X-Admin-Key.
 
 Routes disponibles :
+  GET  /api/admin/check-key           — Vérification de validité de la clé
   POST /api/admin/prune-branch        — Sciage récursif immédiat d'une branche
+  GET  /api/admin/reports             — Liste des rapports PENDING
   POST /api/admin/reports/{id}/review — Validation ou rejet d'un rapport PENDING
+  GET  /api/admin/campaigns           — Liste des campagnes bootstrap
   POST /api/admin/campaigns           — Création d'une campagne bootstrap
   DELETE /api/admin/campaigns/{id}    — Désactivation d'une campagne
-  POST /api/admin/blackout            — Activer / lever le coupe-circuit de camp
-  GET  /api/admin/reports             — Liste des rapports PENDING
+  GET  /api/admin/blackout            — État complet du coupe-circuit (manuel + dates)
+  POST /api/admin/blackout            — Activer / lever le coupe-circuit manuel
+  POST /api/admin/blackout-dates      — Programmer les dates de camp
+  POST /api/admin/import-csv          — Réimportation à chaud du catalogue de cartes
 """
+import os
+import csv
+import io
 import hashlib
-import datetime
+from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Header
+from fastapi.responses import FileResponse
 import aiosqlite
 from app.database import get_db
 from app.config import ADMIN_KEY
@@ -21,8 +30,19 @@ from app.models import (
     ValidateReportPayload,
     BootstrapCampaignCreate,
     BlackoutPayload,
+    BlackoutDatesPayload,
+    BlackoutMessagePayload,
+    ImportCsvPayload,
+    CardCreatePayload,
+    FeedbackStatusPayload,
 )
 from app.services.tree_service import prune_branch_recursive
+from app.services.blackout_service import (
+    get_blackout_config,
+    set_blackout_manual,
+    set_blackout_dates,
+    set_blackout_message,
+)
 
 router = APIRouter(prefix="/api/admin", tags=["admin"])
 
@@ -35,6 +55,16 @@ def _require_admin(x_admin_key: str = Header(...)) -> None:
 
 def _hash(token: str) -> str:
     return hashlib.sha256(token.strip().encode("utf-8")).hexdigest()
+
+
+# ---------------------------------------------------------------------------
+# Vérification d'authentification admin
+# ---------------------------------------------------------------------------
+
+@router.get("/check-key")
+async def check_admin_key(_: None = Depends(_require_admin)):
+    """Valide la clé d'administration pour la console visuelle du Hub."""
+    return {"valid": True, "status": "authenticated"}
 
 
 # ---------------------------------------------------------------------------
@@ -128,6 +158,28 @@ async def review_report(
 # Gestion des campagnes bootstrap
 # ---------------------------------------------------------------------------
 
+@router.get("/campaigns")
+async def list_campaigns(
+    _: None = Depends(_require_admin),
+    db: aiosqlite.Connection = Depends(get_db),
+):
+    """Retourne toutes les campagnes d'amorçage."""
+    async with db.execute(
+        "SELECT id, name, is_active, expires_at, created_at FROM bootstrap_campaigns ORDER BY created_at DESC"
+    ) as cursor:
+        rows = await cursor.fetchall()
+    return [
+        {
+            "id": r[0],
+            "name": r[1],
+            "is_active": bool(r[2]),
+            "expires_at": r[3],
+            "created_at": r[4],
+        }
+        for r in rows
+    ]
+
+
 @router.post("/campaigns", status_code=201)
 async def create_campaign(
     payload: BootstrapCampaignCreate,
@@ -163,8 +215,17 @@ async def deactivate_campaign(
 
 
 # ---------------------------------------------------------------------------
-# Interrupteur d'urgence camp_blackout_active
+# Coupe-circuit Blackout (manuel + dates programmées)
 # ---------------------------------------------------------------------------
+
+@router.get("/blackout")
+async def get_blackout_status(
+    _: None = Depends(_require_admin),
+    db: aiosqlite.Connection = Depends(get_db),
+):
+    """Retourne l'état complet du blackout (manuel, dates programmées et effectif)."""
+    return await get_blackout_config(db)
+
 
 @router.post("/blackout")
 async def set_blackout(
@@ -172,16 +233,526 @@ async def set_blackout(
     _: None = Depends(_require_admin),
     db: aiosqlite.Connection = Depends(get_db),
 ):
-    """
-    Active (active=true) ou lève (active=false) le coupe-circuit de camp.
-    Utilise un UPSERT SQLite natif.
-    """
-    value = "true" if payload.active else "false"
-    await db.execute(
-        """INSERT INTO system_config (key, value, updated_at)
-           VALUES ('camp_blackout_active', ?, CURRENT_TIMESTAMP)
-           ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = CURRENT_TIMESTAMP""",
-        (value,),
+    """Active ou désactive manuellement le blackout."""
+    await set_blackout_manual(db, payload.active)
+    return await get_blackout_config(db)
+
+
+@router.post("/blackout-dates")
+async def configure_blackout_dates(
+    payload: BlackoutDatesPayload,
+    _: None = Depends(_require_admin),
+    db: aiosqlite.Connection = Depends(get_db),
+):
+    """Configure ou réinitialise la plage de dates de camp programmée."""
+    await set_blackout_dates(db, payload.start_date, payload.end_date)
+    return await get_blackout_config(db)
+
+
+@router.post("/blackout-message")
+async def configure_blackout_message(
+    payload: BlackoutMessagePayload,
+    _: None = Depends(_require_admin),
+    db: aiosqlite.Connection = Depends(get_db),
+):
+    """Met à jour le message d'avertissement de blackout affiché aux utilisateurs."""
+    await set_blackout_message(db, payload.message)
+    return await get_blackout_config(db)
+
+
+# ---------------------------------------------------------------------------
+# Helpers CSV et synchronisation bidirectionnelle DB <-> content.csv
+# ---------------------------------------------------------------------------
+
+def get_csv_path() -> str:
+    possible_paths = [
+        os.path.abspath("data/content.csv"),
+        os.path.abspath("../data/content.csv"),
+        os.path.abspath("/app/data/content.csv"),
+    ]
+    for p in possible_paths:
+        if os.path.exists(p):
+            return p
+    return os.path.abspath("data/content.csv")
+
+
+async def sync_db_to_csv(db: aiosqlite.Connection) -> None:
+    csv_path = get_csv_path()
+    os.makedirs(os.path.dirname(csv_path), exist_ok=True)
+    async with db.execute(
+        "SELECT game, category, title, content, extra, sips, min_players FROM cards ORDER BY game ASC, id ASC"
+    ) as cursor:
+        rows = await cursor.fetchall()
+    with open(csv_path, mode="w", encoding="utf-8", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(["game", "category", "title", "content", "extra", "sips", "min_players"])
+        for r in rows:
+            writer.writerow([r[0], r[1] or "", r[2] or "", r[3], r[4] or "", r[5] or 0, r[6] or 2])
+
+
+async def import_csv_to_db(db: aiosqlite.Connection, raw_csv: str) -> int:
+    reader = csv.DictReader(io.StringIO(raw_csv.strip()))
+    records = []
+    for row in reader:
+        if not row.get("game") or not row.get("content"):
+            continue
+        records.append(
+            (
+                row["game"],
+                row.get("category") or "",
+                row.get("title") or "",
+                row["content"],
+                row.get("extra") or "",
+                int(row.get("sips") or 0),
+                int(row.get("min_players") or 2),
+            )
+        )
+    if not records:
+        raise HTTPException(
+            status_code=400,
+            detail="Le contenu CSV ne contient aucune carte valide.",
+        )
+    await db.execute("DELETE FROM cards")
+    await db.executemany(
+        """INSERT INTO cards (game, category, title, content, extra, sips, min_players)
+           VALUES (?, ?, ?, ?, ?, ?, ?)""",
+        records,
     )
     await db.commit()
-    return {"camp_blackout_active": payload.active}
+    return len(records)
+
+
+# ---------------------------------------------------------------------------
+# Réimportation à chaud du catalogue de cartes CSV
+# ---------------------------------------------------------------------------
+
+@router.post("/import-csv")
+async def import_csv_cards(
+    payload: Optional[ImportCsvPayload] = None,
+    _: None = Depends(_require_admin),
+    db: aiosqlite.Connection = Depends(get_db),
+):
+    """
+    Recharge le catalogue de cartes :
+    - Soit depuis payload.csv_content si fourni,
+    - Soit depuis data/content.csv.
+    """
+    raw_csv = ""
+    if payload and payload.csv_content:
+        raw_csv = payload.csv_content
+    else:
+        found_path = get_csv_path()
+        if not os.path.exists(found_path):
+            raise HTTPException(
+                status_code=404,
+                detail="Fichier content.csv introuvable sur le serveur.",
+            )
+        with open(found_path, mode="r", encoding="utf-8") as f:
+            raw_csv = f.read()
+
+    count = await import_csv_to_db(db, raw_csv)
+    return {
+        "status": "success",
+        "imported_count": count,
+        "message": f"{count} cartes importées avec succès.",
+    }
+
+
+# ---------------------------------------------------------------------------
+# Arbre Visuel des Embranchements (Point 3)
+# ---------------------------------------------------------------------------
+
+@router.get("/tree")
+async def get_device_tree(
+    _: None = Depends(_require_admin),
+    db: aiosqlite.Connection = Depends(get_db),
+):
+    """Retourne toutes les campagnes bootstrap et la hiérarchie complète des appareils."""
+    async with db.execute(
+        "SELECT id, name, is_active, created_at, expires_at FROM bootstrap_campaigns ORDER BY created_at DESC"
+    ) as cursor:
+        campaign_rows = await cursor.fetchall()
+
+    async with db.execute(
+        "SELECT id, parent_device_id, bootstrap_campaign_id, is_revoked, revocation_reason, created_at, last_seen_at FROM devices ORDER BY created_at ASC"
+    ) as cursor:
+        device_rows = await cursor.fetchall()
+
+    device_nodes = {}
+    children_map = {}
+    for r in device_rows:
+        dev_id = r[0]
+        parent_id = r[1]
+        camp_id = r[2]
+        device_nodes[dev_id] = {
+            "id": dev_id,
+            "parent_device_id": parent_id,
+            "bootstrap_campaign_id": camp_id,
+            "is_revoked": bool(r[3]),
+            "revocation_reason": r[4],
+            "created_at": r[5],
+            "last_seen_at": r[6],
+            "descendant_count": 0,
+            "children": [],
+        }
+        if parent_id:
+            children_map.setdefault(parent_id, []).append(dev_id)
+
+    def compute_descendants(node_id: str) -> int:
+        child_ids = children_map.get(node_id, [])
+        total = len(child_ids)
+        node = device_nodes[node_id]
+        node["children"] = []
+        for cid in child_ids:
+            total += compute_descendants(cid)
+            node["children"].append(device_nodes[cid])
+        node["descendant_count"] = total
+        return total
+
+    campaign_devices = {}
+    orphan_devices = []
+    for dev_id, node in device_nodes.items():
+        if node["bootstrap_campaign_id"]:
+            campaign_devices.setdefault(node["bootstrap_campaign_id"], []).append(node)
+        elif not node["parent_device_id"]:
+            orphan_devices.append(node)
+
+    for dev_list in campaign_devices.values():
+        for root in dev_list:
+            compute_descendants(root["id"])
+    for root in orphan_devices:
+        compute_descendants(root["id"])
+
+    campaigns_data = []
+    for c in campaign_rows:
+        c_id = c[0]
+        campaigns_data.append({
+            "id": c_id,
+            "name": c[1],
+            "is_active": bool(c[2]),
+            "created_at": c[3],
+            "expires_at": c[4],
+            "devices": campaign_devices.get(c_id, []),
+        })
+
+    active_count = sum(1 for d in device_nodes.values() if not d["is_revoked"])
+    revoked_count = sum(1 for d in device_nodes.values() if d["is_revoked"])
+
+    return {
+        "campaigns": campaigns_data,
+        "orphans": orphan_devices,
+        "total_devices": len(device_nodes),
+        "active_devices": active_count,
+        "revoked_devices": revoked_count,
+    }
+
+
+# ---------------------------------------------------------------------------
+# Statistiques d'utilisation (Point 4)
+# ---------------------------------------------------------------------------
+
+@router.get("/stats")
+async def get_admin_stats(
+    _: None = Depends(_require_admin),
+    db: aiosqlite.Connection = Depends(get_db),
+):
+    """Agrège telemetry_events et devices : parties jouées, temps, durée moyenne par jeu."""
+    async with db.execute(
+        "SELECT COUNT(*), SUM(CASE WHEN is_revoked = 0 THEN 1 ELSE 0 END), SUM(CASE WHEN is_revoked = 1 THEN 1 ELSE 0 END) FROM devices"
+    ) as cur:
+        d_row = await cur.fetchone()
+        total_devices = d_row[0] or 0
+        active_devices = d_row[1] or 0
+        revoked_devices = d_row[2] or 0
+
+    async with db.execute("SELECT COUNT(*) FROM devices WHERE last_seen_at >= datetime('now', '-7 days')") as cur:
+        devices_7d = (await cur.fetchone())[0] or 0
+    async with db.execute("SELECT COUNT(*) FROM devices WHERE last_seen_at >= datetime('now', '-30 days')") as cur:
+        devices_30d = (await cur.fetchone())[0] or 0
+
+    async with db.execute("""
+        SELECT game_id, COUNT(*), SUM(duration_seconds), AVG(duration_seconds)
+        FROM telemetry_events
+        GROUP BY game_id
+    """) as cur:
+        game_stats_rows = await cur.fetchall()
+
+    game_stats = {}
+    for r in game_stats_rows:
+        game_stats[r[0]] = {
+            "game_id": r[0],
+            "play_count": r[1],
+            "total_duration_seconds": r[2] or 0,
+            "avg_duration_seconds": round(r[3] or 0, 1),
+        }
+
+    all_games = ['infiltre', 'rondedenuit', 'chrono', 'carnotzet', 'debout', 'debrief']
+    for g in all_games:
+        if g not in game_stats:
+            game_stats[g] = {
+                "game_id": g,
+                "play_count": 0,
+                "total_duration_seconds": 0,
+                "avg_duration_seconds": 0,
+            }
+
+    async with db.execute("SELECT COUNT(*), SUM(duration_seconds) FROM telemetry_events WHERE created_at >= datetime('now', '-7 days')") as cur:
+        row_7d = await cur.fetchone()
+        events_7d = row_7d[0] or 0
+        duration_7d = row_7d[1] or 0
+
+    async with db.execute("SELECT COUNT(*), SUM(duration_seconds) FROM telemetry_events WHERE created_at >= datetime('now', '-30 days')") as cur:
+        row_30d = await cur.fetchone()
+        events_30d = row_30d[0] or 0
+        duration_30d = row_30d[1] or 0
+
+    total_plays = sum(g["play_count"] for g in game_stats.values())
+    total_play_time = sum(g["total_duration_seconds"] for g in game_stats.values())
+
+    return {
+        "devices": {
+            "total": total_devices,
+            "active": active_devices,
+            "revoked": revoked_devices,
+            "active_7d": devices_7d,
+            "active_30d": devices_30d,
+        },
+        "games": list(game_stats.values()),
+        "summary": {
+            "total_plays": total_plays,
+            "total_play_time_seconds": total_play_time,
+            "events_7d": events_7d,
+            "duration_7d": duration_7d,
+            "events_30d": events_30d,
+            "duration_30d": duration_30d,
+        },
+    }
+
+
+# ---------------------------------------------------------------------------
+# Gestionnaire de Cartes & CSV (Point 5)
+# ---------------------------------------------------------------------------
+
+@router.get("/cards")
+async def list_admin_cards(
+    game: Optional[str] = None,
+    _: None = Depends(_require_admin),
+    db: aiosqlite.Connection = Depends(get_db),
+):
+    """Liste les cartes du catalogue avec filtre optionnel par jeu."""
+    query = "SELECT id, game, category, title, content, extra, sips, min_players FROM cards"
+    params = []
+    if game:
+        query += " WHERE game = ?"
+        params.append(game)
+    query += " ORDER BY game ASC, id ASC"
+    async with db.execute(query, tuple(params)) as cur:
+        rows = await cur.fetchall()
+    return [
+        {
+            "id": r[0],
+            "game": r[1],
+            "category": r[2],
+            "title": r[3],
+            "content": r[4],
+            "extra": r[5],
+            "sips": r[6],
+            "min_players": r[7],
+        }
+        for r in rows
+    ]
+
+
+@router.post("/cards", status_code=201)
+async def create_admin_card(
+    payload: CardCreatePayload,
+    _: None = Depends(_require_admin),
+    db: aiosqlite.Connection = Depends(get_db),
+):
+    """Ajoute une nouvelle carte et resynchronise data/content.csv."""
+    cursor = await db.execute(
+        """INSERT INTO cards (game, category, title, content, extra, sips, min_players)
+           VALUES (?, ?, ?, ?, ?, ?, ?)""",
+        (
+            payload.game,
+            payload.category,
+            payload.title or "",
+            payload.content,
+            payload.extra or "",
+            payload.sips,
+            payload.min_players,
+        ),
+    )
+    new_id = cursor.lastrowid
+    await db.commit()
+    await sync_db_to_csv(db)
+    return {"id": new_id, "status": "created"}
+
+
+@router.put("/cards/{card_id}")
+async def update_admin_card(
+    card_id: int,
+    payload: CardCreatePayload,
+    _: None = Depends(_require_admin),
+    db: aiosqlite.Connection = Depends(get_db),
+):
+    """Met à jour une carte existante et resynchronise data/content.csv."""
+    async with db.execute("SELECT id FROM cards WHERE id = ?", (card_id,)) as cur:
+        if not await cur.fetchone():
+            raise HTTPException(status_code=404, detail="Carte introuvable.")
+
+    await db.execute(
+        """UPDATE cards
+           SET game = ?, category = ?, title = ?, content = ?, extra = ?, sips = ?, min_players = ?
+           WHERE id = ?""",
+        (
+            payload.game,
+            payload.category,
+            payload.title or "",
+            payload.content,
+            payload.extra or "",
+            payload.sips,
+            payload.min_players,
+            card_id,
+        ),
+    )
+    await db.commit()
+    await sync_db_to_csv(db)
+    return {"id": card_id, "status": "updated"}
+
+
+@router.delete("/cards/{card_id}")
+async def delete_admin_card(
+    card_id: int,
+    _: None = Depends(_require_admin),
+    db: aiosqlite.Connection = Depends(get_db),
+):
+    """Supprime une carte et resynchronise data/content.csv."""
+    await db.execute("DELETE FROM cards WHERE id = ?", (card_id,))
+    await db.commit()
+    await sync_db_to_csv(db)
+    return {"id": card_id, "status": "deleted"}
+
+
+@router.get("/cards/export-csv")
+async def export_cards_csv(
+    _: None = Depends(_require_admin),
+    db: aiosqlite.Connection = Depends(get_db),
+):
+    """Télécharge le fichier data/content.csv actuel synchronisé."""
+    await sync_db_to_csv(db)
+    csv_path = get_csv_path()
+    if not os.path.exists(csv_path):
+        raise HTTPException(status_code=404, detail="Fichier CSV introuvable sur le serveur.")
+    return FileResponse(
+        csv_path,
+        media_type="text/csv",
+        filename="scoutgame_content.csv",
+    )
+
+
+@router.post("/cards/upload-csv")
+async def upload_cards_csv(
+    payload: ImportCsvPayload,
+    _: None = Depends(_require_admin),
+    db: aiosqlite.Connection = Depends(get_db),
+):
+    """Reçoit un fichier CSV complet, remplace data/content.csv et met à jour SQLite."""
+    if not payload.csv_content or not payload.csv_content.strip():
+        raise HTTPException(status_code=400, detail="Contenu CSV manquant ou vide.")
+
+    csv_path = get_csv_path()
+    os.makedirs(os.path.dirname(csv_path), exist_ok=True)
+    with open(csv_path, mode="w", encoding="utf-8") as f:
+        f.write(payload.csv_content)
+
+    count = await import_csv_to_db(db, payload.csv_content)
+    return {"imported_count": count, "status": "success"}
+
+
+# ---------------------------------------------------------------------------
+# Propositions utilisateurs et intégration directe (Point 5)
+# ---------------------------------------------------------------------------
+
+@router.get("/feedback")
+async def list_admin_feedback(
+    status: Optional[str] = None,
+    _: None = Depends(_require_admin),
+    db: aiosqlite.Connection = Depends(get_db),
+):
+    """Liste les retours et propositions de cartes soumises par les joueurs."""
+    query = """
+    SELECT id, type, target_game, category, title, content, extra_data,
+           author_alias, contact_email, status, created_at
+    FROM user_feedback
+    """
+    params = []
+    if status:
+        query += " WHERE status = ?"
+        params.append(status)
+    query += " ORDER BY created_at DESC"
+
+    async with db.execute(query, tuple(params)) as cur:
+        rows = await cur.fetchall()
+
+    return [
+        {
+            "id": r[0],
+            "type": r[1],
+            "target_game": r[2],
+            "category": r[3],
+            "title": r[4],
+            "content": r[5],
+            "extra_data": r[6],
+            "author_alias": r[7],
+            "contact_email": r[8],
+            "status": r[9],
+            "created_at": r[10],
+        }
+        for r in rows
+    ]
+
+
+@router.post("/feedback/{feedback_id}/status")
+async def review_feedback(
+    feedback_id: int,
+    payload: FeedbackStatusPayload,
+    _: None = Depends(_require_admin),
+    db: aiosqlite.Connection = Depends(get_db),
+):
+    """
+    Valide ou rejette une proposition :
+    Si APPROVED, insère automatiquement la carte dans SQLite et synchronise data/content.csv.
+    """
+    async with db.execute(
+        "SELECT id, type, target_game, category, title, content, extra_data FROM user_feedback WHERE id = ?",
+        (feedback_id,),
+    ) as cur:
+        fb = await cur.fetchone()
+
+    if not fb:
+        raise HTTPException(status_code=404, detail="Feedback introuvable.")
+
+    if payload.action == "APPROVED":
+        game = payload.target_game or fb[2] or "debrief"
+        category = payload.category or fb[3] or "verite"
+        title = payload.title or fb[4] or ""
+        content = fb[5]
+        extra = payload.extra or fb[6] or ""
+        sips = payload.sips if payload.sips is not None else 2
+        min_players = payload.min_players if payload.min_players is not None else 2
+
+        await db.execute(
+            """INSERT INTO cards (game, category, title, content, extra, sips, min_players)
+               VALUES (?, ?, ?, ?, ?, ?, ?)""",
+            (game, category, title, content, extra, sips, min_players),
+        )
+        await sync_db_to_csv(db)
+
+    await db.execute(
+        "UPDATE user_feedback SET status = ? WHERE id = ?",
+        (payload.action, feedback_id),
+    )
+    await db.commit()
+
+    return {"id": feedback_id, "status": payload.action}

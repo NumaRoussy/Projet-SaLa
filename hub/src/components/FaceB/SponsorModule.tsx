@@ -1,6 +1,6 @@
 /**
  * components/FaceB/SponsorModule.tsx
- * Module « Parrainer un chef » — génère un QR code éphémère de 120 secondes
+ * Module « Parrainer un responsable » — génère un QR code éphémère de 120 secondes
  * (section 2.2 & 7.4).
  */
 import { useState, useEffect, useRef } from 'react'
@@ -21,7 +21,7 @@ export function SponsorModule({ devicePass }: Props) {
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   const inviteUrl = inviteToken
-    ? `${window.location.origin}?invite=${inviteToken}`
+    ? `${window.location.origin}/?invite=${inviteToken}`
     : ''
 
   async function generate() {
@@ -61,9 +61,20 @@ export function SponsorModule({ devicePass }: Props) {
       <div className="flex items-center gap-2">
         <span className="text-2xl">🤝</span>
         <div>
-          <h3 className="font-display font-bold text-white">Parrainer un chef</h3>
+          <h3 className="font-display font-bold text-white">Parrainer un responsable</h3>
           <p className="text-xs text-gray-400">Code valable 120 secondes · Usage unique</p>
         </div>
+      </div>
+
+      {/* Avertissement de responsabilisation du parrain (Point 1B) */}
+      <div className="p-3.5 rounded-xl bg-amber-950/40 border border-amber-500/30 text-xs text-amber-200/90 space-y-1.5 leading-relaxed">
+        <div className="font-bold text-amber-400 flex items-center gap-1.5">
+          <span>⚠️</span>
+          <span>Parrainage sous ta responsabilité</span>
+        </div>
+        <p className="text-[11px] leading-relaxed text-gray-300">
+          Ce système sans compte a été choisi pour t'éviter de devoir prouver ton identité de manière contraignante. Ne parraine que des responsables majeurs de confiance : s'il y a des abus ou des fuites vers des mineurs, ta branche sera coupée et nous serons obligés de durcir l'accès ou de fermer définitivement cette partie du site.
+        </p>
       </div>
 
       {!inviteToken ? (

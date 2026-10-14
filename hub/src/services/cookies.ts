@@ -1,32 +1,54 @@
 /**
  * services/cookies.ts
- * Gestion du cookie scout_players (section 7.2).
+ * Gestion des cookies multi-domaines et multi-ports :
+ * 1. scout_players (section 7.2) - synchronisation des joueurs inter-jeux
+ * 2. scout_device_pass (section 7.4 / Face B) - partage du laissez-passer maîtrise
  *
- * En production (*.scoutgame.ch), on ajoute Domain=.scoutgame.ch pour que
- * tous les sous-domaines puissent lire la liste.
- * En développement (localhost), on omet l'attribut Domain (sinon le browser
- * l'ignore et le cookie n'est pas posé).
+ * Règles strictes :
+ * - En production (*.scoutgame.ch) : Domain=.scoutgame.ch et Secure (si HTTPS)
+ * - Hors scoutgame.ch (localhost ou IP Wi-Fi locale type 192.168.x.x) :
+ *   SANS attribut Domain et SANS attribut Secure (Path=/; SameSite=Lax),
+ *   afin d'être partagés entre les ports 5173 et 3001..3006 sur les smartphones.
  */
 import type { Player } from '../types'
 
-const COOKIE_NAME = 'scout_players'
+const PLAYERS_COOKIE = 'scout_players'
+const DEVICE_PASS_COOKIE = 'scout_device_pass'
+
+function isScoutDomain(): boolean {
+  return typeof window !== 'undefined' && window.location.hostname.endsWith('scoutgame.ch')
+}
 
 function domainAttr(): string {
-  if (typeof window !== 'undefined' && window.location.hostname.endsWith('scoutgame.ch')) {
+  if (isScoutDomain()) {
     return '; Domain=.scoutgame.ch'
   }
   return ''
 }
 
+function secureAttr(): string {
+  if (isScoutDomain() && typeof window !== 'undefined' && window.location.protocol === 'https:') {
+    return 'Secure'
+  }
+  return ''
+}
+
+function getCookie(name: string): string | null {
+  if (typeof document === 'undefined') return null
+  const match = document.cookie.match(new RegExp(`(^| )${name}=([^;]+)`))
+  return match ? decodeURIComponent(match[2]) : null
+}
+
+// ── scout_players ────────────────────────────────────────────────────────────
+
 export function savePlayers(players: Player[]): void {
   const encoded = encodeURIComponent(JSON.stringify(players))
-  const isHttps = typeof window !== 'undefined' && window.location.protocol === 'https:'
   document.cookie = [
-    `${COOKIE_NAME}=${encoded}`,
+    `${PLAYERS_COOKIE}=${encoded}`,
     `Path=/`,
     `Max-Age=86400`,
     `SameSite=Lax`,
-    isHttps ? 'Secure' : '',
+    secureAttr(),
     domainAttr(),
   ]
     .filter(Boolean)
@@ -34,10 +56,10 @@ export function savePlayers(players: Player[]): void {
 }
 
 export function loadPlayers(): Player[] {
-  const match = document.cookie.match(new RegExp(`(^| )${COOKIE_NAME}=([^;]+)`))
-  if (match) {
+  const val = getCookie(PLAYERS_COOKIE)
+  if (val) {
     try {
-      return JSON.parse(decodeURIComponent(match[2])) as Player[]
+      return JSON.parse(val) as Player[]
     } catch {
       return []
     }
@@ -46,5 +68,29 @@ export function loadPlayers(): Player[] {
 }
 
 export function clearPlayers(): void {
-  document.cookie = `${COOKIE_NAME}=; Path=/; Max-Age=0${domainAttr()}`
+  document.cookie = `${PLAYERS_COOKIE}=; Path=/; Max-Age=0${domainAttr()}`
+}
+
+// ── scout_device_pass ────────────────────────────────────────────────────────
+
+export function saveDevicePassCookie(pass: string): void {
+  const encoded = encodeURIComponent(pass)
+  document.cookie = [
+    `${DEVICE_PASS_COOKIE}=${encoded}`,
+    `Path=/`,
+    `Max-Age=31536000`, // 1 an
+    `SameSite=Lax`,
+    secureAttr(),
+    domainAttr(),
+  ]
+    .filter(Boolean)
+    .join('; ')
+}
+
+export function loadDevicePassCookie(): string | null {
+  return getCookie(DEVICE_PASS_COOKIE)
+}
+
+export function clearDevicePassCookie(): void {
+  document.cookie = `${DEVICE_PASS_COOKIE}=; Path=/; Max-Age=0${domainAttr()}`
 }

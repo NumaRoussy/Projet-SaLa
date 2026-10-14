@@ -59,6 +59,39 @@ class BlackoutPayload(BaseModel):
     active: bool
 
 
+class BlackoutDatesPayload(BaseModel):
+    start_date: Optional[str] = None  # YYYY-MM-DD
+    end_date: Optional[str] = None    # YYYY-MM-DD
+
+
+class ImportCsvPayload(BaseModel):
+    csv_content: Optional[str] = None
+
+
+class BlackoutMessagePayload(BaseModel):
+    message: Optional[str] = None
+
+
+class CardCreatePayload(BaseModel):
+    game: str
+    category: str
+    title: Optional[str] = None
+    content: str
+    extra: Optional[str] = None
+    sips: int = 0
+    min_players: int = 2
+
+
+class FeedbackStatusPayload(BaseModel):
+    action: str = Field(..., pattern="^(APPROVED|REJECTED)$")
+    target_game: Optional[str] = None
+    category: Optional[str] = None
+    title: Optional[str] = None
+    extra: Optional[str] = None
+    sips: Optional[int] = None
+    min_players: Optional[int] = None
+
+
 # ---------------------------------------------------------------------------
 # User Feedback (section 6 + mailer)
 # ---------------------------------------------------------------------------

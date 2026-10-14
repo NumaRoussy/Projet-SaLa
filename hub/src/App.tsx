@@ -12,19 +12,27 @@ import { FaceA } from './components/FaceA'
 import { FaceB } from './components/FaceB'
 import { BlackoutScreen } from './components/BlackoutScreen'
 import { ScannerModal } from './components/ScannerModal'
+import { AdminConsole } from './components/Admin'
+import { AgeConfirmationModal } from './components/AgeConfirmationModal'
 import { useDeviceAuth } from './hooks/useDeviceAuth'
 import { useEasterEgg } from './hooks/useEasterEgg'
 import { apiBootstrap, apiConsumeInvite } from './services/api'
 
-type UIState = 'face-a' | 'verifying' | 'blackout' | 'scanner' | 'face-b'
+type UIState = 'face-a' | 'verifying' | 'blackout' | 'scanner' | 'face-b' | 'admin'
 
 export default function App() {
   const { saveDevicePass, devicePass, verify, blackoutMessage, logout } = useDeviceAuth()
   const [uiState, setUiState] = useState<UIState>('face-a')
+  const [pendingAccess, setPendingAccess] = useState<{ type: 'bootstrap' | 'invite'; token: string } | null>(null)
 
-  // ── Section 7.3 — Interception silencieuse ────────────────────────────────
+  // ── Section 7.3 — Interception silencieuse & Admin ───────────────────────
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
+    if (params.get('admin') === '1') {
+      setUiState('admin')
+      return
+    }
+
     const bootstrapToken = params.get('bootstrap')
     const inviteToken = params.get('invite')
 
@@ -34,27 +42,52 @@ export default function App() {
     window.history.replaceState({}, document.title, window.location.pathname)
 
     if (bootstrapToken) {
-      apiBootstrap(bootstrapToken)
-        .then(data => {
-          if (data.device_pass) {
-            saveDevicePass(data.device_pass)
-            // Auto-reveal Face B after bootstrap
-            triggerEasterEgg()
-          }
-        })
-        .catch(() => { /* silencieux */ })
+      setPendingAccess({ type: 'bootstrap', token: bootstrapToken })
     } else if (inviteToken) {
-      apiConsumeInvite(inviteToken)
-        .then(data => {
-          if (data.device_pass) {
-            saveDevicePass(data.device_pass)
-            triggerEasterEgg()
-          }
-        })
-        .catch(() => { /* silencieux */ })
+      setPendingAccess({ type: 'invite', token: inviteToken })
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  const [accessError, setAccessError] = useState<string | null>(null)
+
+  async function handleConfirmAge() {
+    if (!pendingAccess) return
+    const { type, token } = pendingAccess
+    setPendingAccess(null)
+    setUiState('verifying')
+    setAccessError(null)
+
+    try {
+      if (type === 'bootstrap') {
+        const data = await apiBootstrap(token)
+        if (data.device_pass) {
+          saveDevicePass(data.device_pass)
+          setUiState('face-b')
+        } else {
+          setAccessError("Ce lien d'amorce est expiré, a déjà été utilisé ou est invalide.")
+          setUiState('face-a')
+        }
+      } else {
+        const data = await apiConsumeInvite(token)
+        if (data.device_pass) {
+          saveDevicePass(data.device_pass)
+          setUiState('face-b')
+        } else {
+          setAccessError("Ce QR code d'invitation est expiré (> 120s) ou a déjà été utilisé.")
+          setUiState('face-a')
+        }
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Erreur lors de l'activation de l'accès."
+      setAccessError(
+        msg.includes('403') || msg.toLowerCase().includes('invalide') || msg.toLowerCase().includes('expire')
+          ? "Accès refusé : ce jeton est expiré, déjà consommé ou non reconnu."
+          : `Erreur d'accès : ${msg}`
+      )
+      setUiState('face-a')
+    }
+  }
 
   // ── Easter egg handler ────────────────────────────────────────────────────
   async function triggerEasterEgg() {
@@ -69,7 +102,7 @@ export default function App() {
     }
   }
 
-  const { logoProps, footerProps } = useEasterEgg(triggerEasterEgg)
+  const { footerProps } = useEasterEgg(triggerEasterEgg)
 
   // ── Handlers ─────────────────────────────────────────────────────────────
   function handleAuthorized(pass: string) {
@@ -95,8 +128,16 @@ export default function App() {
         </div>
       )}
 
-      {/* Face A is always rendered in background */}
-      <FaceA logoProps={logoProps} footerProps={footerProps} />
+      {/* Main View: Full-page Face B when unlocked, otherwise Face A */}
+      {uiState === 'face-b' && devicePass() ? (
+        <FaceB
+          devicePass={devicePass()!}
+          onClose={() => setUiState('face-a')}
+          onLogout={handleLogout}
+        />
+      ) : (
+        <FaceA footerProps={footerProps} />
+      )}
 
       {/* Conditional overlays */}
       {uiState === 'blackout' && (
@@ -113,12 +154,35 @@ export default function App() {
         />
       )}
 
-      {uiState === 'face-b' && devicePass() && (
-        <FaceB
-          devicePass={devicePass()!}
-          onClose={() => setUiState('face-a')}
-          onLogout={handleLogout}
+      {uiState === 'admin' && (
+        <AdminConsole onClose={() => setUiState('face-a')} />
+      )}
+
+      {pendingAccess && (
+        <AgeConfirmationModal
+          onConfirm={handleConfirmAge}
+          onCancel={() => setPendingAccess(null)}
         />
+      )}
+
+      {accessError && (
+        <div className="overlay flex items-center justify-center p-4 z-50">
+          <div className="glass-card max-w-sm w-full p-5 space-y-4 text-center border border-red-500/40 shadow-2xl animate-fade-in">
+            <div className="w-12 h-12 mx-auto rounded-full bg-red-950/60 border border-red-500/50 flex items-center justify-center text-2xl">
+              ❌
+            </div>
+            <div className="space-y-1">
+              <h3 className="font-display font-bold text-white text-base">Accès non autorisé</h3>
+              <p className="text-xs text-gray-300 leading-relaxed">{accessError}</p>
+            </div>
+            <button
+              onClick={() => setAccessError(null)}
+              className="btn-ghost w-full py-2 text-xs border border-white/20 text-white font-semibold"
+            >
+              Fermer
+            </button>
+          </div>
+        </div>
       )}
     </>
   )

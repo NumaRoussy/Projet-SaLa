@@ -1,7 +1,7 @@
 /**
  * components/FaceB/DeviceQR.tsx
  * QR code d'identification de l'appareil courant (section 7.4).
- * Contient le device_pass pour que le chef témoin puisse le scanner
+ * Contient le device_pass pour qu'un responsable témoin puisse le scanner
  * lors d'un signalement de terrain.
  */
 import { QRCodeSVG } from 'qrcode.react'
@@ -42,7 +42,7 @@ export function DeviceQR({ devicePass }: Props) {
       </div>
 
       <p className="text-xs text-gray-500 text-center leading-relaxed">
-        Ce QR code est utilisé par un chef témoin pour vous signaler si nécessaire.
+        Ce QR code est utilisé par un responsable témoin pour vous signaler si nécessaire.
       </p>
     </div>
   )

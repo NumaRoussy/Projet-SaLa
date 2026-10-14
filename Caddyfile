@@ -1,0 +1,54 @@
+(common_headers) {
+    header {
+        -Server
+        -X-Powered-By
+        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "DENY"
+        Referrer-Policy "strict-origin-when-cross-origin"
+    }
+}
+
+# 1. Portail d'accueil (Hub Face A)
+scoutgame.ch {
+    import common_headers
+    reverse_proxy hub:80
+}
+
+# 2. API Backend
+api.scoutgame.ch {
+    import common_headers
+    reverse_proxy backend:8000
+}
+
+# 3. Jeux Face A (Jeunesse)
+infiltre.scoutgame.ch {
+    import common_headers
+    reverse_proxy game-infiltre:80
+}
+
+rondedenuit.scoutgame.ch {
+    import common_headers
+    reverse_proxy game-rondedenuit:80
+}
+
+chrono.scoutgame.ch {
+    import common_headers
+    reverse_proxy game-chrono:80
+}
+
+# 4. Jeux Face B (Maîtrise)
+carnotzet.scoutgame.ch {
+    import common_headers
+    reverse_proxy game-carnotzet:80
+}
+
+debout.scoutgame.ch {
+    import common_headers
+    reverse_proxy game-debout:80
+}
+
+debrief.scoutgame.ch {
+    import common_headers
+    reverse_proxy game-debrief:80
+}

@@ -55,7 +55,8 @@ app = FastAPI(
 )
 
 # ---------------------------------------------------------------------------
-# CORS — autorise *.scoutgame.ch et origines localhost de développement
+# CORS — autorise *.scoutgame.ch et origines locales de développement
+# (localhost, 127.0.0.1, 192.168.*, 10.*, 172.*) sur n'importe quel port
 # ---------------------------------------------------------------------------
 
 ALLOWED_ORIGINS = [
@@ -68,16 +69,18 @@ ALLOWED_ORIGINS = [
     "https://rondedenuit.scoutgame.ch",
     "https://chrono.scoutgame.ch",
     "https://api.scoutgame.ch",
-    # Développement local
-    "http://localhost",
-    "http://localhost:3000",
-    "http://localhost:5173",
-    "http://localhost:8080",
 ]
+
+CORS_ORIGIN_REGEX = (
+    r"^https?://(localhost|127\.0\.0\.1|192\.168\.\d{1,3}\.\d{1,3}|"
+    r"10\.\d{1,3}\.\d{1,3}\.\d{1,3}|172\.\d{1,3}\.\d{1,3}\.\d{1,3})(:\d+)?$"
+    r"|^https://([a-zA-Z0-9-]+\.)*scoutgame\.ch$"
+)
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=ALLOWED_ORIGINS,
+    allow_origin_regex=CORS_ORIGIN_REGEX,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

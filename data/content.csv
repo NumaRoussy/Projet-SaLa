@@ -1,13 +1,92 @@
 game,category,title,content,extra,sips,min_players
-carnotzet,duel,Bras de Fer,{p1} et {p2} s'affrontent au bras de fer. Le perdant boit {sips} gorgées.,,3,2
-carnotzet,vote,Tente oubliée,Votez à main levée : qui est le plus susceptible d'oublier les sardines de tente ? Le désigné boit {sips}.,,2,3
-carnotzet,pub,Alerte Sanitaire,Un éclaireur a perdu une jambe en raid. Que faites-vous ?,A: Cellule de crise | B: Arnica,4,1
-carnotzet,regle,Règle Intendance,Interdiction de pointer du doigt sous peine de boire {sips} gorgées.,durée:3 tours,1,3
-debout,reflexe,Flamme Bleue,Touchez l'écran dès que la flamme devient bleue. Le plus lent est éliminé.,,0,2
-debout,chrono,Sens du Temps,Estimez 10 secondes les yeux fermés. Le pire écart boit {sips} et sort.,duree:10s,2,2
-debout,duel,Nœud de Chaise,{p1} et {p2} réalisent un nœud de chaise dans le dos. Le dernier fini est éliminé.,,0,2
-infiltre,mots,Pionnier,Brêlage,Froissartage,0,3
-infiltre,mots,Cuisine de Camp,Gamelle,Bidon,0,3
-infiltre,mots,Topographie,Boussole,Altimètre,0,3
-debrief,verite,Vérité Intendance,Quel est le pire plat que tu as servi en camp sans assumer l'échec ?,Avoue ou prends {sips} gorgées,2,2
-debrief,jamais,Je n'ai jamais,Je n'ai jamais dormi pendant mon propre tour de veille de nuit.,Tous les concernés boivent {sips},2,2
+carnotzet,duel,Bras de Fer de Froideville,{p1} et {p2} s'affrontent au bras de fer sur la table en bois massif de la cabane de Froideville. Le perdant prend {sips} gorgées de Boxer.,Boxer ou gorgées,2,2
+carnotzet,vote,Le Champion du Cheni,Votez à main levée : qui dans la maîtrise a laissé le pire cheni dans l'abri bouffe au dernier camp ?,Le désigné boit {sips} gorgées,2,3
+carnotzet,regle,Loi du Quartier-Maître,Interdiction formelle de prononcer le mot « duvet » (on dit sac de couchage !). Chaque infraction coûte {sips} gorgée.,durée:3 tours,1,3
+carnotzet,pub,Dilemme du MOVA,Préfères-tu revivre la canicule d'Ulrichen avec 2 tonnes de pain à décharger [A] ou passer 4 heures à remplir un concept J+S sur MiData [B] ?,Les minoritaires boivent {sips},2,3
+carnotzet,duel,Nœud de Chaise sous Pression,{p1} et {p2} font un nœud de chaise à une main. Le plus lent offre {sips} gorgées à la ronde.,Duel technique,2,2
+carnotzet,vote,L'As du Maquillage J+S,Votez : qui est le plus fort pour transformer une sieste sous le Sarasani en « 2 heures d'endurance motrice » sur le formulaire J+S ?,Le désigné boit {sips},3,3
+carnotzet,regle,La Malle Secrète,"À chaque fois que le Responsable de Groupe (RG) trinque, tout le monde doit porter son verre au front en disant « Tout de bon ! ».",durée:4 tours,1,3
+carnotzet,pub,Le Dahl vs Le Chili,Tu es condamné pour tout un camp : manger du dahl de lentilles matin et soir [A] ou du chili sin carne sans viande [B] ?,Votez ou buvez {sips},2,3
+carnotzet,duel,Le Cri du Louveteau,"{p1} et {p2} imitent le plus beau hurlement de Baloo réveillé en sursaut. La maîtrise vote le plus ridicule, qui boit {sips} gorgées.",Duel vocal,2,2
+carnotzet,vote,L'Ambulance en Allemand,Votez : qui a eu la plus grosse sueur froide en essayant d'expliquer un bobo au 144 en suisse-allemand ?,Raconte ou bois {sips},3,3
+carnotzet,regle,Le Respect de la Titine,Quiconque désigne quelqu'un du doigt doit taper sur la table et crier « Gare à la Titine ! » sous peine de {sips} gorgées.,durée:3 tours,1,3
+carnotzet,pub,Météo Jurassienne,Préfères-tu 10 jours de roille non-stop à Plambuit [A] ou oublier la Malle de maîtrise à la gare de Lausanne [B] ?,Choix cornélien : {sips} gorgées,2,3
+carnotzet,duel,Le Quiz ASVd,"{p1} teste {p2} : combien de carrés militaires compte une grande tente Gothard ? Si {p2} hésite ou se trompe, il boit {sips} gorgées (réponse : 8 ou 16 carrés).",Quiz camp,2,2
+carnotzet,vote,Le Thé Froid Frelaté,Votez : quel cuistot a déjà coupé le thé froid Migros avec 80% d'eau pour économiser le budget ?,Le radin prend {sips} gorgées,2,3
+carnotzet,regle,La Panosse Céleste,"À chaque fois qu'un verre tremble, le responsable à la droite de la bouteille doit crier « Ça joue ! » sinon il boit {sips} gorgée.",durée:2 tours,1,3
+chrono,defi,Montage de Berlingot,Montez une tente Berlingot complète avec 2 carrés militaires et 4 sardines en moins de 3 minutes.,Chrono 180s,0,2
+chrono,technique,Nœud de Chaise Aveugle,Réalisez un nœud de chaise parfait les yeux fermés en moins de 20 secondes.,Chrono 20s,0,2
+chrono,matos,Talquer les Carrés Militaires,Pliez et talquez 4 toiles militaires pour éviter qu'elles ne collent avant l'inspection du QM.,Chrono 60s,0,2
+chrono,cuisine,Allumage au PPHS,Fendez 3 bûchettes au couteau suisse et allumez un feu dans le demi-tonneau avec une seule allumette.,Chrono 90s,0,2
+chrono,survie,Pain Trappeur Express,Pétrissez et enroulez la pâte à pain trappeur autour d'un bâton de noisetier écorcé.,Chrono 45s,0,2
+chrono,orientation,Azimut Sainte-Croix,Visez la Cabane du Bivouac sur la carte 1:25'000 et donnez l'azimut en degrés.,Chrono 30s,0,2
+chrono,intendance,Jerrican Relais,Transportez un jerrican de 20L d'eau champêtre sur 50 mètres sans renverser une goutte.,Chrono 40s,0,4
+chrono,secourisme,Brancard de Manipulation,Assemblez un brancard avec 2 perches de bois et 4 chemises scoutes pour évacuer un blessé fictif.,Chrono 120s,0,4
+chrono,pionnier,Brêlage Carré Éclair,Réalisez un brêlage carré impeccable entre deux perches avec une corde de manipulation.,Chrono 90s,0,2
+chrono,cuisine,Concours Miam-Miam,Dressez une entrée de camp sur une écorce de bouleau avec 1 cervelas et 2 carottes.,Chrono 120s,0,2
+chrono,camp,Rangement de Cheni,Faites disparaître tout le cheni de la tente Spatz (sacs de couchage et nattes alignés).,Chrono 60s,0,3
+chrono,technique,Le PPHS d'Or,Désignez et nommez les 4 outils du PPHS et inspectez l'affûtage de la Titine en toute sécurité.,Chrono 30s,0,2
+chrono,orientation,Lecture de Courbes de Niveau,Calculez le dénivelé exact du raid de patrouille entre Plambuit et Villars.,Chrono 45s,0,2
+chrono,rassemblement,Rass Parfait,"Toute la patrouille au garde-à-vous au mât : chemise boutonnée, foulard roulé et zéro Rasta.",Chrono 25s,0,4
+chrono,intendance,Tri Sélectif du Sarasani,"Triez tous les déchets du repas sous le Sarasani (alu, compost et PET) avant l'arrivée du cuistot.",Chrono 50s,0,2
+debout,reflexe,Flamme Bleue de Froideville,Touchez l'écran dès que la flamme devient bleue. Le responsable le plus lent prend 2 gorgées et s'assoit !,ms de réaction,2,2
+debout,chrono,Sens du Temps du QM,Fermez les yeux et touchez l'écran pile à 10.0 secondes. Le pire écart boit 2 gorgées et quitte la partie debout !,Écart 10s,2,2
+debout,duel,La Chaise Suisse,{p1} et {p2} se mettent en position de la chaise contre le mur de Froideville. Le premier qui lâche boit {sips} gorgées et s'assoit.,Défi physique,3,2
+debout,elimination,Inspection des Carrés Militaires,Tous les responsables qui n'ont jamais talqué un carré militaire après un camp pluvieux s'assoient et boivent {sips} gorgées.,Élimination camp,2,2
+debout,reflexe,Alerte au Sarasani,Touchez l'écran au signal bleu. Le dernier à réagir s'assoit direct !,ms de réaction,2,2
+debout,duel,Regard de Braise de Sainte-Croix,{p1} et {p2} se fixent dans les yeux sans cligner ni rire. Le premier qui sourit prend {sips} gorgées et s'assoit.,Duel de regards,2,2
+debout,chrono,L'Extinction des Feux,Estimez 10.0 secondes à l'aveugle sans compter à voix haute. Le responsable le plus pressé boit {sips} gorgées.,Chrono 10s,2,2
+debout,elimination,Le Piège MiData,Tous les responsables qui ont déjà oublié de déclarer un participant sur MiData avant le camp s'assoient !,Confession admin,2,2
+debout,duel,Le Nœud de Chaise Éclair,{p1} et {p2} font un nœud de chaise derrière leur dos. Le plus lent boit {sips} gorgées et prend un tabouret.,Défi technique,2,2
+debout,reflexe,Coup de Sifflet du Rass,Touchez l'écran dès le flash bleu. Pas le temps de traîner en rasta !,ms de réaction,2,2
+debout,elimination,Le Convoi du MOVA,Ceux qui n'étaient pas au MOVA 2022 à Ulrichen prennent 1 gorgée de solidarité vaudoise.,Solidarité vaudoise,1,2
+debout,duel,Bras de Fer Chinois,{p1} et {p2} s'affrontent au bras de fer chinois (doigts croisés). Le vaincu prend {sips} gorgées et s'assoit.,Duel agile,2,2
+debout,chrono,La Montée à Plambuit,"Arrêtez le chronomètre au plus près de 10.0 secondes. Si vous dépassez 10.5s, c'est l'élimination directe !",Précision chrono,2,2
+debout,elimination,Le Pain Trappeur Brûlé,Ceux qui ont déjà servi un pain trappeur totalement carbonisé à leur sizaine boivent {sips} et s'assoient.,Culpabilité culinaire,2,2
+debout,reflexe,La Goutte de la Roille,Flash bleu réactif ! Le responsable aux réflexes les plus rouillés boit et s'assoit.,ms de réaction,2,2
+debrief,verite,Vérité Intendance,Quel est le pire plat que tu as servi en camp avant d'accuser le feu ou le réchaud à gaz ?,Avoue tout ou prends {sips} gorgées,2,2
+debrief,jamais,Je n'ai jamais,Je n'ai jamais dormi pendant mon propre tour de veille de nuit autour du Sarasani.,Tous les coupables boivent {sips},2,2
+debrief,verite,Le Coup de Chaud J+S,Quelle activité scoute totalement improvisée as-tu maquillée en heure de sport officielle sur le rapport final ?,Confesse l'intitulé ou bois {sips} gorgées,3,2
+debrief,jamais,Je n'ai jamais,Je n'ai jamais fait tomber une saucisse ou un cervelas dans la cendre pour le remettre discrètement sur la grille.,Les gourmands coupables boivent {sips},2,2
+debrief,verite,Le Dossier de Froideville,Quelle est la plus grosse bêtise commise en week-end de maîtrise que personne d'autre ne sait ?,Avoue la vérité ou cul-sec de Boxer !,4,2
+debrief,jamais,Je n'ai jamais,Je n'ai jamais prétendu être malade le dimanche matin pour échapper au démontage des tentes sous la roille.,Tous les fuyards boivent {sips},3,2
+debrief,verite,Le Raid Perdu,As-tu déjà complètement paumé ta patrouille lors d'un raid en prétendant avec aplomb que « c'était un raccourci » ?,Raconte ou bois {sips} gorgées,2,2
+debrief,jamais,Je n'ai jamais,Je n'ai jamais cassé un outil du PPHS (ou la Titine) en accusant un jeune pionnier.,Les coupables boivent {sips},3,2
+debrief,verite,Le Crush de l'AG,As-tu déjà eu un crush inavoué pour un ou une responsable d'un autre groupe lors de l'AG cantonale ASVd ?,Donne le totem ou bois {sips} gorgées,3,2
+debrief,jamais,Je n'ai jamais,Je n'ai jamais oublié de reboucher le trou bouffe ou le trou chiotte avant de quitter le terrain de camp.,Ceux qui ont eu chaud boivent {sips},3,2
+debrief,verite,Le Téléphone du RG,Quel appel de parent angoissé t'a donné le plus envie de jeter ton smartphone dans le lac Léman ?,Raconte la discussion ou bois {sips} gorgées,2,2
+debrief,jamais,Je n'ai jamais,Je n'ai jamais caché des paquets de biscuits M-Budget dans mon sac pour les manger en douce après l'extinction des feux.,Tous les gourmands boivent {sips},2,2
+debrief,verite,Le Drame du MOVA,Quel objet essentiel as-tu égaré ou oublié dans le train lors du retour du Camp Fédéral à Ulrichen ?,Confesse ton oubli ou prends {sips} gorgées,2,2
+debrief,jamais,Je n'ai jamais,Je n'ai jamais simulé un mal de dos pour ne pas porter la Malle de maîtrise jusqu'au chalet.,Tous les simulateurs boivent {sips},2,2
+debrief,verite,Le Rasta Mémorable,Quel est le pire rassemblement que tu aies dirigé où tout le monde rigolait et personne n'était aligné ?,Raconte le moment ou bois {sips} gorgées,2,2
+infiltre,mots,Toiles et Abris,La Gothard,La Berlingot,0,3
+infiltre,mots,Outils du Pionnier,PPHS,La Titine,0,3
+infiltre,mots,Tentes de Patrouille,Spatz,Farino,0,3
+infiltre,mots,Alignement au Mât,Le Rass,Le Rasta,0,3
+infiltre,mots,Grandes Traditions,Éclaireur,Flambeau,0,3
+infiltre,mots,Terrains Mythiques,Cabane de Froideville,Plambuit,0,3
+infiltre,mots,Le Sacré Breuvage,Thé froid Migros,Sirop trop fade,0,3
+infiltre,mots,Au Coin du Feu,Pain trappeur,Cervelas en croix,0,3
+infiltre,mots,Camp Fédéral 2022,Ulrichen,Le Convoi,0,3
+infiltre,mots,Constructions Scoutes,Sarasani,Abri bouffe,0,3
+infiltre,mots,Piquets de Terre,Sardine tordue,Piquet militaire,0,3
+infiltre,mots,Frigo Naturel,Trou bouffe,Trou chiotte,0,3
+infiltre,mots,Popote de Patrouille,Gamelle suisse,Couteau suisse,0,3
+infiltre,mots,Nuit sous Tente,Natte de sol,Sac de couchage,0,3
+infiltre,mots,Événement Cantonal,AG ASVd,Week-end de Maîtrise,0,3
+infiltre,mots,Météo Jurassienne,La roille,Grand beau,0,3
+rondedenuit,role,Le QM Somnambule,Tu dois inspecter l'abri bouffe sans allumer de frontale ni réveiller les patrouilles.,Mission discrète,0,4
+rondedenuit,signal,Le Cri du Hibou,Trois sifflements brefs : toute la patrouille se tapit dans l'herbe haute.,Signal tactique,0,4
+rondedenuit,defi,Surveillance du Sarasani,Traversez le campement en silence absolu du mât des couleurs jusqu'au Sarasani.,Silence complet,0,4
+rondedenuit,signal,Bâton Lumineux,Deux flashs rouges : repli immédiat derrière le demi-tonneau éteint.,Alerte patrouille,0,4
+rondedenuit,action,Ravitaillement Furtif,Rapportez un jerrican d'eau depuis la fontaine du camp sans vous faire repérer par la patrouille adverse.,Infiltration,0,4
+rondedenuit,role,L'Éclaireur Caméléon,Imite le bruissement des fougères dès qu'une patrouille approche à moins de 5 mètres.,Rôle d'observation,0,4
+rondedenuit,defi,Balise de Plambuit,Repérez la balise réfléchissante cachée près du trou bouffe avec une seule impulsion lumineuse.,Épreuve de nuit,0,4
+rondedenuit,signal,Code Morse Vaudois,Transmettez le mot « CHENI » à la frontale par impulsions brèves et longues.,Morse visuel,0,4
+rondedenuit,action,Protection des Carrés Militaires,Vérifiez que toutes les tentes Berlingot sont bien haubanées avant que la roille n'arrive.,Mission météo,0,4
+rondedenuit,role,Le Messager PiCo,Portez un pli scellé du mât central jusqu'à la tente des cuistots sans utiliser les chemins balisés.,Liaison rapide,0,4
+rondedenuit,defi,Passe-Muraille de Froideville,Avancez de 15 pas à découvert uniquement quand le responsable a le dos tourné.,Défi d'approche,0,4
+rondedenuit,signal,Craquement de Branche,Deux claquements de mains : arrêt immédiat et extinction de toutes les lumières.,Arrêt d'urgence,0,4
+rondedenuit,action,Embuscade du Bivouac,Tendez une embuscade pacifique à la patrouille adverse en tendant une corde de manipulation à ras du sol.,Tactique de nuit,0,4
+rondedenuit,role,L'Observateur des Étoiles,Guidez votre sizaine à la lueur des étoiles sans regarder vos montres.,Orientation céleste,0,4
+rondedenuit,defi,L'Ombre du Sarasani,Restez immobile 60 secondes adossé au mât du Sarasani pendant le passage de la ronde.,Maîtrise de soi,0,4

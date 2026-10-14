@@ -1,11 +1,12 @@
 /**
  * components/ScannerModal.tsx
  * Modal affiché quand l'appareil n'est pas encore autorisé.
- * Permet de saisir un code d'invitation reçu d'un chef parrain.
+ * Permet de saisir un code d'invitation reçu d'un responsable parrain.
  * (Section 2.2 — P2P Ephemeral QR Code)
  */
 import { useState, useRef, useEffect } from 'react'
 import { apiConsumeInvite } from '../services/api'
+import { AgeConfirmationModal } from './AgeConfirmationModal'
 
 interface Props {
   onAuthorized: (devicePass: string) => void
@@ -30,6 +31,7 @@ export function ScannerModal({ onAuthorized, onClose }: Props) {
   const [code, setCode] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [pendingToken, setPendingToken] = useState<string | null>(null)
   const [cameraActive, setCameraActive] = useState(false)
   const videoRef = useRef<HTMLVideoElement | null>(null)
   const streamRef = useRef<MediaStream | null>(null)
@@ -53,15 +55,20 @@ export function ScannerModal({ onAuthorized, onClose }: Props) {
     }
   }, [])
 
-  async function consume(rawInput: string) {
+  function consume(rawInput: string) {
     const token = extractToken(rawInput)
     if (!token) return
+    stopCamera()
+    setPendingToken(token)
+  }
+
+  async function executeConsume(token: string) {
+    setPendingToken(null)
     setLoading(true)
     setError('')
     try {
       const res = await apiConsumeInvite(token)
       if (res.device_pass) {
-        stopCamera()
         onAuthorized(res.device_pass)
       } else {
         setError('Code invalide ou expiré.')
@@ -135,10 +142,10 @@ export function ScannerModal({ onAuthorized, onClose }: Props) {
         <div className="w-10 h-1 bg-white/20 rounded-full mx-auto mb-6" />
 
         <h2 className="font-display font-bold text-white text-xl mb-1 text-center">
-          🔑 Accès Chefs
+          🔑 Accès Maîtrise
         </h2>
         <p className="text-gray-400 text-sm text-center mb-6">
-          Scannez le QR code éphémère d'un chef parrain ou saisissez le code.
+          Scannez le QR code éphémère d'un responsable parrain ou saisissez le code.
         </p>
 
         {/* Camera stream view */}
@@ -155,7 +162,7 @@ export function ScannerModal({ onAuthorized, onClose }: Props) {
               <div className="absolute inset-8 border-2 border-scout-amber/80 rounded-xl pointer-events-none animate-pulse" />
             </div>
             <p className="text-xs text-center text-gray-400">
-              Pointez la caméra vers le QR code d'un chef parrain
+              Pointez la caméra vers le QR code d'un responsable parrain
             </p>
             <button className="btn-ghost w-full text-xs text-gray-400" onClick={stopCamera}>
               Arrêter la caméra
@@ -167,7 +174,7 @@ export function ScannerModal({ onAuthorized, onClose }: Props) {
             <div className="flex items-center justify-center gap-4 text-3xl">
               <div className="text-center">
                 <div className="text-3xl mb-1">📱</div>
-                <div className="text-xs text-gray-500">Chef parrain</div>
+                <div className="text-xs text-gray-500">Responsable parrain</div>
               </div>
               <div className="text-gray-600 text-xl">→</div>
               <div className="text-center">
@@ -215,6 +222,13 @@ export function ScannerModal({ onAuthorized, onClose }: Props) {
           Annuler
         </button>
       </div>
+
+      {pendingToken && (
+        <AgeConfirmationModal
+          onConfirm={() => executeConsume(pendingToken)}
+          onCancel={() => setPendingToken(null)}
+        />
+      )}
     </div>
   )
 }

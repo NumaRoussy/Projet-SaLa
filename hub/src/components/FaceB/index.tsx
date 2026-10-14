@@ -6,13 +6,15 @@ import { useState } from 'react'
 import { SponsorModule } from './SponsorModule'
 import { DeviceQR } from './DeviceQR'
 import { ReportModule } from './ReportModule'
+import { WelcomeGuideModal } from './WelcomeGuideModal'
+import { getGameUrl } from '../../services/navigation'
 import type { GameInfo } from '../../types'
 
 const FACE_B_GAMES: GameInfo[] = [
   {
     id: 'carnotzet',
     name: 'Carnotzet',
-    description: 'Duels épiques, votes à main levée et règles festives pour vos soirées de maîtrise et carnotzets.',
+    description: 'Duels épiques, votes à main levée et règles festives pour vos week-ends de maîtrise et carnotzets à Froideville.',
     icon: '🍺',
     url: 'https://carnotzet.scoutgame.ch',
     color: '#f4a261',
@@ -22,7 +24,7 @@ const FACE_B_GAMES: GameInfo[] = [
   {
     id: 'debout',
     name: 'Debout',
-    description: 'Réflexes, défis chronométrés et duels physiques. Le plus lent ou le moins agile… boit !',
+    description: 'Réflexes, défis chronométrés et duels physiques entre responsables. Le plus lent ou le moins agile… boit !',
     icon: '⚡',
     url: 'https://debout.scoutgame.ch',
     color: '#e9c46a',
@@ -32,7 +34,7 @@ const FACE_B_GAMES: GameInfo[] = [
   {
     id: 'debrief',
     name: 'Débrief',
-    description: 'Vérités de camp, « je n\'ai jamais » et confessions d\'après-camp. Pour conclure le séjour en beauté.',
+    description: 'Vérités de camp, « je n\'ai jamais » et confidences d\'après-camp. Pour débriefer entre responsables.',
     icon: '🔥',
     url: 'https://debrief.scoutgame.ch',
     color: '#e76f51',
@@ -51,6 +53,17 @@ interface Props {
 
 export function FaceB({ devicePass, onClose, onLogout }: Props) {
   const [tab, setTab] = useState<Tab>('games')
+  const [showGuideModal, setShowGuideModal] = useState(() => {
+    return localStorage.getItem('scout_faceb_guide_seen') !== 'true'
+  })
+  const [showReminder, setShowReminder] = useState(() => {
+    return sessionStorage.getItem('faceb_reminder_dismissed') !== 'true'
+  })
+
+  function dismissReminder() {
+    sessionStorage.setItem('faceb_reminder_dismissed', 'true')
+    setShowReminder(false)
+  }
 
   const tabs = [
     { id: 'games',   label: '🎲 Jeux',     },
@@ -60,7 +73,7 @@ export function FaceB({ devicePass, onClose, onLogout }: Props) {
   ] as const
 
   return (
-    <div className="faceb-panel bg-faceb-gradient" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
+    <div className="app-container bg-faceb-gradient min-h-[100dvh] flex flex-col animate-fade-in">
       {/* ── Header ─────────────────────────────────────────────────────────── */}
       <header className="sticky top-0 z-10 backdrop-blur-sm bg-scout-night/80 border-b border-white/5">
         <div className="flex items-center justify-between px-4 py-3 max-w-lg mx-auto">
@@ -73,9 +86,20 @@ export function FaceB({ devicePass, onClose, onLogout }: Props) {
               <p className="text-xs text-gray-500 mt-0.5">Réservé aux responsables</p>
             </div>
           </div>
-          <button onClick={onClose} className="btn-ghost py-1.5 px-3 text-sm">
-            ✕ Fermer
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowGuideModal(true)}
+              className="btn-ghost py-1 px-2.5 text-xs text-scout-amber border border-scout-amber/30 hover:bg-scout-amber/10 flex items-center gap-1.5 transition-colors"
+              title="Ouvrir le guide et la charte de fonctionnement"
+            >
+              <span>ℹ️</span>
+              <span className="hidden sm:inline">Fonctionnement & Charte</span>
+              <span className="sm:hidden">Charte</span>
+            </button>
+            <button onClick={onClose} className="btn-ghost py-1.5 px-3 text-sm">
+              ✕ Fermer
+            </button>
+          </div>
         </div>
 
         {/* Tabs */}
@@ -97,7 +121,35 @@ export function FaceB({ devicePass, onClose, onLogout }: Props) {
       </header>
 
       {/* ── Content ────────────────────────────────────────────────────────── */}
-      <main className="px-4 py-5 max-w-lg mx-auto space-y-4 pb-24">
+      <main className="px-4 py-5 max-w-lg mx-auto space-y-4 pb-8 flex-1 w-full">
+        {/* Rappel à l'entrée de l'Espace Maîtrise (Point 1C) */}
+        {showReminder && (
+          <div className="p-4 rounded-2xl bg-amber-950/40 border border-amber-500/40 text-amber-200 space-y-2.5 animate-fade-in shadow-xl">
+            <div className="flex items-start justify-between gap-2">
+              <div className="flex items-center gap-2 text-amber-400 font-bold text-xs uppercase tracking-wide">
+                <span className="text-base">🔞</span>
+                <span>18+ & Hors responsabilité de jeunes</span>
+              </div>
+              <button
+                onClick={dismissReminder}
+                className="text-gray-400 hover:text-white text-xs px-2 py-0.5 rounded bg-white/10"
+              >
+                ✕
+              </button>
+            </div>
+            <p className="text-xs leading-relaxed text-gray-200">
+              Espace réservé aux responsables majeurs en cadre privé (jamais en public, attention à l'image scoute). Prenez soin de votre santé, de votre consommation et veillez les uns sur les autres.
+            </p>
+            <div className="pt-1 flex justify-end">
+              <button
+                onClick={dismissReminder}
+                className="btn-amber py-1.5 px-4 text-xs font-bold shadow-md shadow-amber-500/20"
+              >
+                Compris
+              </button>
+            </div>
+          </div>
+        )}
         {/* Tab: Jeux B */}
         {tab === 'games' && (
           <>
@@ -108,7 +160,7 @@ export function FaceB({ devicePass, onClose, onLogout }: Props) {
               {FACE_B_GAMES.map(game => (
                 <a
                   key={game.id}
-                  href={game.url}
+                  href={getGameUrl(game.id, game.url)}
                   className="game-link group"
                   aria-label={`Jouer à ${game.name}`}
                 >
@@ -152,17 +204,30 @@ export function FaceB({ devicePass, onClose, onLogout }: Props) {
         {tab === 'report' && <ReportModule />}
       </main>
 
-      {/* ── Sticky bottom actions ───────────────────────────────────────────── */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-scout-night via-scout-night/90 to-transparent">
-        <div className="max-w-lg mx-auto">
+      {/* ── Footer actions ─────────────────────────────────────────────────── */}
+      <footer className="mt-auto px-4 py-6 border-t border-white/5 bg-scout-night/60">
+        <div className="max-w-lg mx-auto flex flex-col items-center gap-3">
+          <button
+            onClick={onClose}
+            className="btn-ghost w-full text-sm text-gray-400 hover:text-white"
+          >
+            ← Revenir à la vitrine publique
+          </button>
           <button
             onClick={onLogout}
-            className="btn-ghost w-full text-xs text-gray-600 hover:text-red-400"
+            className="text-xs text-gray-600 hover:text-red-400 transition-colors py-1"
           >
             Réinitialiser cet appareil
           </button>
+          <p className="text-[11px] text-gray-500 text-center leading-relaxed mt-2 border-t border-white/5 pt-3">
+            Projet 100 % indépendant créé pour le fun par des particuliers — Non affilié à l'ASVd, au MSdS, à J+S ou à toute autre organisation.
+          </p>
         </div>
-      </div>
+      </footer>
+
+      {showGuideModal && (
+        <WelcomeGuideModal onClose={() => setShowGuideModal(false)} />
+      )}
     </div>
   )
 }

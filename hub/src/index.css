@@ -103,15 +103,6 @@ html, body {
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: rgba(116,198,157,0.25); border-radius: 2px; }
 
-/* ── Face B panel ────────────────────────────────────────────────────────── */
-.faceb-panel {
-  position: fixed;
-  inset: 0;
-  z-index: 50;
-  animation: slideUp 0.4s cubic-bezier(0.16,1,0.3,1);
-  overflow-y: auto;
-}
-
 /* ── Overlay ─────────────────────────────────────────────────────────────── */
 .overlay {
   position: fixed;

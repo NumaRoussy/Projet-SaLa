@@ -7,6 +7,7 @@ import { useState } from 'react'
 import { GameCard } from './GameCard'
 import { FeedbackModal } from './FeedbackModal'
 import { PlayersManager } from './PlayersManager'
+import { getGameUrl } from '../../services/navigation'
 import type { GameInfo } from '../../types'
 
 const FACE_A_GAMES: GameInfo[] = [
@@ -23,7 +24,7 @@ const FACE_A_GAMES: GameInfo[] = [
   {
     id: 'rondedenuit',
     name: 'Ronde de Nuit',
-    description: 'Communication tactique en conditions nocturnes. Coordonnez votre patrouille avec des signaux codés et passez les lignes ennemies.',
+    description: 'Grand jeu de nuit et mystère autour du campement scout vaudois. Élucidez les énigmes nocturnes sous la voûte céleste entre patrouilles.',
     icon: '🌙',
     url: 'https://rondedenuit.scoutgame.ch',
     color: '#e9c46a',
@@ -43,19 +44,18 @@ const FACE_A_GAMES: GameInfo[] = [
 ]
 
 interface Props {
-  logoProps: Record<string, unknown>
   footerProps: Record<string, unknown>
 }
 
-export function FaceA({ logoProps, footerProps }: Props) {
+export function FaceA({ footerProps }: Props) {
   const [feedbackOpen, setFeedbackOpen] = useState(false)
 
   return (
     <div className="app-container bg-scout-gradient">
       {/* ── Hero ───────────────────────────────────────────────────────────── */}
       <header className="pt-8 pb-6 px-5 text-center">
-        {/* Logo — Easter egg trigger (long press 3s) */}
-        <div className="inline-block mb-5" {...logoProps}>
+        {/* Logo */}
+        <div className="inline-block mb-5">
           <div className="relative">
             {/* Outer glow ring */}
             <div className="absolute inset-0 rounded-full bg-scout-mid/10 blur-xl scale-150" />
@@ -91,7 +91,10 @@ export function FaceA({ logoProps, footerProps }: Props) {
           </h2>
           <div className="grid grid-cols-1 gap-3">
             {FACE_A_GAMES.map(game => (
-              <GameCard key={game.id} game={game} />
+              <GameCard
+                key={game.id}
+                game={{ ...game, url: getGameUrl(game.id, game.url) }}
+              />
             ))}
           </div>
         </div>
@@ -102,12 +105,15 @@ export function FaceA({ logoProps, footerProps }: Props) {
         <div className="max-w-lg mx-auto space-y-3">
           <button
             onClick={() => setFeedbackOpen(true)}
-            className="text-xs text-gray-600 hover:text-gray-400 transition-colors"
+            className="text-xs text-gray-500 hover:text-gray-300 transition-colors"
           >
             💡 Proposer une carte ou signalement légal
           </button>
+          <p className="text-[11px] text-gray-500 leading-relaxed px-4">
+            Projet 100 % indépendant créé pour le fun par des particuliers — Non affilié à l'ASVd, au MSdS, à J+S ou à toute autre organisation.
+          </p>
           <p
-            className="text-xs text-gray-700 select-none"
+            className="text-xs text-gray-600 select-none pt-1"
             {...footerProps}
             title=""
           >

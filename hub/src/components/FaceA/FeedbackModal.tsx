@@ -117,6 +117,10 @@ export function FeedbackModal({ onClose }: Props) {
 
               {error && <p className="text-red-400 text-sm">{error}</p>}
 
+              <p className="text-[11px] text-gray-400 text-center leading-relaxed px-1">
+                Projet 100 % indépendant créé pour le fun par des particuliers — Non affilié à l'ASVd, au MSdS, à J+S ou à toute autre organisation.
+              </p>
+
               <button type="submit" disabled={loading} className="btn-primary">
                 {loading ? '⏳ Envoi en cours…' : '📨 Envoyer'}
               </button>

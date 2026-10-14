@@ -1,69 +1,43 @@
 /**
  * hooks/useEasterEgg.ts
- * Section 7.4 — Déclenchement de l'Easter Egg :
- *   1. Appui long de 3 secondes sur le logo principal
- *   2. Triple-tap sur le copyright du footer
- *
- * Retourne les props à attacher aux éléments cibles.
+ * Section 7.4 — Déclenchement discret de l'Easter Egg :
+ * 5 clics/taps rapides consécutifs sur la mention de copyright du footer.
+ * Vibration haptique (navigator.vibrate) lors du déclenchement.
  */
 import { useRef, useCallback } from 'react'
 
+const REQUIRED_TAPS = 5
+const TAP_TIMEOUT_MS = 800
+
 export function useEasterEgg(onTrigger: () => void) {
-  const pressTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const isPressing = useRef(false)
   const tapCount = useRef(0)
   const tapTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  // ── Long press (3 s) ─────────────────────────────────────────────────────
-  const onPressStart = useCallback(() => {
-    isPressing.current = true
-    pressTimer.current = setTimeout(() => {
-      if (isPressing.current) {
-        navigator.vibrate?.(50)
-        onTrigger()
-      }
-    }, 3000)
-  }, [onTrigger])
-
-  const onPressEnd = useCallback(() => {
-    isPressing.current = false
-    if (pressTimer.current) {
-      clearTimeout(pressTimer.current)
-      pressTimer.current = null
-    }
-  }, [])
-
-  const logoProps = {
-    onMouseDown: onPressStart,
-    onMouseUp: onPressEnd,
-    onMouseLeave: onPressEnd,
-    onTouchStart: onPressStart,
-    onTouchEnd: onPressEnd,
-    onTouchCancel: onPressEnd,
-    style: { cursor: 'pointer', userSelect: 'none' as const },
-  }
-
-  // ── Triple-tap (footer copyright) ─────────────────────────────────────────
   const onFooterTap = useCallback(() => {
     tapCount.current += 1
     if (tapTimer.current) clearTimeout(tapTimer.current)
 
-    if (tapCount.current >= 3) {
+    if (tapCount.current >= REQUIRED_TAPS) {
       tapCount.current = 0
-      navigator.vibrate?.(50)
+      try {
+        navigator.vibrate?.(50)
+      } catch {
+        // Ignorer si vibration indisponible
+      }
       onTrigger()
       return
     }
 
     tapTimer.current = setTimeout(() => {
       tapCount.current = 0
-    }, 600)
+    }, TAP_TIMEOUT_MS)
   }, [onTrigger])
 
   const footerProps = {
     onClick: onFooterTap,
     style: { cursor: 'default', userSelect: 'none' as const },
+    'aria-hidden': true,
   }
 
-  return { logoProps, footerProps }
+  return { footerProps }
 }

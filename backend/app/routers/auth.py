@@ -13,6 +13,7 @@ from fastapi import APIRouter, Depends, HTTPException, Header
 import aiosqlite
 from app.database import get_db
 from app.services.tree_service import is_device_ancestry_valid
+from app.services.blackout_service import is_blackout_active
 from app.models import BootstrapPayload, InviteConsumePayload, VerifyPayload
 
 router = APIRouter(prefix="/api", tags=["auth"])
@@ -20,17 +21,6 @@ router = APIRouter(prefix="/api", tags=["auth"])
 
 def hash_token(token: str) -> str:
     return hashlib.sha256(token.strip().encode("utf-8")).hexdigest()
-
-
-async def _is_blackout_active(db: aiosqlite.Connection) -> bool:
-    """Vérifie le coupe-circuit camp_blackout_active dans system_config."""
-    async with db.execute(
-        "SELECT value FROM system_config WHERE key = 'camp_blackout_active'"
-    ) as cursor:
-        row = await cursor.fetchone()
-        if row and str(row[0]).lower() == "true":
-            return True
-    return False
 
 
 @router.post("/auth/bootstrap")
@@ -75,14 +65,11 @@ async def generate_ephemeral_invite(
     Bloqué si le camp_blackout_active est activé.
     """
     # --- Coupe-circuit blackout ---
-    if await _is_blackout_active(db):
+    is_active, blackout_reason = await is_blackout_active(db)
+    if is_active:
         raise HTTPException(
             status_code=503,
-            detail=(
-                "Période des camps scouts en cours. L'espace festif est temporairement suspendu. "
-                "Nos valeurs imposent une sobriété absolue auprès des jeunes. "
-                "Bon camp à vos patrouilles, rendez-vous à la rentrée !"
-            ),
+            detail=blackout_reason,
         )
 
     device_id = authorization.replace("Bearer ", "").strip()
@@ -157,15 +144,12 @@ async def verify_device(
         return {"valid": False, "reason": "Jeton manquant"}
 
     # --- Coupe-circuit blackout ---
-    if await _is_blackout_active(db):
+    is_active, blackout_reason = await is_blackout_active(db)
+    if is_active:
         return {
             "valid": False,
             "blackout": True,
-            "reason": (
-                "Période des camps scouts en cours. L'espace festif est temporairement suspendu. "
-                "Nos valeurs imposent une sobriété absolue auprès des jeunes. "
-                "Bon camp à vos patrouilles, rendez-vous à la rentrée !"
-            ),
+            "reason": blackout_reason,
         }
 
     valid, reason = await is_device_ancestry_valid(db, device_id)
