@@ -639,7 +639,7 @@ export function AdminConsole({ onClose }: Props) {
   // ── Render: Login Screen
   if (!isAuthenticated) {
     return (
-      <div className="fixed inset-0 z-50 bg-[#060913]/95 backdrop-blur-md flex items-center justify-center p-4">
+      <div className="min-h-dvh bg-[#060913] flex items-center justify-center p-4">
         <div className="glass-card max-w-sm w-full p-6 text-center space-y-4 border border-scout-amber/30 animate-fade-in shadow-2xl">
           <div className="text-4xl">🔐</div>
           <h2 className="font-display font-bold text-lg text-white">Console d'Administration V2</h2>
@@ -672,9 +672,9 @@ export function AdminConsole({ onClose }: Props) {
 
   // ── Render: Full Dashboard
   return (
-    <div className="fixed inset-0 z-50 bg-[#070b14] text-white flex flex-col overflow-hidden animate-fade-in">
+    <div className="min-h-dvh bg-[#070b14] text-white flex flex-col animate-fade-in">
       {/* ── Top Header ────────────────────────────────────────────────────── */}
-      <header className="shrink-0 bg-[#0d1424] border-b border-white/10 px-4 py-3 flex items-center justify-between">
+      <header className="shrink-0 bg-[#0d1424] border-b border-white/10 px-4 py-3 flex items-center justify-between sticky top-0 z-20">
         <div className="flex items-center gap-3">
           <span className="text-xl">⚜️</span>
           <div>
@@ -721,7 +721,7 @@ export function AdminConsole({ onClose }: Props) {
       )}
 
       {/* ── Navigation Tabs ───────────────────────────────────────────────── */}
-      <div className="shrink-0 bg-[#0a0f1d] border-b border-white/5 flex px-4 gap-1 overflow-x-auto">
+      <div className="shrink-0 bg-[#0a0f1d] border-b border-white/5 flex px-4 gap-1 overflow-x-auto sticky top-[57px] z-10">
         <button
           onClick={() => setActiveTab('blackout')}
           className={`py-2.5 px-3 text-xs font-bold border-b-2 transition-all flex items-center gap-1.5 shrink-0 ${
@@ -811,7 +811,7 @@ export function AdminConsole({ onClose }: Props) {
       </div>
 
       {/* ── Content Area ───────────────────────────────────────────────────── */}
-      <main className="flex-1 p-4 md:p-6 overflow-y-auto max-w-5xl mx-auto w-full space-y-6">
+      <main className="flex-1 p-4 md:p-6 max-w-5xl mx-auto w-full space-y-6">
 
         {/* ── TAB 1: BLACKOUT ──────────────────────────────────────────────── */}
         {activeTab === 'blackout' && (

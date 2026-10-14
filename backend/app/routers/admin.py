@@ -19,6 +19,7 @@ import os
 import csv
 import io
 import hashlib
+import hmac
 from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Header
 from fastapi.responses import FileResponse
@@ -48,8 +49,11 @@ router = APIRouter(prefix="/api/admin", tags=["admin"])
 
 
 def _require_admin(x_admin_key: str = Header(...)) -> None:
-    """Dépendance qui valide le header X-Admin-Key."""
-    if x_admin_key != ADMIN_KEY:
+    """Dépendance qui valide le header X-Admin-Key.
+    Utilise hmac.compare_digest pour une comparaison en temps constant
+    (prévient les timing attacks qui pourraient deviner la clé octet par octet).
+    """
+    if not hmac.compare_digest(x_admin_key.encode("utf-8"), ADMIN_KEY.encode("utf-8")):
         raise HTTPException(status_code=403, detail="Clé d'administration invalide.")
 
 
@@ -291,7 +295,11 @@ async def sync_db_to_csv(db: aiosqlite.Connection) -> None:
 
 
 async def import_csv_to_db(db: aiosqlite.Connection, raw_csv: str) -> int:
-    reader = csv.DictReader(io.StringIO(raw_csv.strip()))
+    # Strip UTF-8 BOM if present (Excel, macOS TextEdit)
+    cleaned_csv = raw_csv.strip()
+    if cleaned_csv.startswith('\ufeff'):
+        cleaned_csv = cleaned_csv[1:]
+    reader = csv.DictReader(io.StringIO(cleaned_csv))
     records = []
     for row in reader:
         if not row.get("game") or not row.get("content"):

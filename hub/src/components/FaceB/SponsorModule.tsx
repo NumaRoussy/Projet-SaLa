@@ -6,6 +6,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { QRCodeSVG } from 'qrcode.react'
 import { apiGenerateInvite } from '../../services/api'
+import { copyToClipboard } from '../../services/clipboard'
 
 const INVITE_TTL = 120
 
@@ -98,14 +99,37 @@ export function SponsorModule({ devicePass }: Props) {
             />
           </div>
 
-          {/* URL (for sharing) */}
+          {/* Code brut d'invitation (pour saisie ou copier-coller) */}
+          <div className="p-3 rounded-xl bg-scout-dark border border-white/10 space-y-1.5">
+            <div className="flex items-center justify-between text-xs text-gray-400">
+              <span className="font-semibold text-gray-300">Code d'invitation :</span>
+              <button
+                type="button"
+                className="text-scout-sage hover:text-white transition-colors flex items-center gap-1 font-semibold text-xs"
+                onClick={() => copyToClipboard(inviteToken)}
+              >
+                <span>📋</span>
+                <span>Copier le code</span>
+              </button>
+            </div>
+            <code className="block text-xs font-mono text-scout-sage font-bold tracking-wider select-all break-all">
+              {inviteToken}
+            </code>
+          </div>
+
+          {/* URL (pour partage direct) */}
           <div className="flex items-center gap-2 p-3 rounded-xl bg-scout-dark border border-white/10">
-            <code className="text-xs text-scout-sage flex-1 truncate break-all">{inviteUrl}</code>
+            <div className="flex-1 min-w-0">
+              <div className="text-[10px] text-gray-400 uppercase tracking-wider mb-0.5">Lien direct</div>
+              <code className="text-xs text-gray-300 truncate block">{inviteUrl}</code>
+            </div>
             <button
-              className="shrink-0 text-xs text-gray-400 hover:text-white transition-colors"
-              onClick={() => navigator.clipboard?.writeText(inviteUrl)}
+              type="button"
+              className="shrink-0 btn-ghost text-xs py-1.5 px-2.5 text-gray-300 hover:text-white"
+              onClick={() => copyToClipboard(inviteUrl)}
+              title="Copier le lien direct"
             >
-              📋
+              📋 Copier
             </button>
           </div>
 

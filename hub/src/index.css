@@ -11,28 +11,39 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-html, body {
+html {
+  height: auto;
+  min-height: 100%;
+  overflow-x: clip;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+}
+
+body {
+  height: auto;
+  min-height: 100dvh;
   margin: 0;
   padding: 0;
   background: #0d1117;
   color: #e5e7eb;
   font-family: 'Inter', system-ui, sans-serif;
-  overflow-x: hidden;
-  /* Prevent pull-to-refresh on mobile */
-  overscroll-behavior: none;
+  overflow: visible;
+  touch-action: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
-/* ── App container — Section 7.1 ─────────────────────────────────────────── */
-.app-container {
+#root, .app-container {
   min-height: 100dvh;
+  height: auto;
+  overflow: visible;
   display: flex;
   flex-direction: column;
+  touch-action: auto;
+  position: relative;
   padding-top: env(safe-area-inset-top);
   padding-bottom: env(safe-area-inset-bottom);
   padding-left: env(safe-area-inset-left);
   padding-right: env(safe-area-inset-right);
-  touch-action: manipulation;
-  position: relative;
 }
 
 /* ── Glassmorphism card ──────────────────────────────────────────────────── */
@@ -111,6 +122,9 @@ html, body {
   backdrop-filter: blur(4px);
   z-index: 40;
   animation: fadeIn 0.25s ease;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
 }
 
 /* ── Countdown bar ───────────────────────────────────────────────────────── */

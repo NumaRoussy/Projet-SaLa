@@ -73,7 +73,7 @@ ALLOWED_ORIGINS = [
 
 CORS_ORIGIN_REGEX = (
     r"^https?://(localhost|127\.0\.0\.1|192\.168\.\d{1,3}\.\d{1,3}|"
-    r"10\.\d{1,3}\.\d{1,3}\.\d{1,3}|172\.\d{1,3}\.\d{1,3}\.\d{1,3})(:\d+)?$"
+    r"10\.\d{1,3}\.\d{1,3}\.\d{1,3}|172\.\d{1,3}\.\d{1,3}\.\d{1,3}|[a-zA-Z0-9.-]+)(:\d+)?$"
     r"|^https://([a-zA-Z0-9-]+\.)*scoutgame\.ch$"
 )
 
@@ -98,6 +98,53 @@ async def remove_server_headers(request, call_next):
         if h in response.headers:
             del response.headers[h]
     return response
+
+
+# ---------------------------------------------------------------------------
+# Middleware : rate-limiting léger pour les endpoints publics
+# ---------------------------------------------------------------------------
+
+from collections import defaultdict
+import time as _time
+
+_rate_limit_store: dict[str, list[float]] = defaultdict(list)
+_RATE_LIMIT = 30  # requêtes
+_RATE_WINDOW = 60  # secondes
+
+@app.middleware("http")
+async def rate_limit_public_endpoints(request, call_next):
+    """Limite les requêtes publiques (hors admin, docs, health) à 30/min par IP."""
+    # Ne JAMAIS bloquer ni compter les prévols CORS OPTIONS (Firefox / Chrome)
+    if request.method == "OPTIONS":
+        return await call_next(request)
+
+    path = request.url.path
+    # Ne pas limiter les routes admin (déjà protégées par X-Admin-Key),
+    # ni la doc OpenAPI ni le healthcheck
+    if path.startswith("/api/admin") or path.startswith("/docs") or path.startswith("/redoc") or path == "/health" or path == "/openapi.json":
+        return await call_next(request)
+
+    client_ip = request.client.host if request.client else "unknown"
+    now = _time.time()
+    window_start = now - _RATE_WINDOW
+
+    # Purger les anciennes entrées
+    _rate_limit_store[client_ip] = [t for t in _rate_limit_store[client_ip] if t > window_start]
+
+    if len(_rate_limit_store[client_ip]) >= _RATE_LIMIT:
+        headers = {}
+        origin = request.headers.get("origin")
+        if origin:
+            headers["Access-Control-Allow-Origin"] = origin
+            headers["Access-Control-Allow-Credentials"] = "true"
+        return JSONResponse(
+            status_code=429,
+            content={"detail": "Trop de requêtes. Réessayez dans quelques secondes."},
+            headers=headers,
+        )
+
+    _rate_limit_store[client_ip].append(now)
+    return await call_next(request)
 
 
 # ---------------------------------------------------------------------------

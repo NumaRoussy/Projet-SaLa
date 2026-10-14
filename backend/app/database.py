@@ -112,6 +112,10 @@ async def init_db() -> None:
     import os
     os.makedirs(os.path.dirname(DB_PATH) if os.path.dirname(DB_PATH) else ".", exist_ok=True)
     async with aiosqlite.connect(DB_PATH) as db:
+        # Robustesse SQLite : WAL + busy_timeout + timezone UTC
+        await db.execute("PRAGMA journal_mode = WAL")
+        await db.execute("PRAGMA busy_timeout = 5000")
+        await db.execute("PRAGMA foreign_keys = ON")
         await db.executescript(SCHEMA_SQL)
         await db.commit()
 
@@ -119,9 +123,11 @@ async def init_db() -> None:
 async def get_db():
     """
     Dépendance FastAPI : ouvre une connexion SQLite par requête.
-    PRAGMA foreign_keys est ré-activé à chaque connexion.
+    Ré-active les PRAGMAs essentiels à chaque connexion (ils ne sont pas hérités).
     """
     async with aiosqlite.connect(DB_PATH) as db:
+        await db.execute("PRAGMA journal_mode = WAL")
+        await db.execute("PRAGMA busy_timeout = 5000")
         await db.execute("PRAGMA foreign_keys = ON")
         db.row_factory = aiosqlite.Row
         yield db

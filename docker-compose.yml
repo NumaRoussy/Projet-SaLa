@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   caddy:
-    image: caddy:alpine
+    image: caddy:2.8-alpine
     restart: always
     ports:
       - "80:80"
@@ -21,16 +21,22 @@ services:
     build: ./backend
     restart: always
     environment:
-      - ADMIN_KEY=${ADMIN_KEY:-CHANGE_THIS_SECRET_KEY_FOR_ADMIN}
+      - ADMIN_KEY=${ADMIN_KEY:?ADMIN_KEY must be set in .env}
       - SMTP_HOST=${SMTP_HOST:-mail.infomaniak.com}
       - SMTP_PORT=${SMTP_PORT:-587}
       - SMTP_USER=${SMTP_USER:-info@scoutgame.ch}
-      - SMTP_PASS=${SMTP_PASS:-SECRET_INFOMANIAK_SMTP_PASSWORD}
+      - SMTP_PASS=${SMTP_PASS:-}
       - DB_PATH=/app/data/scoutgame.db
+      - TZ=UTC
     volumes:
       - ./data:/app/data
     networks:
       - scout_net
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
 
   hub:
     build: ./hub

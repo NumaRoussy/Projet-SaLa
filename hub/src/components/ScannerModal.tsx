@@ -1,224 +1,164 @@
 /**
  * components/ScannerModal.tsx
  * Modal affiché quand l'appareil n'est pas encore autorisé.
- * Permet de saisir un code d'invitation reçu d'un responsable parrain.
- * (Section 2.2 — P2P Ephemeral QR Code)
+ * Démarre directement la caméra (arrière) avec cadre de visée
+ * et fallback photo universel pour débloquer l'accès Maîtrise.
  */
-import { useState, useRef, useEffect } from 'react'
-import { apiConsumeInvite } from '../services/api'
+import { useState, useRef } from 'react'
+import { apiConsumeInvite, apiBootstrap } from '../services/api'
 import { AgeConfirmationModal } from './AgeConfirmationModal'
+import { CameraQRScanner } from './CameraQRScanner'
 
 interface Props {
   onAuthorized: (devicePass: string) => void
   onClose: () => void
 }
 
-function extractToken(raw: string): string {
-  let t = raw.trim()
-  if (t.includes('invite=')) {
-    try {
-      const url = new URL(t.startsWith('http') ? t : `https://${t}`)
-      t = url.searchParams.get('invite') || t
-    } catch {
-      const match = t.match(/invite=([a-zA-Z0-9_-]+)/)
-      if (match) t = match[1]
+interface ParsedToken {
+  type: 'bootstrap' | 'invite'
+  token: string
+}
+
+function parseScannedInput(raw: string): ParsedToken | null {
+  const t = raw.trim()
+  if (!t) return null
+
+  // 1. Détection Invitation (URL, paramètre invite= ou code brut inv_...)
+  if (t.includes('invite=') || t.startsWith('inv_') || t.includes('/inv_')) {
+    let clean = t
+    if (clean.includes('invite=')) {
+      try {
+        const url = new URL(clean.startsWith('http') ? clean : `https://${clean}`)
+        const inv = url.searchParams.get('invite')
+        if (inv) clean = inv.trim()
+      } catch {
+        const match = clean.match(/invite=([a-zA-Z0-9_-]+)/)
+        if (match) clean = match[1].trim()
+      }
+    } else if (clean.includes('inv_')) {
+      clean = 'inv_' + clean.split('inv_')[1]
     }
+    // Nettoyer d'éventuels paramètres ou slashes restants
+    clean = clean.split(/[?&#/]/)[0].trim()
+    return { type: 'invite', token: clean }
   }
-  return t
+
+  // 2. Détection Amorce / Bootstrap (URL, paramètre bootstrap= ou code brut)
+  let cleanBootstrap = t
+  if (cleanBootstrap.includes('bootstrap=')) {
+    try {
+      const url = new URL(cleanBootstrap.startsWith('http') ? cleanBootstrap : `https://${cleanBootstrap}`)
+      const b = url.searchParams.get('bootstrap')
+      if (b) cleanBootstrap = b.trim()
+    } catch {
+      const match = cleanBootstrap.match(/bootstrap=([a-zA-Z0-9_-]+)/)
+      if (match) cleanBootstrap = match[1].trim()
+    }
+  } else if (cleanBootstrap.includes('bootstrap_')) {
+    cleanBootstrap = 'bootstrap_' + cleanBootstrap.split('bootstrap_')[1]
+  }
+  cleanBootstrap = cleanBootstrap.split(/[?&#/]/)[0].trim()
+  return { type: 'bootstrap', token: cleanBootstrap }
 }
 
 export function ScannerModal({ onAuthorized, onClose }: Props) {
   const [code, setCode] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [pendingToken, setPendingToken] = useState<string | null>(null)
-  const [cameraActive, setCameraActive] = useState(false)
-  const videoRef = useRef<HTMLVideoElement | null>(null)
-  const streamRef = useRef<MediaStream | null>(null)
-  const scanIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
-
-  function stopCamera() {
-    if (scanIntervalRef.current) {
-      clearInterval(scanIntervalRef.current)
-      scanIntervalRef.current = null
-    }
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach(t => t.stop())
-      streamRef.current = null
-    }
-    setCameraActive(false)
-  }
-
-  useEffect(() => {
-    return () => {
-      stopCamera()
-    }
-  }, [])
+  const [pendingToken, setPendingToken] = useState<ParsedToken | null>(null)
+  const isConsumingRef = useRef(false)
 
   function consume(rawInput: string) {
-    const token = extractToken(rawInput)
-    if (!token) return
-    stopCamera()
-    setPendingToken(token)
+    const parsed = parseScannedInput(rawInput)
+    if (!parsed || !parsed.token) return
+    setPendingToken(parsed)
   }
 
-  async function executeConsume(token: string) {
+  async function executeConsume(parsed: ParsedToken) {
+    if (isConsumingRef.current) return
+    isConsumingRef.current = true
     setPendingToken(null)
     setLoading(true)
     setError('')
     try {
-      const res = await apiConsumeInvite(token)
-      if (res.device_pass) {
-        onAuthorized(res.device_pass)
+      if (parsed.type === 'invite') {
+        const res = await apiConsumeInvite(parsed.token)
+        if (res.device_pass) {
+          onAuthorized(res.device_pass)
+          return
+        }
       } else {
-        setError('Code invalide ou expiré.')
+        const res = await apiBootstrap(parsed.token)
+        if (res.device_pass) {
+          onAuthorized(res.device_pass)
+          return
+        }
       }
+      setError('Code invalide ou expiré.')
     } catch (err: unknown) {
-      setError((err as Error).message ?? 'Code invalide ou expiré (>120s)')
+      setError((err as Error).message ?? 'Code invalide ou expiré')
     } finally {
       setLoading(false)
-    }
-  }
-
-  async function startCamera() {
-    setError('')
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: { ideal: 'environment' } },
-      })
-      streamRef.current = stream
-      setCameraActive(true)
-
-      setTimeout(async () => {
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream
-          try {
-            await videoRef.current.play()
-          } catch {
-            // autoplays allowed
-          }
-        }
-
-        // @ts-expect-error BarcodeDetector can exist on window in Chromium
-        if (typeof window.BarcodeDetector !== 'undefined') {
-          // @ts-expect-error BarcodeDetector
-          const detector = new window.BarcodeDetector({ formats: ['qr_code'] })
-          scanIntervalRef.current = setInterval(async () => {
-            if (!videoRef.current || videoRef.current.readyState < 2) return
-            try {
-              const barcodes = await detector.detect(videoRef.current)
-              if (barcodes.length > 0) {
-                stopCamera()
-                consume(barcodes[0].rawValue)
-              }
-            } catch {
-              // frame detection error
-            }
-          }, 300)
-        }
-      }, 100)
-    } catch {
-      setError('Accès caméra indisponible. Utilisez la saisie de code ci-dessous.')
-      setCameraActive(false)
+      isConsumingRef.current = false
     }
   }
 
   function handleManualSubmit(e: React.FormEvent) {
     e.preventDefault()
+    if (!code.trim()) return
     consume(code)
   }
 
-  function handleClose() {
-    stopCamera()
-    onClose()
-  }
-
   return (
-    <div className="overlay flex items-end justify-center p-0" onClick={handleClose}>
+    <div className="overlay flex items-end sm:items-center justify-center p-0 sm:p-4 z-50 overflow-y-auto" onClick={onClose}>
       <div
-        className="glass-card w-full max-w-lg rounded-b-none rounded-t-3xl p-6 pb-10 animate-slide-up max-h-[92dvh] overflow-y-auto"
+        className="glass-card w-full max-w-lg rounded-b-none sm:rounded-3xl rounded-t-3xl p-5 sm:p-6 pb-8 animate-slide-up max-h-[92dvh] overflow-y-auto border-2 border-scout-amber/30 shadow-2xl"
         onClick={e => e.stopPropagation()}
       >
-        <div className="w-10 h-1 bg-white/20 rounded-full mx-auto mb-6" />
+        <div className="w-10 h-1 bg-white/20 rounded-full mx-auto mb-4" />
 
-        <h2 className="font-display font-bold text-white text-xl mb-1 text-center">
-          🔑 Accès Maîtrise
-        </h2>
-        <p className="text-gray-400 text-sm text-center mb-6">
-          Scannez le QR code éphémère d'un responsable parrain ou saisissez le code.
-        </p>
+        <div className="text-center mb-4 space-y-1">
+          <h2 className="font-display font-bold text-white text-lg sm:text-xl flex items-center justify-center gap-2">
+            <span>🔑</span>
+            <span>Accès Espace Maîtrise</span>
+          </h2>
+          <p className="text-gray-400 text-xs max-w-xs mx-auto leading-relaxed">
+            Scannez le QR code d'un responsable parrain (120s) ou d'une amorce AG, ou saisissez le code.
+          </p>
+        </div>
 
-        {/* Camera stream view */}
-        {cameraActive ? (
-          <div className="mb-5 space-y-3">
-            <div className="relative rounded-2xl overflow-hidden bg-black aspect-square max-w-xs mx-auto border-2 border-scout-amber/50 flex items-center justify-center">
-              <video
-                ref={videoRef}
-                playsInline
-                muted
-                className="w-full h-full object-cover"
-              />
-              {/* Scan target overlay */}
-              <div className="absolute inset-8 border-2 border-scout-amber/80 rounded-xl pointer-events-none animate-pulse" />
-            </div>
-            <p className="text-xs text-center text-gray-400">
-              Pointez la caméra vers le QR code d'un responsable parrain
-            </p>
-            <button className="btn-ghost w-full text-xs text-gray-400" onClick={stopCamera}>
-              Arrêter la caméra
-            </button>
-          </div>
-        ) : (
-          <div className="mb-6 space-y-4">
-            {/* Visual illustration */}
-            <div className="flex items-center justify-center gap-4 text-3xl">
-              <div className="text-center">
-                <div className="text-3xl mb-1">📱</div>
-                <div className="text-xs text-gray-500">Responsable parrain</div>
-              </div>
-              <div className="text-gray-600 text-xl">→</div>
-              <div className="text-center">
-                <div className="text-3xl mb-1">🔗</div>
-                <div className="text-xs text-gray-500">QR 120s</div>
-              </div>
-              <div className="text-gray-600 text-xl">→</div>
-              <div className="text-center">
-                <div className="text-3xl mb-1">✅</div>
-                <div className="text-xs text-gray-500">Accès accordé</div>
-              </div>
-            </div>
+        {/* Caméra Scanner avec affichage immédiat et capture photo universelle */}
+        <div className="mb-5">
+          <CameraQRScanner
+            onScan={consume}
+            title=""
+            subtitle="Pointez la caméra vers le QR code ou utilisez la photo"
+            accentColor="amber"
+            autoStart={true}
+          />
+        </div>
 
-            {typeof navigator !== 'undefined' && navigator.mediaDevices && (
-              <button
-                type="button"
-                onClick={startCamera}
-                className="btn-primary w-full flex items-center justify-center gap-2 text-sm"
-              >
-                <span>📷</span>
-                <span>Ouvrir l'appareil photo</span>
-              </button>
-            )}
-          </div>
-        )}
-
-        <form onSubmit={handleManualSubmit} className="flex flex-col gap-3">
+        {/* Saisie manuelle de secours */}
+        <form onSubmit={handleManualSubmit} className="flex flex-col gap-2.5 pt-3 border-t border-white/10">
+          <label className="text-xs font-semibold text-gray-300 text-center">
+            Ou collez le code / lien d'invitation :
+          </label>
           <input
-            className="input-scout font-mono text-center tracking-widest text-sm"
-            placeholder="Ou collez le code / URL d'invitation…"
+            className="input-scout font-mono text-center tracking-wider text-xs"
+            placeholder="inv_... ou bootstrap_..."
             value={code}
             onChange={e => setCode(e.target.value)}
-            autoFocus={!cameraActive}
             autoCapitalize="off"
             autoCorrect="off"
             spellCheck={false}
           />
-          {error && <p className="text-red-400 text-sm text-center">{error}</p>}
-          <button type="submit" disabled={loading || !code.trim()} className="btn-amber">
-            {loading ? '⏳ Vérification…' : '🔓 Valider le code'}
+          {error && <p className="text-red-400 text-xs text-center font-semibold">{error}</p>}
+          <button type="submit" disabled={loading || !code.trim()} className="btn-amber py-2.5 text-xs font-bold">
+            {loading ? '⏳ Vérification…' : '🔓 Valider le code manuellement'}
           </button>
         </form>
 
-        <button className="btn-ghost w-full mt-3 text-sm" onClick={handleClose}>
+        <button className="btn-ghost w-full mt-3 text-xs text-gray-400 hover:text-white" onClick={onClose}>
           Annuler
         </button>
       </div>

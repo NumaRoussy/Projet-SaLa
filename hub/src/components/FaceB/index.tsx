@@ -54,14 +54,26 @@ interface Props {
 export function FaceB({ devicePass, onClose, onLogout }: Props) {
   const [tab, setTab] = useState<Tab>('games')
   const [showGuideModal, setShowGuideModal] = useState(() => {
-    return localStorage.getItem('scout_faceb_guide_seen') !== 'true'
+    try {
+      return localStorage.getItem('scout_faceb_guide_seen') !== 'true'
+    } catch {
+      return true
+    }
   })
   const [showReminder, setShowReminder] = useState(() => {
-    return sessionStorage.getItem('faceb_reminder_dismissed') !== 'true'
+    try {
+      return sessionStorage.getItem('faceb_reminder_dismissed') !== 'true'
+    } catch {
+      return true
+    }
   })
 
   function dismissReminder() {
-    sessionStorage.setItem('faceb_reminder_dismissed', 'true')
+    try {
+      sessionStorage.setItem('faceb_reminder_dismissed', 'true')
+    } catch {
+      // Safari Private Browsing — silently ignore
+    }
     setShowReminder(false)
   }
 
@@ -73,7 +85,7 @@ export function FaceB({ devicePass, onClose, onLogout }: Props) {
   ] as const
 
   return (
-    <div className="app-container bg-faceb-gradient min-h-[100dvh] flex flex-col animate-fade-in">
+    <div className="app-container bg-faceb-gradient animate-fade-in">
       {/* ── Header ─────────────────────────────────────────────────────────── */}
       <header className="sticky top-0 z-10 backdrop-blur-sm bg-scout-night/80 border-b border-white/5">
         <div className="flex items-center justify-between px-4 py-3 max-w-lg mx-auto">

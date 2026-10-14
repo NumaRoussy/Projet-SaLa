@@ -54,12 +54,11 @@ export function FeedbackModal({ onClose }: Props) {
   }
 
   return (
-    <div className="overlay" onClick={onClose}>
+    <div className="overlay flex items-center justify-center p-4 z-50 overflow-y-auto" onClick={onClose}>
       <div
-        className="fixed inset-x-4 bottom-4 top-16 max-w-lg mx-auto flex flex-col"
+        className="glass-card w-full max-w-lg max-h-[90dvh] flex flex-col overflow-hidden shadow-2xl animate-fade-in"
         onClick={e => e.stopPropagation()}
       >
-        <div className="glass-card flex flex-col h-full overflow-hidden">
           {/* Header */}
           <div className="flex items-center justify-between px-5 py-4 border-b border-white/5">
             <h2 className="font-display font-bold text-white text-lg">
@@ -126,7 +125,6 @@ export function FeedbackModal({ onClose }: Props) {
               </button>
             </form>
           )}
-        </div>
       </div>
     </div>
   )

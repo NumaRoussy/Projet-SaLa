@@ -9,7 +9,11 @@ interface Props {
 
 export function WelcomeGuideModal({ onClose }: Props) {
   function handleClose() {
-    localStorage.setItem('scout_faceb_guide_seen', 'true')
+    try {
+      localStorage.setItem('scout_faceb_guide_seen', 'true')
+    } catch {
+      // Safari Private Browsing — silently ignore
+    }
     onClose()
   }
 

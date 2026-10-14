@@ -35,24 +35,32 @@ function secureAttr(): string {
 
 function getCookie(name: string): string | null {
   if (typeof document === 'undefined') return null
-  const match = document.cookie.match(new RegExp(`(^| )${name}=([^;]+)`))
-  return match ? decodeURIComponent(match[2]) : null
+  try {
+    const match = document.cookie.match(new RegExp(`(^| )${name}=([^;]+)`))
+    return match ? decodeURIComponent(match[2]) : null
+  } catch {
+    return null
+  }
 }
 
 // ── scout_players ────────────────────────────────────────────────────────────
 
 export function savePlayers(players: Player[]): void {
-  const encoded = encodeURIComponent(JSON.stringify(players))
-  document.cookie = [
-    `${PLAYERS_COOKIE}=${encoded}`,
-    `Path=/`,
-    `Max-Age=86400`,
-    `SameSite=Lax`,
-    secureAttr(),
-    domainAttr(),
-  ]
-    .filter(Boolean)
-    .join('; ')
+  try {
+    const encoded = encodeURIComponent(JSON.stringify(players))
+    document.cookie = [
+      `${PLAYERS_COOKIE}=${encoded}`,
+      `Path=/`,
+      `Max-Age=86400`,
+      `SameSite=Lax`,
+      secureAttr(),
+      domainAttr(),
+    ]
+      .filter(Boolean)
+      .join('; ')
+  } catch {
+    // Cookie write failed — silently ignore
+  }
 }
 
 export function loadPlayers(): Player[] {
@@ -68,23 +76,31 @@ export function loadPlayers(): Player[] {
 }
 
 export function clearPlayers(): void {
-  document.cookie = `${PLAYERS_COOKIE}=; Path=/; Max-Age=0${domainAttr()}`
+  try {
+    document.cookie = `${PLAYERS_COOKIE}=; Path=/; Max-Age=0${domainAttr()}`
+  } catch {
+    // ignore
+  }
 }
 
 // ── scout_device_pass ────────────────────────────────────────────────────────
 
 export function saveDevicePassCookie(pass: string): void {
-  const encoded = encodeURIComponent(pass)
-  document.cookie = [
-    `${DEVICE_PASS_COOKIE}=${encoded}`,
-    `Path=/`,
-    `Max-Age=31536000`, // 1 an
-    `SameSite=Lax`,
-    secureAttr(),
-    domainAttr(),
-  ]
-    .filter(Boolean)
-    .join('; ')
+  try {
+    const encoded = encodeURIComponent(pass)
+    document.cookie = [
+      `${DEVICE_PASS_COOKIE}=${encoded}`,
+      `Path=/`,
+      `Max-Age=31536000`, // 1 an
+      `SameSite=Lax`,
+      secureAttr(),
+      domainAttr(),
+    ]
+      .filter(Boolean)
+      .join('; ')
+  } catch {
+    // Cookie write failed — silently ignore
+  }
 }
 
 export function loadDevicePassCookie(): string | null {
@@ -92,5 +108,9 @@ export function loadDevicePassCookie(): string | null {
 }
 
 export function clearDevicePassCookie(): void {
-  document.cookie = `${DEVICE_PASS_COOKIE}=; Path=/; Max-Age=0${domainAttr()}`
+  try {
+    document.cookie = `${DEVICE_PASS_COOKIE}=; Path=/; Max-Age=0${domainAttr()}`
+  } catch {
+    // ignore
+  }
 }

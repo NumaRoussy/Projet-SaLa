@@ -19,6 +19,26 @@ from app.models import BootstrapPayload, InviteConsumePayload, VerifyPayload
 router = APIRouter(prefix="/api", tags=["auth"])
 
 
+def extract_invite_token(raw: str) -> str:
+    """Extrait le token inv_... qu'il soit brut, dans une URL ou avec paramètre ?invite="""
+    s = raw.strip()
+    if "invite=" in s:
+        s = s.split("invite=")[-1].split("&")[0].split("#")[0].strip()
+    elif "/" in s and "inv_" in s:
+        s = "inv_" + s.split("inv_")[-1].split("?")[0].split("&")[0].split("#")[0].strip()
+    return s.strip("/'\" \t\r\n")
+
+
+def extract_bootstrap_token(raw: str) -> str:
+    """Extrait le token d'amorce qu'il soit brut, dans une URL ou avec paramètre ?bootstrap="""
+    s = raw.strip()
+    if "bootstrap=" in s:
+        s = s.split("bootstrap=")[-1].split("&")[0].split("#")[0].strip()
+    elif "/" in s and "bootstrap_" in s:
+        s = "bootstrap_" + s.split("bootstrap_")[-1].split("?")[0].split("&")[0].split("#")[0].strip()
+    return s.strip("/'\" \t\r\n")
+
+
 def hash_token(token: str) -> str:
     return hashlib.sha256(token.strip().encode("utf-8")).hexdigest()
 
@@ -32,20 +52,32 @@ async def exchange_bootstrap_token(
     if not payload.bootstrap_token:
         raise HTTPException(status_code=400, detail="Token manquant")
 
-    token_h = hash_token(payload.bootstrap_token)
+    raw_token = extract_bootstrap_token(payload.bootstrap_token)
+    token_h = hash_token(raw_token)
     query = """
     SELECT id, is_active, expires_at FROM bootstrap_campaigns
-    WHERE token_hash = ? AND is_active = 1
+    WHERE (token_hash = ? OR id = ?) AND is_active = 1
     """
-    async with db.execute(query, (token_h,)) as cursor:
+    async with db.execute(query, (token_h, raw_token)) as cursor:
         campaign = await cursor.fetchone()
 
     if not campaign:
         raise HTTPException(status_code=403, detail="Jeton d'amorce invalide ou expiré")
 
     camp_id, _, expires_at = campaign
-    if expires_at and datetime.datetime.fromisoformat(expires_at) < datetime.datetime.utcnow():
-        raise HTTPException(status_code=403, detail="Jeton d'amorce expiré")
+    if expires_at:
+        try:
+            cleaned_exp = expires_at.replace("Z", "+00:00")
+            exp_dt = datetime.datetime.fromisoformat(cleaned_exp)
+            if exp_dt.tzinfo is None:
+                exp_dt = exp_dt.replace(tzinfo=datetime.timezone.utc)
+            now = datetime.datetime.now(datetime.timezone.utc)
+            if exp_dt < now:
+                raise HTTPException(status_code=403, detail="Jeton d'amorce expiré")
+        except HTTPException:
+            raise
+        except ValueError:
+            raise HTTPException(status_code=403, detail="Format de date d'expiration invalide")
 
     new_device_id = str(uuid.uuid4())
     await db.execute(
@@ -79,7 +111,7 @@ async def generate_ephemeral_invite(
 
     raw_invite_token = f"inv_{uuid.uuid4().hex}"
     invite_hash = hash_token(raw_invite_token)
-    expires_at = datetime.datetime.utcnow() + datetime.timedelta(seconds=120)
+    expires_at = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(seconds=120)
 
     await db.execute(
         """INSERT INTO ephemeral_invites (token_hash, creator_device_id, expires_at)
@@ -95,36 +127,81 @@ async def consume_ephemeral_invite(
     payload: InviteConsumePayload,
     db: aiosqlite.Connection = Depends(get_db),
 ):
-    """Consomme un jeton éphémère et enregistre le nouvel appareil fils."""
+    """Consomme un jeton éphémère et enregistre le nouvel appareil fils.
+    Étapes de sécurité :
+    a) Nettoyage et extraction de inv_...
+    b) SELECT creator_device_id, is_consumed, expires_at FROM ephemeral_invites
+    c) Validation Python de is_consumed et expiration UTC
+    d) Validation de l'ascendance du parrain
+    e) Verrouillage atomique SET is_consumed = 1 (sans toucher à consumed_by_device_id)
+    f) INSERT INTO devices
+    g) Mise à jour de consumed_by_device_id avec le nouvel ID
+    """
     raw_token = payload.invite_token
     if not raw_token:
         raise HTTPException(status_code=400, detail="Token manquant")
 
-    token_h = hash_token(raw_token)
-    now = datetime.datetime.utcnow().isoformat()
+    clean_token = extract_invite_token(raw_token)
+    if not clean_token:
+        raise HTTPException(status_code=400, detail="Format de jeton d'invitation invalide")
 
-    query = """
-    SELECT creator_device_id, is_consumed, expires_at FROM ephemeral_invites
-    WHERE token_hash = ?
-    """
-    async with db.execute(query, (token_h,)) as cursor:
+    token_h = hash_token(clean_token)
+
+    # Étape b — Récupération de l'invitation
+    async with db.execute(
+        "SELECT creator_device_id, is_consumed, expires_at FROM ephemeral_invites WHERE token_hash = ?",
+        (token_h,),
+    ) as cursor:
         invite = await cursor.fetchone()
 
-    if not invite or invite[1] == 1 or invite[2] < now:
-        raise HTTPException(status_code=400, detail="Invitation invalide ou expirée (>120s)")
+    if not invite:
+        raise HTTPException(status_code=400, detail="Invitation invalide ou introuvable")
 
-    creator_id = invite[0]
+    creator_id, is_consumed, expires_at = invite
+
+    # Étape c — Vérifications en Python
+    if is_consumed != 0:
+        raise HTTPException(status_code=400, detail="Cette invitation a déjà été utilisée")
+
+    if expires_at:
+        try:
+            cleaned_exp = expires_at.replace("Z", "+00:00")
+            exp_dt = datetime.datetime.fromisoformat(cleaned_exp)
+            if exp_dt.tzinfo is None:
+                exp_dt = exp_dt.replace(tzinfo=datetime.timezone.utc)
+            now = datetime.datetime.now(datetime.timezone.utc)
+            if exp_dt < now:
+                raise HTTPException(status_code=400, detail="Cette invitation a expiré (>120s)")
+        except HTTPException:
+            raise
+        except ValueError:
+            raise HTTPException(status_code=400, detail="Format de date d'expiration invalide")
+
+    # Étape d — Validation de l'ascendance du parrain
     parent_valid, reason = await is_device_ancestry_valid(db, creator_id)
     if not parent_valid:
-        raise HTTPException(status_code=403, detail="Le terminal parrain a été révoqué")
+        raise HTTPException(status_code=403, detail=f"Le terminal parrain est invalide ou révoqué : {reason}")
 
+    # Étape e — Verrouiller atomiquement l'invitation (is_consumed = 1 uniquement pour éviter FK violation)
+    cursor = await db.execute(
+        """UPDATE ephemeral_invites
+           SET is_consumed = 1
+           WHERE token_hash = ? AND is_consumed = 0""",
+        (token_h,),
+    )
+    if cursor.rowcount != 1:
+        raise HTTPException(status_code=400, detail="Cette invitation a déjà été consommée")
+
+    # Étape f — Insérer le nouvel appareil
     new_device_id = str(uuid.uuid4())
     await db.execute(
         "INSERT INTO devices (id, parent_device_id) VALUES (?, ?)",
         (new_device_id, creator_id),
     )
+
+    # Étape g — Lier l'appareil consommateur (l'ID existe désormais dans devices)
     await db.execute(
-        "UPDATE ephemeral_invites SET is_consumed = 1, consumed_by_device_id = ? WHERE token_hash = ?",
+        "UPDATE ephemeral_invites SET consumed_by_device_id = ? WHERE token_hash = ?",
         (new_device_id, token_h),
     )
     await db.commit()

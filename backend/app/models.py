@@ -28,10 +28,10 @@ class VerifyPayload(BaseModel):
 # ---------------------------------------------------------------------------
 
 class RevocationReportCreate(BaseModel):
-    target_device_id: str
-    reason: str = Field(..., min_length=5)
-    reporter_name: Optional[str] = None
-    reporter_group: Optional[str] = None
+    target_device_id: str = Field(..., max_length=200)
+    reason: str = Field(..., min_length=5, max_length=2000)
+    reporter_name: Optional[str] = Field(default=None, max_length=200)
+    reporter_group: Optional[str] = Field(default=None, max_length=200)
 
 
 # ---------------------------------------------------------------------------
@@ -98,13 +98,13 @@ class FeedbackStatusPayload(BaseModel):
 
 class FeedbackCreate(BaseModel):
     type: str = Field(..., pattern="^(PROPOSITION|CONTACT_LEGAL)$")
-    target_game: Optional[str] = None
-    category: Optional[str] = None
-    title: Optional[str] = None
-    content: str = Field(..., min_length=10)
-    extra_data: Optional[str] = None
-    author_alias: Optional[str] = None
-    contact_email: Optional[str] = None
+    target_game: Optional[str] = Field(default=None, max_length=100)
+    category: Optional[str] = Field(default=None, max_length=100)
+    title: Optional[str] = Field(default=None, max_length=500)
+    content: str = Field(..., min_length=10, max_length=5000)
+    extra_data: Optional[str] = Field(default=None, max_length=2000)
+    author_alias: Optional[str] = Field(default=None, max_length=200)
+    contact_email: Optional[str] = Field(default=None, max_length=320)
 
 
 # ---------------------------------------------------------------------------
@@ -112,9 +112,9 @@ class FeedbackCreate(BaseModel):
 # ---------------------------------------------------------------------------
 
 class TelemetryEvent(BaseModel):
-    device_id: Optional[str] = None
-    game_id: str
-    duration_seconds: int = 0
+    device_id: Optional[str] = Field(default=None, max_length=200)
+    game_id: str = Field(..., max_length=100)
+    duration_seconds: int = Field(default=0, ge=0, le=86400)  # max 24h
 
 
 # ---------------------------------------------------------------------------

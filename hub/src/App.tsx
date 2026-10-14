@@ -7,7 +7,7 @@
  * 2. Easter egg (long press logo + triple-tap footer) → appel /api/auth/verify
  * 3. Affichage conditionnel : FaceA | BlackoutScreen | ScannerModal | FaceB
  */
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { FaceA } from './components/FaceA'
 import { FaceB } from './components/FaceB'
 import { BlackoutScreen } from './components/BlackoutScreen'
@@ -24,6 +24,7 @@ export default function App() {
   const { saveDevicePass, devicePass, verify, blackoutMessage, logout } = useDeviceAuth()
   const [uiState, setUiState] = useState<UIState>('face-a')
   const [pendingAccess, setPendingAccess] = useState<{ type: 'bootstrap' | 'invite'; token: string } | null>(null)
+  const isConsumingRef = useRef(false)
 
   // ── Section 7.3 — Interception silencieuse & Admin ───────────────────────
   useEffect(() => {
@@ -41,18 +42,22 @@ export default function App() {
     // Nettoyer l'URL immédiatement (avant même la réponse API)
     window.history.replaceState({}, document.title, window.location.pathname)
 
-    if (bootstrapToken) {
-      setPendingAccess({ type: 'bootstrap', token: bootstrapToken })
-    } else if (inviteToken) {
-      setPendingAccess({ type: 'invite', token: inviteToken })
+    if (inviteToken) {
+      setPendingAccess({ type: 'invite', token: inviteToken.trim() })
+    } else if (bootstrapToken) {
+      setPendingAccess({ type: 'bootstrap', token: bootstrapToken.trim() })
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [uiState])
 
   const [accessError, setAccessError] = useState<string | null>(null)
 
   async function handleConfirmAge() {
-    if (!pendingAccess) return
+    if (!pendingAccess || isConsumingRef.current) return
+    isConsumingRef.current = true
     const { type, token } = pendingAccess
     setPendingAccess(null)
     setUiState('verifying')
@@ -60,7 +65,11 @@ export default function App() {
 
     try {
       if (type === 'bootstrap') {
-        const data = await apiBootstrap(token)
+        let clean = token.trim()
+        if (clean.includes('bootstrap=')) {
+          clean = clean.split('bootstrap=')[1].split('&')[0].trim()
+        }
+        const data = await apiBootstrap(clean)
         if (data.device_pass) {
           saveDevicePass(data.device_pass)
           setUiState('face-b')
@@ -69,7 +78,14 @@ export default function App() {
           setUiState('face-a')
         }
       } else {
-        const data = await apiConsumeInvite(token)
+        let clean = token.trim()
+        if (clean.includes('invite=')) {
+          clean = clean.split('invite=')[1].split('&')[0].trim()
+        }
+        if (clean.includes('inv_')) {
+          clean = 'inv_' + clean.split('inv_')[1].split(/[?&#/]/)[0].trim()
+        }
+        const data = await apiConsumeInvite(clean)
         if (data.device_pass) {
           saveDevicePass(data.device_pass)
           setUiState('face-b')
@@ -86,6 +102,8 @@ export default function App() {
           : `Erreur d'accès : ${msg}`
       )
       setUiState('face-a')
+    } finally {
+      isConsumingRef.current = false
     }
   }
 
@@ -102,7 +120,7 @@ export default function App() {
     }
   }
 
-  const { footerProps } = useEasterEgg(triggerEasterEgg)
+  const { footerProps, logoProps, isPressingLogo } = useEasterEgg(triggerEasterEgg)
 
   // ── Handlers ─────────────────────────────────────────────────────────────
   function handleAuthorized(pass: string) {
@@ -136,7 +154,11 @@ export default function App() {
           onLogout={handleLogout}
         />
       ) : (
-        <FaceA footerProps={footerProps} />
+        <FaceA
+          footerProps={footerProps}
+          logoProps={logoProps}
+          isPressingLogo={isPressingLogo}
+        />
       )}
 
       {/* Conditional overlays */}

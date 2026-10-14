@@ -7,7 +7,17 @@ interface Props {
   onCancel: () => void
 }
 
+import { useState } from 'react'
+
 export function AgeConfirmationModal({ onConfirm, onCancel }: Props) {
+  const [submitting, setSubmitting] = useState(false)
+
+  function handleConfirm() {
+    if (submitting) return
+    setSubmitting(true)
+    onConfirm()
+  }
+
   return (
     <div className="overlay flex items-center justify-center p-6 z-50">
       <div
@@ -40,15 +50,17 @@ export function AgeConfirmationModal({ onConfirm, onCancel }: Props) {
         <div className="flex flex-col sm:flex-row gap-2 pt-2">
           <button
             onClick={onCancel}
+            disabled={submitting}
             className="btn-ghost flex-1 py-3 text-sm order-2 sm:order-1"
           >
             Annuler
           </button>
           <button
-            onClick={onConfirm}
-            className="btn-amber flex-1 py-3 text-sm font-bold order-1 sm:order-2 shadow-lg shadow-amber-500/20"
+            onClick={handleConfirm}
+            disabled={submitting}
+            className="btn-amber flex-1 py-3 text-sm font-bold order-1 sm:order-2 shadow-lg shadow-amber-500/20 disabled:opacity-50"
           >
-            J'ai 18 ans, activer
+            {submitting ? '⏳ Activation…' : "J'ai 18 ans, activer"}
           </button>
         </div>
       </div>

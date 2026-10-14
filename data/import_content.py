@@ -18,7 +18,7 @@ async def import_csv_to_db(csv_path: str, db_path: str):
         """)
         await db.execute("DELETE FROM cards")  # Remplacement intégral
 
-        with open(csv_path, mode="r", encoding="utf-8") as f:
+        with open(csv_path, mode="r", encoding="utf-8-sig") as f:
             reader = csv.DictReader(f)
             records = [
                 (

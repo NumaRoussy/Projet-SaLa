@@ -22,11 +22,19 @@ export function useDeviceAuth() {
   const [isVerifying, setIsVerifying] = useState(false)
 
   const devicePass = useCallback((): string | null => {
-    return localStorage.getItem(STORAGE_KEY) || loadDevicePassCookie()
+    try {
+      return localStorage.getItem(STORAGE_KEY) || loadDevicePassCookie()
+    } catch {
+      return loadDevicePassCookie()
+    }
   }, [])
 
   const saveDevicePass = useCallback((pass: string) => {
-    localStorage.setItem(STORAGE_KEY, pass)
+    try {
+      localStorage.setItem(STORAGE_KEY, pass)
+    } catch {
+      // Safari Private Browsing — cookie only
+    }
     saveDevicePassCookie(pass)
   }, [])
 
@@ -62,7 +70,11 @@ export function useDeviceAuth() {
   }, [devicePass])
 
   const logout = useCallback(() => {
-    localStorage.removeItem(STORAGE_KEY)
+    try {
+      localStorage.removeItem(STORAGE_KEY)
+    } catch {
+      // ignore
+    }
     clearDevicePassCookie()
     setAuthState('unauthorized')
   }, [])

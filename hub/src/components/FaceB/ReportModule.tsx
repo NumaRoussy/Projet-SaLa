@@ -1,10 +1,12 @@
 /**
  * components/FaceB/ReportModule.tsx
  * Formulaire de signalement terrain → POST /api/reports (section 2.3).
- * Intègre un scanner caméra pour flasher directement le QR code de l'appareil suspect (DeviceQR).
+ * Intègre un scanner caméra universel (live stream + fallback photo)
+ * pour flasher directement le QR code de l'appareil suspect (DeviceQR).
  */
-import { useState, useRef, useEffect } from 'react'
+import { useState } from 'react'
 import { apiSubmitReport } from '../../services/api'
+import { CameraQRScanner } from '../CameraQRScanner'
 
 export function ReportModule() {
   const [form, setForm] = useState({
@@ -16,30 +18,8 @@ export function ReportModule() {
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState('')
-  const [cameraActive, setCameraActive] = useState(false)
+  const [showScanner, setShowScanner] = useState(false)
   const [scanNotice, setScanNotice] = useState('')
-
-  const videoRef = useRef<HTMLVideoElement | null>(null)
-  const streamRef = useRef<MediaStream | null>(null)
-  const scanIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
-
-  function stopCamera() {
-    if (scanIntervalRef.current) {
-      clearInterval(scanIntervalRef.current)
-      scanIntervalRef.current = null
-    }
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach(t => t.stop())
-      streamRef.current = null
-    }
-    setCameraActive(false)
-  }
-
-  useEffect(() => {
-    return () => {
-      stopCamera()
-    }
-  }, [])
 
   function applyScannedId(rawVal: string) {
     let cleanId = rawVal.trim()
@@ -51,50 +31,7 @@ export function ReportModule() {
     }
     setForm(f => ({ ...f, target_device_id: cleanId }))
     setScanNotice(`Appareil flashé : ${cleanId}`)
-    stopCamera()
-  }
-
-  async function startCamera() {
-    setError('')
-    setScanNotice('')
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: { ideal: 'environment' } },
-      })
-      streamRef.current = stream
-      setCameraActive(true)
-
-      setTimeout(async () => {
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream
-          try {
-            await videoRef.current.play()
-          } catch {
-            // autoplays allowed
-          }
-        }
-
-        // @ts-expect-error BarcodeDetector
-        if (typeof window.BarcodeDetector !== 'undefined') {
-          // @ts-expect-error BarcodeDetector
-          const detector = new window.BarcodeDetector({ formats: ['qr_code'] })
-          scanIntervalRef.current = setInterval(async () => {
-            if (!videoRef.current || videoRef.current.readyState < 2) return
-            try {
-              const barcodes = await detector.detect(videoRef.current)
-              if (barcodes.length > 0) {
-                applyScannedId(barcodes[0].rawValue)
-              }
-            } catch {
-              // ignore frame error
-            }
-          }, 300)
-        }
-      }, 100)
-    } catch {
-      setError("Accès caméra indisponible ou refusé. Vous pouvez saisir l'ID manuellement.")
-      setCameraActive(false)
-    }
+    setShowScanner(false)
   }
 
   const handle = (k: keyof typeof form) =>
@@ -124,6 +61,7 @@ export function ReportModule() {
   function reset() {
     setSuccess(false)
     setScanNotice('')
+    setShowScanner(false)
     setForm({ target_device_id: '', reason: '', reporter_name: '', reporter_group: '' })
   }
 
@@ -160,44 +98,39 @@ export function ReportModule() {
         </div>
       ) : (
         <form onSubmit={submit} className="space-y-4">
-          {/* Scanner view */}
-          {cameraActive ? (
-            <div className="space-y-2 p-3 bg-black/40 rounded-2xl border border-red-500/30">
-              <div className="relative rounded-xl overflow-hidden bg-black aspect-video max-w-xs mx-auto border-2 border-red-400/60 flex items-center justify-center">
-                <video
-                  ref={videoRef}
-                  playsInline
-                  muted
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-4 border-2 border-red-400/80 rounded-lg pointer-events-none animate-pulse" />
-              </div>
-              <p className="text-xs text-center text-gray-400">
-                Visez le QR code affiché sur l'appareil à signaler (onglet Mon QR)
-              </p>
-              <button
-                type="button"
-                className="btn-ghost w-full text-xs text-gray-400"
-                onClick={stopCamera}
-              >
-                Arrêter le scanner
-              </button>
-            </div>
+          {/* Bouton d'ouverture du scanner caméra */}
+          {!showScanner ? (
+            <button
+              type="button"
+              onClick={() => setShowScanner(true)}
+              className="btn-primary w-full py-2.5 px-4 text-xs font-bold flex items-center justify-center gap-2 border border-scout-amber/40 shadow-lg shadow-black/30"
+            >
+              <span>📷</span>
+              <span>Scanner le QR d'un appareil</span>
+            </button>
           ) : (
-            <div className="flex items-center justify-between gap-2 p-3 rounded-xl bg-scout-dark/60 border border-white/5">
-              <div className="flex items-center gap-2 text-xs text-gray-400">
-                <span>📷</span>
-                <span>Flasher l'écran du suspect</span>
-              </div>
-              {typeof navigator !== 'undefined' && navigator.mediaDevices && (
+            <div className="p-3.5 rounded-2xl bg-black/60 border border-red-500/40 space-y-3 animate-fade-in">
+              <div className="flex items-center justify-between pb-1.5 border-b border-white/10">
+                <span className="text-xs font-bold text-red-300 flex items-center gap-1.5">
+                  <span>📷</span>
+                  <span>Scanner l'écran du suspect (Mon QR)</span>
+                </span>
                 <button
                   type="button"
-                  onClick={startCamera}
-                  className="btn-primary py-1.5 px-3 text-xs"
+                  onClick={() => setShowScanner(false)}
+                  className="text-gray-400 hover:text-white text-xs px-2 py-0.5 rounded bg-white/10"
                 >
-                  Ouvrir le scanner
+                  ✕ Fermer
                 </button>
-              )}
+              </div>
+
+              <CameraQRScanner
+                onScan={applyScannedId}
+                title=""
+                subtitle="Pointez la caméra vers le QR d'identification (onglet Mon QR) ou prenez-le en photo"
+                accentColor="red"
+                autoStart={true}
+              />
             </div>
           )}
 
@@ -249,7 +182,7 @@ export function ReportModule() {
 
           {error && <p className="text-red-400 text-sm">{error}</p>}
 
-          <button type="submit" disabled={loading} className="btn-danger w-full">
+          <button type="submit" disabled={loading} className="btn-danger w-full py-3 text-sm font-bold shadow-lg shadow-red-950/40">
             {loading ? '⏳ Envoi…' : '🚨 Soumettre le signalement'}
           </button>
         </form>

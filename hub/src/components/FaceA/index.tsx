@@ -45,9 +45,11 @@ const FACE_A_GAMES: GameInfo[] = [
 
 interface Props {
   footerProps: Record<string, unknown>
+  logoProps?: Record<string, unknown>
+  isPressingLogo?: boolean
 }
 
-export function FaceA({ footerProps }: Props) {
+export function FaceA({ footerProps, logoProps, isPressingLogo }: Props) {
   const [feedbackOpen, setFeedbackOpen] = useState(false)
 
   return (
@@ -60,9 +62,14 @@ export function FaceA({ footerProps }: Props) {
             {/* Outer glow ring */}
             <div className="absolute inset-0 rounded-full bg-scout-mid/10 blur-xl scale-150" />
             {/* Badge circle */}
-            <div className="relative w-24 h-24 mx-auto rounded-full flex items-center justify-center
-                            bg-gradient-to-br from-scout-forest to-scout-green
-                            border-2 border-scout-mid/40 shadow-2xl shadow-black/50">
+            <div
+              className={`relative w-24 h-24 mx-auto rounded-full flex items-center justify-center
+                          bg-gradient-to-br from-scout-forest to-scout-green
+                          border-2 border-scout-mid/40 shadow-2xl shadow-black/50 select-none cursor-pointer transition-transform ${
+                            isPressingLogo ? 'logo-pressing' : ''
+                          }`}
+              {...logoProps}
+            >
               <span className="text-4xl select-none">⚜️</span>
             </div>
           </div>
