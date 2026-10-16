@@ -101,7 +101,7 @@ class FeedbackCreate(BaseModel):
     target_game: Optional[str] = Field(default=None, max_length=100)
     category: Optional[str] = Field(default=None, max_length=100)
     title: Optional[str] = Field(default=None, max_length=500)
-    content: str = Field(..., min_length=10, max_length=5000)
+    content: str = Field(..., min_length=1, max_length=5000)
     extra_data: Optional[str] = Field(default=None, max_length=2000)
     author_alias: Optional[str] = Field(default=None, max_length=200)
     contact_email: Optional[str] = Field(default=None, max_length=320)

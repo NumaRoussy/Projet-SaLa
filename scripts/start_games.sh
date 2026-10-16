@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-export PATH="/home/numa/.local/node/bin:$PATH"
+export PATH="$HOME/.local/node/bin:$PATH"
 BASE_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 
 trap 'echo "Stopping all games..."; kill $(jobs -p) 2>/dev/null || true' SIGINT SIGTERM EXIT

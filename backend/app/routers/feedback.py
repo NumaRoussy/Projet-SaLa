@@ -1,7 +1,7 @@
 """
 app/routers/feedback.py
 Enregistre les retours utilisateurs dans user_feedback et envoie un email
-de relais via mailer.py vers proposition@scoutgame.ch ou info@scoutgame.ch.
+de relais via mailer.py vers info@scoutgame.ch.
 """
 from fastapi import APIRouter, Depends, BackgroundTasks
 import aiosqlite

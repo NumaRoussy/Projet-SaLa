@@ -4,7 +4,7 @@
 
 SHELL := /bin/bash
 PYTHON := python3
-NODE_PATH := /home/numa/.local/node/bin:$(PATH)
+NODE_PATH := $(HOME)/.local/node/bin:$(PATH)
 
 .PHONY: help dev-wifi dev-backend dev-hub dev-games build-all up down logs restart \
         import-cards ag-create ag-close blackout-on blackout-off blackout-dates \

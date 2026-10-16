@@ -15,18 +15,20 @@ export function getApiBaseUrl(): string {
   if (typeof window !== 'undefined') {
     const host = window.location.hostname
     // PRIORITÉ ABSOLUE : Si on est sur une IP locale ou localhost, TOUJOURS utiliser l'IP sur le port 8000
+    if (host.endsWith('scoutgame.ch')) {
+      return ''
+    }
     if (
       host === 'localhost' ||
       host === '127.0.0.1' ||
       host.startsWith('192.168.') ||
       host.startsWith('10.') ||
-      host.startsWith('172.') ||
-      !host.endsWith('scoutgame.ch')
+      host.startsWith('172.')
     ) {
       return `http://${host}:8000`
     }
   }
-  return import.meta.env.VITE_API_URL || 'https://api.scoutgame.ch'
+  return import.meta.env.VITE_API_URL || ''
 }
 
 const API = getApiBaseUrl()

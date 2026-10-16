@@ -1,4 +1,7 @@
 (common_headers) {
+    @dotfiles path */.*
+    respond @dotfiles 404
+
     header {
         -Server
         -X-Powered-By
@@ -10,6 +13,13 @@
     }
 }
 
+(api_backend) {
+    import common_headers
+    handle /api/* {
+        reverse_proxy backend:8000
+    }
+}
+
 # 0. Redirect www → apex
 www.scoutgame.ch {
     redir https://scoutgame.ch{uri} permanent
@@ -17,8 +27,10 @@ www.scoutgame.ch {
 
 # 1. Portail d'accueil (Hub Face A)
 scoutgame.ch {
-    import common_headers
-    reverse_proxy hub:80
+    import api_backend
+    handle {
+        reverse_proxy hub:80
+    }
 }
 
 # 2. API Backend
@@ -29,32 +41,44 @@ api.scoutgame.ch {
 
 # 3. Jeux Face A (Jeunesse)
 infiltre.scoutgame.ch {
-    import common_headers
-    reverse_proxy game-infiltre:80
+    import api_backend
+    handle {
+        reverse_proxy game-infiltre:80
+    }
 }
 
 rondedenuit.scoutgame.ch {
-    import common_headers
-    reverse_proxy game-rondedenuit:80
+    import api_backend
+    handle {
+        reverse_proxy game-rondedenuit:80
+    }
 }
 
 chrono.scoutgame.ch {
-    import common_headers
-    reverse_proxy game-chrono:80
+    import api_backend
+    handle {
+        reverse_proxy game-chrono:80
+    }
 }
 
 # 4. Jeux Face B (Maîtrise)
 carnotzet.scoutgame.ch {
-    import common_headers
-    reverse_proxy game-carnotzet:80
+    import api_backend
+    handle {
+        reverse_proxy game-carnotzet:80
+    }
 }
 
 debout.scoutgame.ch {
-    import common_headers
-    reverse_proxy game-debout:80
+    import api_backend
+    handle {
+        reverse_proxy game-debout:80
+    }
 }
 
 debrief.scoutgame.ch {
-    import common_headers
-    reverse_proxy game-debrief:80
+    import api_backend
+    handle {
+        reverse_proxy game-debrief:80
+    }
 }

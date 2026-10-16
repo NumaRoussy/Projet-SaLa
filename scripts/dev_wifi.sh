@@ -2,7 +2,7 @@
 set -e
 
 BASE_DIR="$(cd "$(dirname "$0")/.." && pwd)"
-export PATH="/home/numa/.local/node/bin:$PATH"
+export PATH="$HOME/.local/node/bin:$PATH"
 
 # Détection automatique de l'IP Wi-Fi / réseau local
 IP=$(hostname -I | awk '{print $1}')

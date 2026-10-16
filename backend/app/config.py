@@ -19,6 +19,6 @@ SMTP_PASS: str = os.getenv("SMTP_PASS", "")
 # Chemin vers la base de données SQLite
 DB_PATH: str = os.getenv("DB_PATH", "./data/scoutgame.db")
 
-# Emails de destination des formulaires
-EMAIL_PROPOSITIONS: str = "proposition@scoutgame.ch"
-EMAIL_CONTACT_LEGAL: str = "info@scoutgame.ch"
+# Emails de destination des formulaires (tous centralisés sur info@scoutgame.ch)
+EMAIL_PROPOSITIONS: str = os.getenv("EMAIL_RECIPIENT", "info@scoutgame.ch")
+EMAIL_CONTACT_LEGAL: str = os.getenv("EMAIL_RECIPIENT", "info@scoutgame.ch")
