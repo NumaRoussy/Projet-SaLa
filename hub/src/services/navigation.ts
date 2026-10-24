@@ -9,6 +9,7 @@
 
 const GAME_PORTS: Record<string, number> = {
   infiltre: 3001,
+  couvrefeu: 3002,
   rondedenuit: 3002,
   chrono: 3003,
   carnotzet: 3004,

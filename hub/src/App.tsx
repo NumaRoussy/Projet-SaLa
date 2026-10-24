@@ -4,7 +4,7 @@
  *
  * Responsabilités :
  * 1. Interception silencieuse des paramètres ?bootstrap= et ?invite= (section 7.3)
- * 2. Easter egg (long press logo + triple-tap footer) → appel /api/auth/verify
+ * 2. Easter egg (triple-tap footer ©) → appel /api/auth/verify
  * 3. Affichage conditionnel : FaceA | BlackoutScreen | ScannerModal | FaceB
  */
 import { useEffect, useState, useRef } from 'react'
@@ -13,7 +13,7 @@ import { FaceB } from './components/FaceB'
 import { BlackoutScreen } from './components/BlackoutScreen'
 import { ScannerModal } from './components/ScannerModal'
 import { AdminConsole } from './components/Admin'
-import { AgeConfirmationModal } from './components/AgeConfirmationModal'
+import { OnboardingModal } from './components/OnboardingModal'
 import { useDeviceAuth } from './hooks/useDeviceAuth'
 import { useEasterEgg } from './hooks/useEasterEgg'
 import { apiBootstrap, apiConsumeInvite } from './services/api'
@@ -72,6 +72,9 @@ export default function App() {
         const data = await apiBootstrap(clean)
         if (data.device_pass) {
           saveDevicePass(data.device_pass)
+          try {
+            localStorage.setItem('scout_faceb_guide_seen', 'true')
+          } catch {}
           setUiState('face-b')
         } else {
           setAccessError("Ce lien d'amorce est expiré, a déjà été utilisé ou est invalide.")
@@ -88,6 +91,9 @@ export default function App() {
         const data = await apiConsumeInvite(clean)
         if (data.device_pass) {
           saveDevicePass(data.device_pass)
+          try {
+            localStorage.setItem('scout_faceb_guide_seen', 'true')
+          } catch {}
           setUiState('face-b')
         } else {
           setAccessError("Ce QR code d'invitation est expiré (> 120s) ou a déjà été utilisé.")
@@ -120,11 +126,14 @@ export default function App() {
     }
   }
 
-  const { footerProps, logoProps, isPressingLogo } = useEasterEgg(triggerEasterEgg)
+  const { footerProps } = useEasterEgg(triggerEasterEgg)
 
   // ── Handlers ─────────────────────────────────────────────────────────────
   function handleAuthorized(pass: string) {
     saveDevicePass(pass)
+    try {
+      localStorage.setItem('scout_faceb_guide_seen', 'true')
+    } catch {}
     setUiState('face-b')
   }
 
@@ -154,11 +163,7 @@ export default function App() {
           onLogout={handleLogout}
         />
       ) : (
-        <FaceA
-          footerProps={footerProps}
-          logoProps={logoProps}
-          isPressingLogo={isPressingLogo}
-        />
+        <FaceA footerProps={footerProps} />
       )}
 
       {/* Conditional overlays */}
@@ -181,7 +186,7 @@ export default function App() {
       )}
 
       {pendingAccess && (
-        <AgeConfirmationModal
+        <OnboardingModal
           onConfirm={handleConfirmAge}
           onCancel={() => setPendingAccess(null)}
         />

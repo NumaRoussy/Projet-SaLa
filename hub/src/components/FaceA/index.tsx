@@ -18,17 +18,17 @@ const FACE_A_GAMES: GameInfo[] = [
     icon: '🕵️',
     url: 'https://infiltre.scoutgame.ch',
     color: '#74c69d',
-    badge: '3–10 joueurs',
+    badge: 'À partir de 3 joueurs',
     face: 'A',
   },
   {
-    id: 'rondedenuit',
-    name: 'Ronde de Nuit',
-    description: 'Grand jeu de nuit et mystère autour du campement scout vaudois. Élucidez les énigmes nocturnes sous la voûte céleste entre patrouilles.',
-    icon: '🌙',
-    url: 'https://rondedenuit.scoutgame.ch',
+    id: 'couvrefeu',
+    name: 'Couvre-feu',
+    description: 'Jeu de déduction et de rôles secrets au camp scout : démasquez les Responsables qui rôdent après l\'extinction des feux avant qu\'ils ne vident les tentes !',
+    icon: '⛺',
+    url: 'https://couvrefeu.scoutgame.ch',
     color: '#e9c46a',
-    badge: '4–12 joueurs',
+    badge: '8–20 joueurs',
     face: 'A',
   },
   {
@@ -45,11 +45,9 @@ const FACE_A_GAMES: GameInfo[] = [
 
 interface Props {
   footerProps: Record<string, unknown>
-  logoProps?: Record<string, unknown>
-  isPressingLogo?: boolean
 }
 
-export function FaceA({ footerProps, logoProps, isPressingLogo }: Props) {
+export function FaceA({ footerProps }: Props) {
   const [feedbackOpen, setFeedbackOpen] = useState(false)
 
   return (
@@ -63,12 +61,9 @@ export function FaceA({ footerProps, logoProps, isPressingLogo }: Props) {
             <div className="absolute inset-0 rounded-full bg-scout-mid/10 blur-xl scale-150" />
             {/* Badge circle */}
             <div
-              className={`relative w-24 h-24 mx-auto rounded-full flex items-center justify-center
+              className="relative w-24 h-24 mx-auto rounded-full flex items-center justify-center
                           bg-gradient-to-br from-scout-forest to-scout-green
-                          border-2 border-scout-mid/40 shadow-2xl shadow-black/50 select-none cursor-pointer transition-transform ${
-                            isPressingLogo ? 'logo-pressing' : ''
-                          }`}
-              {...logoProps}
+                          border-2 border-scout-mid/40 shadow-2xl shadow-black/50 select-none"
             >
               <span className="text-4xl select-none">⚜️</span>
             </div>

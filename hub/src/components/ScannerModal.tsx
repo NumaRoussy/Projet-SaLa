@@ -6,7 +6,7 @@
  */
 import { useState, useRef } from 'react'
 import { apiConsumeInvite, apiBootstrap } from '../services/api'
-import { AgeConfirmationModal } from './AgeConfirmationModal'
+import { OnboardingModal } from './OnboardingModal'
 import { CameraQRScanner } from './CameraQRScanner'
 
 interface Props {
@@ -164,7 +164,7 @@ export function ScannerModal({ onAuthorized, onClose }: Props) {
       </div>
 
       {pendingToken && (
-        <AgeConfirmationModal
+        <OnboardingModal
           onConfirm={() => executeConsume(pendingToken)}
           onCancel={() => setPendingToken(null)}
         />

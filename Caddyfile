@@ -47,10 +47,10 @@ infiltre.scoutgame.ch {
     }
 }
 
-rondedenuit.scoutgame.ch {
+couvrefeu.scoutgame.ch {
     import api_backend
     handle {
-        reverse_proxy game-rondedenuit:80
+        reverse_proxy game-couvrefeu:80
     }
 }
 

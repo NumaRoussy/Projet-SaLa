@@ -86,6 +86,24 @@ export function WelcomeGuideModal({ onClose }: Props) {
               Si un mineur a obtenu l'accès, vous pouvez scanner le QR de son téléphone ou, plus simplement, <strong className="text-white">scanner directement le nœud de la personne qui a donné l'accès</strong> via « Signaler un appareil ». Cela résiliera récursivement tous les accès qu'elle a distribués (quitte à la re-parrainer ensuite pour lui redonner un accès propre juste pour elle).
             </p>
           </div>
+
+          {/* Encart repliable discret : Rappel du Geste Secret */}
+          <details className="group rounded-2xl bg-amber-950/30 border border-amber-500/35 overflow-hidden transition-all duration-200" open>
+            <summary className="flex items-center justify-between p-3.5 cursor-pointer list-none select-none text-xs font-bold text-amber-300 hover:text-amber-200 transition-colors">
+              <span className="flex items-center gap-2">
+                <span>🤫</span>
+                <span>Rappel du geste secret d'accès</span>
+              </span>
+              <span className="text-amber-400/80 text-[10px] transform group-open:rotate-180 transition-transform">
+                ▼
+              </span>
+            </summary>
+            <div className="px-3.5 pb-3.5 pt-1 border-t border-amber-500/15">
+              <p className="text-gray-200 text-xs leading-relaxed font-medium">
+                Accès Maîtrise : pour les chefs déjà autorisés, touchez 3 fois rapidement le copyright tout en bas du site.
+              </p>
+            </div>
+          </details>
         </div>
 
         <button

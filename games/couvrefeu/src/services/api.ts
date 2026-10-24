@@ -33,7 +33,7 @@ export async function sendTelemetry(durationSeconds: number): Promise<void> {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        game_id: 'rondedenuit',
+        game_id: 'couvrefeu',
         duration_seconds: Math.round(durationSeconds),
       }),
     })

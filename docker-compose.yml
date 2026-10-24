@@ -50,8 +50,8 @@ services:
     networks:
       - scout_net
 
-  game-rondedenuit:
-    build: ./games/rondedenuit
+  game-couvrefeu:
+    build: ./games/couvrefeu
     restart: always
     networks:
       - scout_net

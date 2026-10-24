@@ -9,8 +9,8 @@ trap 'echo "Stopping all games..."; kill $(jobs -p) 2>/dev/null || true' SIGINT 
 echo "⚜️ [1/6] Démarrage de L'Infiltré (Port 3001)..."
 (cd "$BASE_DIR/games/infiltre" && npm run dev -- --host 0.0.0.0 --port 3001) &
 
-echo "⚜️ [2/6] Démarrage de Ronde de Nuit (Port 3002)..."
-(cd "$BASE_DIR/games/rondedenuit" && npm run dev -- --host 0.0.0.0 --port 3002) &
+echo "⚜️ [2/6] Démarrage de Couvre-feu (Port 3002)..."
+(cd "$BASE_DIR/games/couvrefeu" && npm run dev -- --host 0.0.0.0 --port 3002) &
 
 echo "⚜️ [3/6] Démarrage de Chrono (Port 3003)..."
 (cd "$BASE_DIR/games/chrono" && npm run dev -- --host 0.0.0.0 --port 3003) &

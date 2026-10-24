@@ -11,7 +11,7 @@ Développé avec **Vite**, **React 18**, **TypeScript** et **Tailwind CSS**, con
 * **Design Scout & Nature** : Palette de couleurs forestières scoutes (`#1a3a2a`, `#2d6a4f`, `#40916c`, `#52b788`, `#74c69d`), typographies *Outfit* et *Inter*, effets de verre *glassmorphism*.
 * **Catalogue des Jeux Jeunesse** :
   * 🕵️ **L'Infiltré** (`infiltre.scoutgame.ch`)
-  * 🌙 **Ronde de Nuit** (`rondedenuit.scoutgame.ch`)
+  * ⛺ **Couvre-feu** (`couvrefeu.scoutgame.ch`)
   * ⏱️ **Chrono** (`chrono.scoutgame.ch`)
 * **Gestion des Joueurs Inter-Jeux (Section 7.2)** :
   * Ajout et suppression des prénoms des joueurs actifs.

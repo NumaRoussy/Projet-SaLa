@@ -41,7 +41,7 @@ build-all: ## Compile les 7 applications Frontend (Hub + 6 jeux) avec npm run bu
 	@export PATH="$(NODE_PATH)" && \
 	echo "Compiling Hub..." && (cd hub && npm run build) && \
 	echo "Compiling Face A: infiltre..." && (cd games/infiltre && npm run build) && \
-	echo "Compiling Face A: rondedenuit..." && (cd games/rondedenuit && npm run build) && \
+	echo "Compiling Face A: couvrefeu..." && (cd games/couvrefeu && npm run build) && \
 	echo "Compiling Face A: chrono..." && (cd games/chrono && npm run build) && \
 	echo "Compiling Face B: carnotzet..." && (cd games/carnotzet && npm run build) && \
 	echo "Compiling Face B: debout..." && (cd games/debout && npm run build) && \

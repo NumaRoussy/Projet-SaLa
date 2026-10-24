@@ -1,0 +1,25 @@
+import type { Card } from '../types'
+
+export const SCOUT_FALLBACK_CARDS: Card[] = [
+  { id: 61, game: 'infiltre', category: 'Toiles et Abris', title: 'Toiles et Abris', content: 'La Gothard', extra: 'La Berlingot' },
+  { id: 62, game: 'infiltre', category: 'Outils du Pionnier', title: 'Outils du Pionnier', content: 'PPHS', extra: 'La Titine' },
+  { id: 63, game: 'infiltre', category: 'Tentes de Patrouille', title: 'Tentes de Patrouille', content: 'Spatz', extra: 'Ferino' },
+  { id: 64, game: 'infiltre', category: 'Alignement au Mât', title: 'Alignement au Mât', content: 'Le Rass', extra: 'Le Rasta' },
+  { id: 65, game: 'infiltre', category: 'Grandes Traditions', title: 'Grandes Traditions', content: 'Promesse', extra: 'Flambeau' },
+  { id: 66, game: 'infiltre', category: 'Terrains Mythiques', title: 'Terrains Mythiques', content: 'Cabane de Froideville', extra: 'Plambuit' },
+  { id: 67, game: 'infiltre', category: 'Le Sacré Breuvage', title: 'Le Sacré Breuvage', content: 'Thé froid Migros', extra: 'Sirop trop fade' },
+  { id: 68, game: 'infiltre', category: 'Au Coin du Feu', title: 'Au Coin du Feu', content: 'Pain trappeur', extra: 'Cervelas en croix' },
+  { id: 69, game: 'infiltre', category: 'Camp Fédéral 2022', title: 'Camp Fédéral 2022', content: 'Ulrichen', extra: 'Le Convoi' },
+  { id: 70, game: 'infiltre', category: 'Constructions Scoutes', title: 'Constructions Scoutes', content: 'Sarasani', extra: 'Abri bouffe' },
+  { id: 71, game: 'infiltre', category: 'Piquets de Terre', title: 'Piquets de Terre', content: 'Sardine tordue', extra: 'Piquet militaire' },
+  { id: 72, game: 'infiltre', category: 'Frigo Naturel', title: 'Frigo Naturel', content: 'Trou bouffe', extra: 'Trou chiotte' },
+  { id: 73, game: 'infiltre', category: 'Popote de Patrouille', title: 'Popote de Patrouille', content: 'Gamelle suisse', extra: 'Couteau suisse' },
+  { id: 74, game: 'infiltre', category: 'Nuit sous Tente', title: 'Nuit sous Tente', content: 'Natte de sol', extra: 'Sac de couchage' },
+  { id: 75, game: 'infiltre', category: 'Événement Cantonal', title: 'Événement Cantonal', content: 'AG ASVd', extra: 'Week-end de Maîtrise' },
+  { id: 76, game: 'infiltre', category: 'Météo Jurassienne', title: 'Météo Jurassienne', content: 'La roille', extra: 'Grand beau' },
+  { id: 77, game: 'infiltre', category: 'Pionnier', title: 'Nœuds et Brêlages', content: 'Brêlage droit', extra: 'Nœud de cabestan' },
+  { id: 78, game: 'infiltre', category: 'Orientation', title: 'Cartographie', content: 'Boussole', extra: 'Altimètre' },
+  { id: 79, game: 'infiltre', category: 'Feu de patrouille', title: 'Au camp', content: 'Feu de camp', extra: 'Braséro' },
+  { id: 80, game: 'infiltre', category: 'Repas scout', title: 'Cuisine', content: 'Quart', extra: 'Gobelet' },
+  { id: 81, game: 'infiltre', category: 'Symboles', title: 'Insignes', content: 'Foulard', extra: 'Bague de foulard' },
+]

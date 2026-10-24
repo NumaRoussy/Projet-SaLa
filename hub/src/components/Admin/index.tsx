@@ -1210,7 +1210,7 @@ export function AdminConsole({ onClose }: Props) {
               <div className="glass-card p-4 space-y-4">
                 {/* Game filter pills */}
                 <div className="flex gap-1.5 overflow-x-auto pb-1 text-xs">
-                  {['all', 'infiltre', 'rondedenuit', 'chrono', 'carnotzet', 'debout', 'debrief'].map(g => (
+                  {['all', 'infiltre', 'couvrefeu', 'chrono', 'carnotzet', 'debout', 'debrief', 'rondedenuit'].map(g => (
                     <button
                       key={g}
                       onClick={() => setSelectedGameFilter(g)}
@@ -1662,6 +1662,7 @@ export function AdminConsole({ onClose }: Props) {
                     className="input-scout text-xs"
                   >
                     <option value="infiltre">infiltre</option>
+                    <option value="couvrefeu">couvrefeu</option>
                     <option value="rondedenuit">rondedenuit</option>
                     <option value="chrono">chrono</option>
                     <option value="carnotzet">carnotzet</option>

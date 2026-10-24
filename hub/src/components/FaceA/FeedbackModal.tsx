@@ -6,7 +6,7 @@ import { useState } from 'react'
 import { apiSubmitFeedback } from '../../services/api'
 import type { FeedbackPayload } from '../../types'
 
-const GAMES = ['carnotzet', 'debout', 'debrief', 'infiltre', 'rondedenuit', 'chrono']
+const GAMES = ['carnotzet', 'debout', 'debrief', 'infiltre', 'couvrefeu', 'chrono']
 
 interface Props {
   onClose: () => void

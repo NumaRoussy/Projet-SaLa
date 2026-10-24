@@ -494,7 +494,7 @@ async def get_admin_stats(
             "avg_duration_seconds": round(r[3] or 0, 1),
         }
 
-    all_games = ['infiltre', 'rondedenuit', 'chrono', 'carnotzet', 'debout', 'debrief']
+    all_games = ['infiltre', 'couvrefeu', 'chrono', 'carnotzet', 'debout', 'debrief', 'rondedenuit']
     for g in all_games:
         if g not in game_stats:
             game_stats[g] = {

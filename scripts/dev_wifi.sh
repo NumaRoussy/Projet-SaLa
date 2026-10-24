@@ -22,7 +22,7 @@ echo "   ▶ API Backend FastAPI       : http://$IP:8000/docs"
 echo ""
 echo "🎲 Accès direct aux jeux (ports 3001 à 3006) :"
 echo "   ▶ L'Infiltré                : http://$IP:3001"
-echo "   ▶ Ronde de Nuit             : http://$IP:3002"
+echo "   ▶ Couvre-feu                : http://$IP:3002"
 echo "   ▶ Chrono                    : http://$IP:3003"
 echo "   ▶ Carnotzet (18+)           : http://$IP:3004"
 echo "   ▶ Debout (18+)              : http://$IP:3005"
@@ -49,7 +49,7 @@ echo "🚀 [2/3] Démarrage du Hub (port 5173)..."
 # 3. Les 6 jeux Vite sur 0.0.0.0:3001 à 3006
 echo "🚀 [3/3] Démarrage des 6 jeux Vite (ports 3001 à 3006)..."
 (cd "$BASE_DIR/games/infiltre" && npm run dev -- --host 0.0.0.0 --port 3001) &
-(cd "$BASE_DIR/games/rondedenuit" && npm run dev -- --host 0.0.0.0 --port 3002) &
+(cd "$BASE_DIR/games/couvrefeu" && npm run dev -- --host 0.0.0.0 --port 3002) &
 (cd "$BASE_DIR/games/chrono" && npm run dev -- --host 0.0.0.0 --port 3003) &
 (cd "$BASE_DIR/games/carnotzet" && npm run dev -- --host 0.0.0.0 --port 3004) &
 (cd "$BASE_DIR/games/debout" && npm run dev -- --host 0.0.0.0 --port 3005) &

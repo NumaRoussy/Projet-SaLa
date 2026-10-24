@@ -3,12 +3,14 @@ export interface Player {
   name: string
 }
 
+export type Role = 'civil' | 'infiltre' | 'white'
+
 export interface Card {
-  id: number
+  id: number | string
   game: string
   category: string
   title: string | null
-  content: string // Mot pour les scouts
+  content: string // Mot pour les joueurs ordinaires
   extra: string | null // Mot pour l'infiltré
   sips?: number
   min_players?: number
@@ -16,9 +18,11 @@ export interface Card {
 
 export interface AssignedPlayer {
   player: Player
-  role: 'scout' | 'infiltre'
+  role: Role
   secretWord: string
   eliminated: boolean
+  eliminatedInRound?: number
 }
 
-export type GamePhase = 'setup' | 'reveal' | 'debate' | 'vote' | 'gameover'
+export type GamePhase = 'setup' | 'reveal' | 'debate' | 'vote' | 'elimination' | 'gameover'
+export type GameTheme = 'scout' | 'moldus'

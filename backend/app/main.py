@@ -66,6 +66,7 @@ ALLOWED_ORIGINS = [
     "https://debout.scoutgame.ch",
     "https://debrief.scoutgame.ch",
     "https://infiltre.scoutgame.ch",
+    "https://couvrefeu.scoutgame.ch",
     "https://rondedenuit.scoutgame.ch",
     "https://chrono.scoutgame.ch",
     "https://api.scoutgame.ch",
