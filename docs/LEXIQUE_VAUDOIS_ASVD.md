@@ -33,7 +33,7 @@ Ce document consacre les règles linguistiques, terminologiques, culturelles et 
 
 ### 🏕️ Tentes & Toiles
 - **Tentes Spatz** (tentes suisses triangulaires en coton avec mât central et double-toit).
-- **Tentes Farino** (grandes tentes de patrouille avec armature).
+- **Tentes Ferino** (grandes tentes de patrouille avec armature).
 - **Carrés militaires** : Toiles de tente militaires suisses individuelles (90x90 ou carrées avec boutons).
   - **La Gothard** : Montage classique à 8 ou 16 carrés.
   - **La Berlingot** : Montage triangulaire individuel ou duo.
