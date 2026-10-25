@@ -9,10 +9,12 @@ import {
   generateSpeakingOrder,
   checkVictoryCondition,
 } from './utils/gameLogic'
+import { useWakeLock } from './hooks/useWakeLock'
 
 const HUB_URL = getHubUrl()
 
 export default function App() {
+  useWakeLock()
   const [players, setPlayers] = useState<Player[]>(() => loadPlayers())
   const [newPlayerName, setNewPlayerName] = useState('')
   const [theme, setTheme] = useState<GameTheme>('scout')

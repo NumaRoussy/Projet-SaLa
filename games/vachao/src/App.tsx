@@ -9,6 +9,7 @@ import { FlammeBleue } from './components/mini-games/FlammeBleue'
 import { SensDuTemps } from './components/mini-games/SensDuTemps'
 import { TirCorde } from './components/mini-games/TirCorde'
 import { SauvetageTente } from './components/mini-games/SauvetageTente'
+import { useWakeLock } from './hooks/useWakeLock'
 
 const FALLBACK_CARDS: Card[] = [
   { id: 1, game: 'vachao', mode: 'passif', category: 'carte', title: 'Le Champion du Cheni', content: 'Votez à main levée : qui dans la maîtrise a laissé le pire cheni dans l\'abri bouffe au dernier camp ?', extra: 'Le désigné boit {sips} gorgées', sips: 2, loss_percent: 0, min_players: 3 },
@@ -24,6 +25,7 @@ const FALLBACK_CARDS: Card[] = [
 ]
 
 export default function App() {
+  useWakeLock()
   const [isVerifying, setIsVerifying] = useState(true)
   const [blackoutMessage, setBlackoutMessage] = useState<string | null>(null)
 

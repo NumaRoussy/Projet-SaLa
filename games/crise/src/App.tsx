@@ -8,6 +8,7 @@ import { ActionCard } from './components/ActionCard'
 import { SetupScreen } from './components/SetupScreen'
 import { EliminationModal } from './components/EliminationModal'
 import { VictoryModal } from './components/VictoryModal'
+import { useWakeLock } from './hooks/useWakeLock'
 
 const FALLBACK_CARDS: Card[] = [
   { id: 1, game: 'crise', mode: 'crise', category: 'attaque', title: 'Bidon d\'eau sous les pneus', content: '{p1} place un bidon sous les pneus de la voiture de {p2}. La voiture s\'embourbe sur le terrain : la cible prend +2.0% et boit {sips} gorgées.', extra: 'Cible désignée', sips: 2, loss_percent: 2.0, min_players: 3 },
@@ -21,6 +22,7 @@ const FALLBACK_CARDS: Card[] = [
 ]
 
 export default function App() {
+  useWakeLock()
   const [isVerifying, setIsVerifying] = useState(true)
   const [blackoutMessage, setBlackoutMessage] = useState<string | null>(null)
 

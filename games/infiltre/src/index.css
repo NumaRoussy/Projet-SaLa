@@ -17,6 +17,24 @@ html, body {
   color: #ffffff;
   font-family: 'Inter', system-ui, sans-serif;
   height: 100%;
+  /* Empêche le pull-to-refresh natif des navigateurs mobiles (Chrome/Safari) */
+  overscroll-behavior-y: none;
+  /* Supprime la surbrillance tactile bleue sur mobile */
+  -webkit-tap-highlight-color: transparent;
+  /* Interdit la sélection de texte intempestive en tapant vite */
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* Zone tactile réactive sans latence de double-tap */
+button, .touch-target {
+  touch-action: manipulation;
+}
+
+input, textarea {
+  user-select: text;
+  -webkit-user-select: text;
 }
 
 .app-container {

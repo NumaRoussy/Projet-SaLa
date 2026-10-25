@@ -10,6 +10,8 @@ Fonctionnalités :
 - Expose GET /api/cards/{game_id} — récupération des cartes d'un jeu
 - Expose POST /api/telemetry     — enregistrement d'un événement télémétrique
 """
+import asyncio
+import logging
 import os
 from contextlib import asynccontextmanager
 from typing import Optional
@@ -19,19 +21,66 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 import aiosqlite
 
-from app.database import get_db, init_db
+from app.database import get_db, init_db, DB_PATH
 from app.models import CardOut, TelemetryEvent
 from app.routers import auth, reports, feedback, admin
 
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("scoutgame.cleanup")
+logger.setLevel(logging.INFO)
+
 
 # ---------------------------------------------------------------------------
-# Lifecycle : initialisation de la base au démarrage
+# Tâche de purge automatisée de la base de données (B11)
+# ---------------------------------------------------------------------------
+
+async def run_database_cleanup():
+    while True:
+        try:
+            logger.info("[MAINTENANCE] Exécution de la purge des données obsolètes...")
+            async with aiosqlite.connect(DB_PATH, isolation_level=None) as db:
+                await db.execute("BEGIN IMMEDIATE")
+                # 1. Purge des invitations éphémères expirées (> 24h)
+                await db.execute("DELETE FROM ephemeral_invites WHERE expires_at < datetime('now', '-1 day')")
+                # 2. Purge de la télémétrie ancienne (> 90 jours)
+                await db.execute("DELETE FROM telemetry_events WHERE created_at < datetime('now', '-90 days')")
+                # 3. Purge des rapports de modération archivés (> 90 jours)
+                await db.execute("DELETE FROM revocation_reports WHERE status != 'PENDING' AND reviewed_at < datetime('now', '-90 days')")
+                await db.execute("COMMIT")
+            logger.info("[MAINTENANCE] Purge terminée avec succès.")
+        except Exception as e:
+            logger.error("[MAINTENANCE] Erreur lors de la purge : %s", e)
+
+        # Attendre 24 heures avant le prochain cycle
+        await asyncio.sleep(86400)
+
+
+_cleanup_task: Optional[asyncio.Task] = None
+
+def _ensure_cleanup_running():
+    global _cleanup_task
+    if _cleanup_task is None or _cleanup_task.done():
+        _cleanup_task = asyncio.create_task(run_database_cleanup())
+    return _cleanup_task
+
+
+# ---------------------------------------------------------------------------
+# Lifecycle : initialisation de la base et démarrage de la maintenance
 # ---------------------------------------------------------------------------
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await init_db()
-    yield
+    task = _ensure_cleanup_running()
+    try:
+        yield
+    finally:
+        if task and not task.done():
+            task.cancel()
+            try:
+                await task
+            except asyncio.CancelledError:
+                pass
 
 
 # ---------------------------------------------------------------------------
@@ -57,6 +106,7 @@ app = FastAPI(
         {"name": "telemetry", "description": "Métriques anonymisées"},
     ],
 )
+
 
 # ---------------------------------------------------------------------------
 # CORS — autorise *.scoutgame.ch et origines locales de développement

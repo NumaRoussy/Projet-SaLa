@@ -56,12 +56,20 @@ async def prune_branch_recursive(db: aiosqlite.Connection, target_device_id: str
 
     placeholders = ",".join("?" for _ in device_ids_to_revoke)
     update_query = f"""
-    UPDATE devices
-    SET is_revoked = 1,
-        revoked_at = CURRENT_TIMESTAMP,
+    UPDATE devices 
+    SET is_revoked = 1, 
+        revoked_at = CURRENT_TIMESTAMP, 
         revocation_reason = ?
     WHERE id IN ({placeholders})
     """
-    await db.execute(update_query, [reason] + device_ids_to_revoke)
-    await db.commit()
+    await db.execute("BEGIN IMMEDIATE")
+    try:
+        await db.execute(update_query, [reason] + device_ids_to_revoke)
+        await db.execute("COMMIT")
+    except Exception:
+        try:
+            await db.execute("ROLLBACK")
+        except Exception:
+            pass
+        raise
     return len(device_ids_to_revoke)

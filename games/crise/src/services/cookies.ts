@@ -97,12 +97,15 @@ export function savePlayers(players: CrisisPlayer[]): void {
 }
 
 export function loadDevicePass(): string | null {
-  if (typeof localStorage !== 'undefined') {
-    const fromStorage = localStorage.getItem('scout_device_pass')
-    if (fromStorage) return fromStorage
-  }
+  try {
+    if (typeof localStorage !== 'undefined') {
+      localStorage.removeItem('scout_device_pass')
+    }
+  } catch {}
   return getCookie(DEVICE_PASS_COOKIE)
 }
+
+export const getDevicePass = loadDevicePass
 
 export function getHubUrl(): string {
   if (typeof window !== 'undefined') {

@@ -1,45 +1,62 @@
 /**
  * hooks/useDeviceAuth.ts
- * Gère le cycle d'autorisation du terminal :
- * - Stocke le device_pass dans localStorage ET dans le cookie partagé scout_device_pass
+ * Gère le cycle d'autorisation du terminal (S-11) :
+ * - Stocke le device_pass exclusivement via le cookie sécurisé inter-domaines scout_device_pass
  * - Expose verify() pour vérifier la validité auprès de l'API FastAPI
  * - Gère le blackout, les états de chargement, etc.
  */
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import type { AuthState } from '../types'
 import { apiVerify } from '../services/api'
-import {
-  saveDevicePassCookie,
-  loadDevicePassCookie,
-  clearDevicePassCookie,
-} from '../services/cookies'
+import { clearDevicePassCookie } from '../services/cookies'
 
-const STORAGE_KEY = 'scout_device_pass'
+// Fonction de sauvegarde exclusive via cookie sécurisé :
+export function saveDevicePass(pass: string): void {
+  if (typeof document === 'undefined') return
+  const isScout = typeof window !== 'undefined' && window.location.hostname.endsWith('scoutgame.ch')
+  if (isScout) {
+    document.cookie = `scout_device_pass=${encodeURIComponent(pass)}; Domain=.scoutgame.ch; Path=/; Max-Age=31536000; SameSite=Lax; Secure`
+  } else {
+    document.cookie = `scout_device_pass=${encodeURIComponent(pass)}; Path=/; Max-Age=31536000; SameSite=Lax`
+  }
+}
+
+// Fonction de lecture exclusive depuis le cookie :
+export function getDevicePass(): string | null {
+  if (typeof document === 'undefined') return null
+  const match = document.cookie.match(new RegExp('(^| )scout_device_pass=([^;]+)'))
+  return match ? decodeURIComponent(match[2]) : null
+}
 
 export function useDeviceAuth() {
   const [authState, setAuthState] = useState<AuthState>('unknown')
   const [blackoutMessage, setBlackoutMessage] = useState<string>('')
   const [isVerifying, setIsVerifying] = useState(false)
 
-  const devicePass = useCallback((): string | null => {
+  // Nettoyage proactif de tout résidu éventuel dans localStorage & vérification au montage
+  useEffect(() => {
     try {
-      return localStorage.getItem(STORAGE_KEY) || loadDevicePassCookie()
+      localStorage.removeItem('scout_device_pass')
     } catch {
-      return loadDevicePassCookie()
+      // ignore
+    }
+
+    const pass = getDevicePass()
+    if (!pass) {
+      setAuthState('unauthorized')
     }
   }, [])
 
-  const saveDevicePass = useCallback((pass: string) => {
-    try {
-      localStorage.setItem(STORAGE_KEY, pass)
-    } catch {
-      // Safari Private Browsing — cookie only
-    }
-    saveDevicePassCookie(pass)
+  const devicePass = useCallback((): string | null => {
+    return getDevicePass()
+  }, [])
+
+  const savePass = useCallback((pass: string) => {
+    saveDevicePass(pass)
   }, [])
 
   const verify = useCallback(async (): Promise<AuthState> => {
-    const pass = devicePass()
+    const pass = getDevicePass()
     if (!pass) {
       setAuthState('unauthorized')
       return 'unauthorized'
@@ -66,11 +83,11 @@ export function useDeviceAuth() {
     } finally {
       setIsVerifying(false)
     }
-  }, [devicePass, authState])
+  }, [authState])
 
   const logout = useCallback(() => {
     try {
-      localStorage.removeItem(STORAGE_KEY)
+      localStorage.removeItem('scout_device_pass')
     } catch {
       // ignore
     }
@@ -84,8 +101,9 @@ export function useDeviceAuth() {
     blackoutMessage,
     isVerifying,
     devicePass,
-    saveDevicePass,
+    saveDevicePass: savePass,
     verify,
     logout,
   }
 }
+

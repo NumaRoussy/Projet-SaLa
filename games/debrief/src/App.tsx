@@ -4,6 +4,7 @@ import { loadPlayers, savePlayers, loadDevicePass, getHubUrl } from './services/
 import { verifyDevice, fetchDebriefCards, sendTelemetry } from './services/api'
 import { BlackoutScreen } from './components/BlackoutScreen'
 import { FeedbackModal } from './components/FeedbackModal'
+import { useWakeLock } from './hooks/useWakeLock'
 
 const FALLBACK_CARDS: Card[] = [
   {
@@ -86,6 +87,7 @@ const FALLBACK_CARDS: Card[] = [
 ]
 
 export default function App() {
+  useWakeLock()
   const [isVerifying, setIsVerifying] = useState(true)
   const [blackoutMessage, setBlackoutMessage] = useState<string | null>(null)
 

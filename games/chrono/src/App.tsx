@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import type { Player, Card, Team, RoundNumber, GamePhase } from './types'
 import { loadPlayers, savePlayers, getHubUrl } from './services/cookies'
 import { fetchChronoCards, sendTelemetry } from './services/api'
+import { useWakeLock } from './hooks/useWakeLock'
 
 const HUB_URL = getHubUrl()
 
@@ -27,6 +28,7 @@ const ROUND_RULES: Record<RoundNumber, { title: string; subtitle: string; icon: 
 }
 
 export default function App() {
+  useWakeLock()
   const [players, setPlayers] = useState<Player[]>(() => loadPlayers())
   const [newPlayerName, setNewPlayerName] = useState('')
   const [allCards, setAllCards] = useState<Card[]>([])

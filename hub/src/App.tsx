@@ -28,6 +28,10 @@ export default function App() {
 
   // ── Section 7.3 — Interception silencieuse & Admin ───────────────────────
   useEffect(() => {
+    try {
+      localStorage.removeItem('scout_device_pass')
+    } catch {}
+
     const params = new URLSearchParams(window.location.search)
     if (params.get('admin') === '1') {
       setUiState('admin')

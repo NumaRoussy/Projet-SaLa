@@ -87,34 +87,44 @@ export function clearPlayers(): void {
   }
 }
 
-// ── scout_device_pass ────────────────────────────────────────────────────────
+// ── scout_device_pass (S-11) ──────────────────────────────────────────────────
 
-export function saveDevicePassCookie(pass: string): void {
+// Fonction de sauvegarde exclusive via cookie sécurisé :
+export function saveDevicePass(pass: string): void {
+  if (typeof document === 'undefined') return
   try {
-    const encoded = encodeURIComponent(pass)
-    document.cookie = [
-      `${DEVICE_PASS_COOKIE}=${encoded}`,
-      `Path=/`,
-      `Max-Age=31536000`, // 1 an
-      `SameSite=Lax`,
-      secureAttr(),
-      domainAttr(),
-    ]
-      .filter(Boolean)
-      .join('; ')
+    const isScout = typeof window !== 'undefined' && window.location.hostname.endsWith('scoutgame.ch')
+    if (isScout) {
+      document.cookie = `${DEVICE_PASS_COOKIE}=${encodeURIComponent(pass)}; Domain=.scoutgame.ch; Path=/; Max-Age=31536000; SameSite=Lax; Secure`
+    } else {
+      document.cookie = `${DEVICE_PASS_COOKIE}=${encodeURIComponent(pass)}; Path=/; Max-Age=31536000; SameSite=Lax`
+    }
   } catch {
     // Cookie write failed — silently ignore
   }
 }
 
-export function loadDevicePassCookie(): string | null {
-  return getCookie(DEVICE_PASS_COOKIE)
+// Fonction de lecture exclusive depuis le cookie :
+export function getDevicePass(): string | null {
+  if (typeof document === 'undefined') return null
+  const match = document.cookie.match(new RegExp(`(^| )${DEVICE_PASS_COOKIE}=([^;]+)`))
+  return match ? decodeURIComponent(match[2]) : null
 }
 
-export function clearDevicePassCookie(): void {
+export function clearDevicePass(): void {
+  if (typeof document === 'undefined') return
   try {
-    document.cookie = `${DEVICE_PASS_COOKIE}=; Path=/; Max-Age=0${domainAttr()}`
+    const isScout = typeof window !== 'undefined' && window.location.hostname.endsWith('scoutgame.ch')
+    const domain = isScout ? '; Domain=.scoutgame.ch' : ''
+    document.cookie = `${DEVICE_PASS_COOKIE}=; Path=/; Max-Age=0${domain}`
   } catch {
     // ignore
   }
 }
+
+export { getCookie }
+export const saveDevicePassCookie = saveDevicePass
+export const loadDevicePassCookie = getDevicePass
+export const clearDevicePassCookie = clearDevicePass
+
+

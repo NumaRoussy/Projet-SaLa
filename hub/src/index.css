@@ -11,6 +11,17 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+html, body {
+  /* Empêche le pull-to-refresh natif des navigateurs mobiles (Chrome/Safari) */
+  overscroll-behavior-y: none;
+  /* Supprime la surbrillance tactile bleue sur mobile */
+  -webkit-tap-highlight-color: transparent;
+  /* Interdit la sélection de texte intempestive en tapant vite */
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
 html {
   height: auto;
   min-height: 100%;
@@ -30,6 +41,16 @@ body {
   overflow: visible;
   touch-action: auto;
   -webkit-overflow-scrolling: touch;
+}
+
+/* Zone tactile réactive sans latence de double-tap */
+button, .touch-target {
+  touch-action: manipulation;
+}
+
+input, textarea {
+  user-select: text;
+  -webkit-user-select: text;
 }
 
 #root, .app-container {

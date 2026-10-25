@@ -1,87 +1,94 @@
 (common_headers) {
-    @dotfiles path */.*
-    respond @dotfiles 404
-
-    header {
-        -Server
-        -X-Powered-By
-        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
-        X-Content-Type-Options "nosniff"
-        X-Frame-Options "DENY"
-        Referrer-Policy "strict-origin-when-cross-origin"
-        Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://*.scoutgame.ch"
-        Permissions-Policy "camera=(self), microphone=(self), geolocation=()"
-    }
+	header {
+		-Server
+		-X-Powered-By
+		Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; worker-src 'self' blob:; connect-src 'self' https://*.scoutgame.ch wss://*.scoutgame.ch"
+	}
 }
 
 (api_backend) {
-    import common_headers
-    handle /api/* {
-        reverse_proxy backend:8000
-    }
+	import common_headers
+	handle /api/* {
+		reverse_proxy backend:8000
+	}
 }
 
 # 0. Redirect www → apex
 www.scoutgame.ch {
-    redir https://scoutgame.ch{uri} permanent
+	redir https://scoutgame.ch{uri} permanent
 }
 
 # 1. Portail d'accueil (Hub Face A)
 scoutgame.ch {
-    import api_backend
-    handle {
-        reverse_proxy hub:80
-    }
+	import api_backend
+	handle {
+		reverse_proxy hub:80
+	}
 }
 
 # 2. API Backend
 api.scoutgame.ch {
-    import common_headers
-    @blocked_docs path /docs* /redoc* /openapi.json
-    respond @blocked_docs 404
-    reverse_proxy backend:8000
+	import common_headers
+	@blocked_docs path /docs* /redoc* /openapi.json
+	respond @blocked_docs 404
+	reverse_proxy backend:8000
 }
 
 # 3. Jeux Face A (Jeunesse)
 infiltre.scoutgame.ch {
-    import api_backend
-    handle {
-        reverse_proxy game-infiltre:80
-    }
+	import api_backend
+	handle {
+		reverse_proxy game-infiltre:80
+	}
 }
 
 couvrefeu.scoutgame.ch {
-    import api_backend
-    handle {
-        reverse_proxy game-couvrefeu:80
-    }
+	import api_backend
+	handle {
+		reverse_proxy game-couvrefeu:80
+	}
 }
 
 chrono.scoutgame.ch {
-    import api_backend
-    handle {
-        reverse_proxy game-chrono:80
-    }
+	import api_backend
+	handle {
+		reverse_proxy game-chrono:80
+	}
+}
+
+# Face A : Ronde de nuit
+rondedenuit.scoutgame.ch {
+	import common_headers
+	reverse_proxy game-rondedenuit:80
 }
 
 # 4. Jeux Face B (Maîtrise)
 vachao.scoutgame.ch {
-    import api_backend
-    handle {
-        reverse_proxy game-vachao:80
-    }
+	import api_backend
+	handle {
+		reverse_proxy game-vachao:80
+	}
 }
 
 crise.scoutgame.ch {
-    import api_backend
-    handle {
-        reverse_proxy game-crise:80
-    }
+	import api_backend
+	handle {
+		reverse_proxy game-crise:80
+	}
 }
 
 debrief.scoutgame.ch {
-    import api_backend
-    handle {
-        reverse_proxy game-debrief:80
-    }
+	import api_backend
+	handle {
+		reverse_proxy game-debrief:80
+	}
+}
+
+# Redirections d'anciens sous-domaines Face B vers le nouveau jeu Vachao
+carnotzet.scoutgame.ch, debout.scoutgame.ch {
+	redir https://vachao.scoutgame.ch{uri} permanent
 }

@@ -24,10 +24,12 @@ import { DayPhase } from './components/DayPhase'
 import { CascadeModal } from './components/CascadeModal'
 import { GameOverPhase } from './components/GameOverPhase'
 import { HelpModal } from './components/HelpModal'
+import { useWakeLock } from './hooks/useWakeLock'
 
 const HUB_URL = getHubUrl()
 
 export default function App() {
+  useWakeLock()
   // Liste des joueurs et synchronisation cookie partagé
   const [players, setPlayers] = useState<Player[]>(() => loadPlayers())
 
