@@ -12,8 +12,8 @@ const GAME_PORTS: Record<string, number> = {
   couvrefeu: 3002,
   rondedenuit: 3002,
   chrono: 3003,
-  carnotzet: 3004,
-  debout: 3005,
+  vachao: 3004,
+  crise: 3005,
   debrief: 3006,
 }
 

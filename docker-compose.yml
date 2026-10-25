@@ -62,14 +62,14 @@ services:
     networks:
       - scout_net
 
-  game-carnotzet:
-    build: ./games/carnotzet
+  game-vachao:
+    build: ./games/vachao
     restart: always
     networks:
       - scout_net
 
-  game-debout:
-    build: ./games/debout
+  game-crise:
+    build: ./games/crise
     restart: always
     networks:
       - scout_net

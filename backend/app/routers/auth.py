@@ -56,9 +56,9 @@ async def exchange_bootstrap_token(
     token_h = hash_token(raw_token)
     query = """
     SELECT id, is_active, expires_at FROM bootstrap_campaigns
-    WHERE (token_hash = ? OR id = ?) AND is_active = 1
+    WHERE token_hash = ? AND is_active = 1
     """
-    async with db.execute(query, (token_h, raw_token)) as cursor:
+    async with db.execute(query, (token_h,)) as cursor:
         campaign = await cursor.fetchone()
 
     if not campaign:
@@ -163,14 +163,16 @@ async def consume_ephemeral_invite(
     if is_consumed != 0:
         raise HTTPException(status_code=400, detail="Cette invitation a déjà été utilisée")
 
+    now_dt = datetime.datetime.now(datetime.timezone.utc)
+    now = now_dt.isoformat()
+
     if expires_at:
         try:
             cleaned_exp = expires_at.replace("Z", "+00:00")
             exp_dt = datetime.datetime.fromisoformat(cleaned_exp)
             if exp_dt.tzinfo is None:
                 exp_dt = exp_dt.replace(tzinfo=datetime.timezone.utc)
-            now = datetime.datetime.now(datetime.timezone.utc)
-            if exp_dt < now:
+            if exp_dt < now_dt:
                 raise HTTPException(status_code=400, detail="Cette invitation a expiré (>120s)")
         except HTTPException:
             raise
@@ -180,31 +182,35 @@ async def consume_ephemeral_invite(
     # Étape d — Validation de l'ascendance du parrain
     parent_valid, reason = await is_device_ancestry_valid(db, creator_id)
     if not parent_valid:
-        raise HTTPException(status_code=403, detail=f"Le terminal parrain est invalide ou révoqué : {reason}")
+        raise HTTPException(status_code=403, detail="Terminal parrain invalide ou révoqué.")
 
-    # Étape e — Verrouiller atomiquement l'invitation (is_consumed = 1 uniquement pour éviter FK violation)
-    cursor = await db.execute(
-        """UPDATE ephemeral_invites
-           SET is_consumed = 1
-           WHERE token_hash = ? AND is_consumed = 0""",
-        (token_h,),
-    )
-    if cursor.rowcount != 1:
-        raise HTTPException(status_code=400, detail="Cette invitation a déjà été consommée")
-
-    # Étape f — Insérer le nouvel appareil
+    # Étape e — Consommation atomique transactionnelle
     new_device_id = str(uuid.uuid4())
-    await db.execute(
-        "INSERT INTO devices (id, parent_device_id) VALUES (?, ?)",
-        (new_device_id, creator_id),
-    )
+    await db.execute("BEGIN IMMEDIATE")
+    try:
+        await db.execute("PRAGMA defer_foreign_keys = ON")
+        cursor = await db.execute(
+            """UPDATE ephemeral_invites 
+               SET is_consumed = 1, consumed_by_device_id = ? 
+               WHERE token_hash = ? AND is_consumed = 0 AND expires_at >= ?""",
+            (new_device_id, token_h, now)
+        )
+        if cursor.rowcount != 1:
+            await db.execute("ROLLBACK")
+            raise HTTPException(status_code=400, detail="Invitation déjà consommée ou expirée")
 
-    # Étape g — Lier l'appareil consommateur (l'ID existe désormais dans devices)
-    await db.execute(
-        "UPDATE ephemeral_invites SET consumed_by_device_id = ? WHERE token_hash = ?",
-        (new_device_id, token_h),
-    )
-    await db.commit()
+        await db.execute(
+            "INSERT INTO devices (id, parent_device_id) VALUES (?, ?)",
+            (new_device_id, creator_id)
+        )
+        await db.execute("COMMIT")
+    except Exception:
+        try:
+            await db.execute("ROLLBACK")
+        except Exception:
+            pass
+        raise
+
     return {"device_pass": new_device_id, "status": "authorized"}
 
 

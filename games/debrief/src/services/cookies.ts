@@ -23,34 +23,71 @@ function secureAttr(): string {
 
 function getCookie(name: string): string | null {
   if (typeof document === 'undefined') return null
-  const match = document.cookie.match(new RegExp(`(^| )${name}=([^;]+)`))
-  return match ? decodeURIComponent(match[2]) : null
+  try {
+    const match = document.cookie.match(new RegExp(`(^| )${name}=([^;]+)`))
+    return match ? decodeURIComponent(match[2]) : null
+  } catch {
+    return null
+  }
 }
 
 export function loadPlayers(): Player[] {
   const val = getCookie(PLAYERS_COOKIE)
+  let rawList: any[] = []
   if (val) {
     try {
-      return JSON.parse(val) as Player[]
+      rawList = JSON.parse(val)
     } catch {
-      return []
+      rawList = []
     }
   }
-  return []
+  if (rawList.length === 0 && typeof localStorage !== 'undefined') {
+    const fromStorage = localStorage.getItem(PLAYERS_COOKIE)
+    if (fromStorage) {
+      try {
+        rawList = JSON.parse(fromStorage)
+      } catch {
+        rawList = []
+      }
+    }
+  }
+
+  return rawList.map((p, idx) => ({
+    id: p.id || `p_${idx + 1}`,
+    name: typeof p === 'string' ? p : p.name || `Chef ${idx + 1}`,
+    avatar: p.avatar || ['⛺', '🪵', '🔥', '🪓', '🐺', '🦊', '🦅', '🐻'][idx % 8],
+    sipsCount: p.sipsCount || 0,
+  }))
 }
 
 export function savePlayers(players: Player[]): void {
-  const encoded = encodeURIComponent(JSON.stringify(players))
-  document.cookie = [
-    `${PLAYERS_COOKIE}=${encoded}`,
-    `Path=/`,
-    `Max-Age=86400`,
-    `SameSite=Lax`,
-    secureAttr(),
-    domainAttr(),
-  ]
-    .filter(Boolean)
-    .join('; ')
+  const minimal = players.map(p => ({
+    id: p.id,
+    name: p.name,
+    avatar: p.avatar,
+    sipsCount: p.sipsCount || 0,
+  }))
+  const jsonStr = JSON.stringify(minimal)
+  const encoded = encodeURIComponent(jsonStr)
+
+  if (typeof document !== 'undefined') {
+    document.cookie = [
+      `${PLAYERS_COOKIE}=${encoded}`,
+      `Path=/`,
+      `Max-Age=86400`,
+      `SameSite=Lax`,
+      secureAttr(),
+      domainAttr(),
+    ]
+      .filter(Boolean)
+      .join('; ')
+  }
+
+  if (typeof localStorage !== 'undefined') {
+    try {
+      localStorage.setItem(PLAYERS_COOKIE, jsonStr)
+    } catch {}
+  }
 }
 
 export function loadDevicePass(): string | null {

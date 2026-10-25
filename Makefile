@@ -43,8 +43,8 @@ build-all: ## Compile les 7 applications Frontend (Hub + 6 jeux) avec npm run bu
 	echo "Compiling Face A: infiltre..." && (cd games/infiltre && npm run build) && \
 	echo "Compiling Face A: couvrefeu..." && (cd games/couvrefeu && npm run build) && \
 	echo "Compiling Face A: chrono..." && (cd games/chrono && npm run build) && \
-	echo "Compiling Face B: carnotzet..." && (cd games/carnotzet && npm run build) && \
-	echo "Compiling Face B: debout..." && (cd games/debout && npm run build) && \
+	echo "Compiling Face B: vachao..." && (cd games/vachao && npm run build) && \
+	echo "Compiling Face B: crise..." && (cd games/crise && npm run build) && \
 	echo "Compiling Face B: debrief..." && (cd games/debrief && npm run build) && \
 	echo "✅ Tous les projets ont été compilés avec succès !"
 

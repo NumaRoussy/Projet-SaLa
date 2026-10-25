@@ -41,5 +41,4 @@ async def send_relay_email(
     """
     Envoi asynchrone délégué au thread executor pour éviter le blocage de la boucle.
     """
-    loop = asyncio.get_event_loop()
-    return await loop.run_in_executor(None, _send_sync, to_email, subject, content, reply_to)
+    return await asyncio.to_thread(_send_sync, to_email, subject, content, reply_to)

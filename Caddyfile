@@ -9,6 +9,7 @@
         X-Content-Type-Options "nosniff"
         X-Frame-Options "DENY"
         Referrer-Policy "strict-origin-when-cross-origin"
+        Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://*.scoutgame.ch"
         Permissions-Policy "camera=(self), microphone=(self), geolocation=()"
     }
 }
@@ -36,6 +37,8 @@ scoutgame.ch {
 # 2. API Backend
 api.scoutgame.ch {
     import common_headers
+    @blocked_docs path /docs* /redoc* /openapi.json
+    respond @blocked_docs 404
     reverse_proxy backend:8000
 }
 
@@ -62,17 +65,17 @@ chrono.scoutgame.ch {
 }
 
 # 4. Jeux Face B (Maîtrise)
-carnotzet.scoutgame.ch {
+vachao.scoutgame.ch {
     import api_backend
     handle {
-        reverse_proxy game-carnotzet:80
+        reverse_proxy game-vachao:80
     }
 }
 
-debout.scoutgame.ch {
+crise.scoutgame.ch {
     import api_backend
     handle {
-        reverse_proxy game-debout:80
+        reverse_proxy game-crise:80
     }
 }
 

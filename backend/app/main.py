@@ -10,6 +10,7 @@ Fonctionnalités :
 - Expose GET /api/cards/{game_id} — récupération des cartes d'un jeu
 - Expose POST /api/telemetry     — enregistrement d'un événement télémétrique
 """
+import os
 from contextlib import asynccontextmanager
 from typing import Optional
 
@@ -37,11 +38,14 @@ async def lifespan(app: FastAPI):
 # Application
 # ---------------------------------------------------------------------------
 
+is_dev = os.getenv("APP_ENV", "production") == "development"
+
 app = FastAPI(
     title="Scout Game API",
     version="1.0.0",
-    docs_url="/docs",
-    redoc_url="/redoc",
+    docs_url="/docs" if is_dev else None,
+    redoc_url="/redoc" if is_dev else None,
+    openapi_url="/openapi.json" if is_dev else None,
     lifespan=lifespan,
     # Supprime la bannière FastAPI/Starlette dans les réponses OpenAPI
     openapi_tags=[
@@ -74,7 +78,7 @@ ALLOWED_ORIGINS = [
 
 CORS_ORIGIN_REGEX = (
     r"^https?://(localhost|127\.0\.0\.1|192\.168\.\d{1,3}\.\d{1,3}|"
-    r"10\.\d{1,3}\.\d{1,3}\.\d{1,3}|172\.\d{1,3}\.\d{1,3}\.\d{1,3}|[a-zA-Z0-9.-]+)(:\d+)?$"
+    r"10\.\d{1,3}\.\d{1,3}\.\d{1,3}|172\.(1[6-9]|2\d|3[01])\.\d{1,3}\.\d{1,3})(:\d+)?$"
     r"|^https://([a-zA-Z0-9-]+\.)*scoutgame\.ch$"
 )
 
@@ -131,8 +135,10 @@ async def rate_limit_public_endpoints(request, call_next):
 
     # Purger les anciennes entrées
     _rate_limit_store[client_ip] = [t for t in _rate_limit_store[client_ip] if t > window_start]
+    if not _rate_limit_store[client_ip]:
+        del _rate_limit_store[client_ip]
 
-    if len(_rate_limit_store[client_ip]) >= _RATE_LIMIT:
+    if len(_rate_limit_store.get(client_ip, [])) >= _RATE_LIMIT:
         headers = {}
         origin = request.headers.get("origin")
         if origin:
@@ -165,17 +171,21 @@ app.include_router(admin.router)
 @app.get("/api/cards/{game_id}", tags=["cards"], response_model=list[CardOut])
 async def get_cards(
     game_id: str,
+    mode: Optional[str] = Query(default=None, description="Filtrer par mode"),
     category: Optional[str] = Query(default=None, description="Filtrer par catégorie"),
     min_players: Optional[int] = Query(default=None, description="Filtrer par nombre minimum de joueurs"),
     db: aiosqlite.Connection = Depends(get_db),
 ):
     """
     Retourne les cartes du jeu `game_id`.
-    Filtres optionnels : category, min_players.
+    Filtres optionnels : mode, category, min_players.
     """
-    base_query = "SELECT id, game, category, title, content, extra, sips, min_players FROM cards WHERE game = ?"
+    base_query = "SELECT id, game, mode, category, title, content, extra, sips, loss_percent, min_players FROM cards WHERE game = ?"
     params: list = [game_id]
 
+    if mode:
+        base_query += " AND mode = ?"
+        params.append(mode)
     if category:
         base_query += " AND category = ?"
         params.append(category)
@@ -192,12 +202,14 @@ async def get_cards(
         CardOut(
             id=r[0],
             game=r[1],
-            category=r[2],
-            title=r[3],
-            content=r[4],
-            extra=r[5],
-            sips=r[6],
-            min_players=r[7],
+            mode=r[2],
+            category=r[3],
+            title=r[4],
+            content=r[5],
+            extra=r[6],
+            sips=r[7] if r[7] is not None else 0,
+            loss_percent=float(r[8]) if r[8] is not None else 0.0,
+            min_players=r[9] if r[9] is not None else 2,
         )
         for r in rows
     ]

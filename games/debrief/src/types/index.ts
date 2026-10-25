@@ -1,17 +1,25 @@
+export type DebriefMode = 'jamais' | 'prefere' | 'mixte'
+
 export interface Card {
   id?: number
-  game_id: string
-  category: 'verite' | 'jamais'
+  game?: string
+  game_id?: string
+  mode?: string
+  category: string // 'jamais' | 'prefere' | 'verite' | 'dilemme' | 'carte'
   title: string
   content: string
-  extra_data?: string
+  extra?: string | null
+  extra_data?: string | null
   sips?: number
-  display_order?: number
+  loss_percent?: number
+  min_players?: number
 }
 
 export interface Player {
   id: string
   name: string
+  avatar?: string
+  sipsCount?: number
 }
 
 export interface VerifyResult {

@@ -11,16 +11,17 @@ async def is_device_ancestry_valid(db: aiosqlite.Connection, device_id: str) -> 
     Remonte la chaîne des ancêtres. Si le nœud ou un ancêtre est révoqué, retourne False.
     """
     query = """
-    WITH RECURSIVE Ancestors AS (
-        SELECT id, parent_device_id, is_revoked, revocation_reason
+    WITH RECURSIVE Ancestors(id, parent_device_id, is_revoked, revocation_reason, depth) AS (
+        SELECT id, parent_device_id, is_revoked, revocation_reason, 0
         FROM devices
         WHERE id = ?
 
         UNION ALL
 
-        SELECT d.id, d.parent_device_id, d.is_revoked, d.revocation_reason
+        SELECT d.id, d.parent_device_id, d.is_revoked, d.revocation_reason, a.depth + 1
         FROM devices d
         INNER JOIN Ancestors a ON d.id = a.parent_device_id
+        WHERE a.depth < 50
     )
     SELECT id, revocation_reason FROM Ancestors WHERE is_revoked = 1 LIMIT 1;
     """
@@ -37,11 +38,12 @@ async def prune_branch_recursive(db: aiosqlite.Connection, target_device_id: str
     Retourne le nombre d'appareils révoqués.
     """
     select_descendants_query = """
-    WITH RECURSIVE Descendants AS (
-        SELECT id FROM devices WHERE id = ?
+    WITH RECURSIVE Descendants(id, depth) AS (
+        SELECT id, 0 FROM devices WHERE id = ?
         UNION ALL
-        SELECT d.id FROM devices d
+        SELECT d.id, desc.depth + 1 FROM devices d
         INNER JOIN Descendants desc ON d.parent_device_id = desc.id
+        WHERE desc.depth < 50
     )
     SELECT id FROM Descendants;
     """

@@ -64,16 +64,20 @@ export function savePlayers(players: Player[]): void {
 }
 
 export function loadPlayers(): Player[] {
-  const val = getCookie(PLAYERS_COOKIE)
-  if (val) {
+  const match = typeof document !== 'undefined' ? document.cookie.match(new RegExp('(^| )scout_players=([^;]+)')) : null
+  if (match) {
     try {
-      return JSON.parse(val) as Player[]
-    } catch {
+      const decoded = decodeURIComponent(match[2])
+      return JSON.parse(decoded) as Player[]
+    } catch (e) {
+      console.warn('[cookies] Erreur de décodage des joueurs du cookie, réinitialisation gracieuse :', e)
       return []
     }
   }
   return []
 }
+
+export const loadActivePlayers = loadPlayers
 
 export function clearPlayers(): void {
   try {

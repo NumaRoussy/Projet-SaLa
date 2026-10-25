@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef, useMemo } from 'react'
-import type { Card, Player } from './types'
+import type { Card, Player, DebriefMode } from './types'
 import { loadPlayers, savePlayers, loadDevicePass, getHubUrl } from './services/cookies'
 import { verifyDevice, fetchDebriefCards, sendTelemetry } from './services/api'
 import { BlackoutScreen } from './components/BlackoutScreen'
@@ -7,122 +7,111 @@ import { FeedbackModal } from './components/FeedbackModal'
 
 const FALLBACK_CARDS: Card[] = [
   {
-    game_id: 'debrief',
-    category: 'verite',
-    title: 'Vérité Intendance',
-    content: "Quel est le pire plat que tu as servi en camp sans assumer l'échec ?",
-    extra_data: 'Avoue ou prends {sips} gorgées',
+    id: 1,
+    game: 'debrief',
+    mode: 'jamais',
+    category: 'carte',
+    title: 'Réserve Secrète de Sirop',
+    content: "Je n'ai jamais siphonné la bouteille de sirop de grenadine de l'intendance en douce au milieu de la nuit.",
+    extra: 'Tous les concernés boivent {sips}',
     sips: 2,
+    min_players: 3,
   },
   {
-    game_id: 'debrief',
-    category: 'jamais',
-    title: "Je n'ai jamais",
-    content: "Je n'ai jamais dormi pendant mon propre tour de veille de nuit.",
-    extra_data: 'Tous les concernés boivent {sips}',
+    id: 2,
+    game: 'debrief',
+    mode: 'jamais',
+    category: 'carte',
+    title: 'Sommeil de Garde',
+    content: "Je n'ai jamais dormi profondément pendant mon propre tour de veille de nuit autour du feu.",
+    extra: 'Tous les concernés boivent {sips}',
     sips: 2,
+    min_players: 2,
   },
   {
-    game_id: 'debrief',
-    category: 'verite',
-    title: 'Gaffe Nocturne',
-    content: "Quelle est la pire gaffe ou bêtise que tu as commise en raid sans jamais l'avouer ?",
-    extra_data: 'Avoue tout ou bois {sips} gorgées',
+    id: 3,
+    game: 'debrief',
+    mode: 'jamais',
+    category: 'carte',
+    title: 'Chute de Saucisse',
+    content: "Je n'ai jamais fait tomber un cervelas dans la cendre et l'avoir resservi à un louveteau sans rien dire.",
+    extra: 'Tous les coupables boivent {sips}',
     sips: 2,
+    min_players: 2,
   },
   {
-    game_id: 'debrief',
+    id: 4,
+    game: 'debrief',
+    mode: 'prefere',
+    category: 'dilemme',
+    title: 'Dilemme des Feuillées',
+    content: "Préfères-tu creuser des feuillées de 2 mètres de fond dans un sol caillouteux [A] ou nettoyer les 10 gamelles de fromage fondu sans eau chaude [B] ?",
+    extra: 'La minorité boit {sips} gorgées',
+    sips: 2,
+    min_players: 3,
+  },
+  {
+    id: 5,
+    game: 'debrief',
+    mode: 'prefere',
+    category: 'dilemme',
+    title: 'Dilemme Météorologique',
+    content: "Préfères-tu passer 14 jours sous la roille avec des chaussettes mouillées [A] ou passer tout le camp avec un intendant qui cuisine sans sel [B] ?",
+    extra: 'La minorité boit {sips} gorgées',
+    sips: 2,
+    min_players: 3,
+  },
+  {
+    id: 6,
+    game: 'debrief',
+    mode: 'mixte',
     category: 'verite',
-    title: 'Coup de Cœur de Maîtrise',
-    content: "As-tu déjà eu un crush inavoué pour un animateur ou une animatrice d'un autre groupe ?",
-    extra_data: 'Révèle le prénom ou bois {sips} gorgées',
+    title: 'Le Pire Carnage Culinaire',
+    content: "Quel est le plat de camp le plus immangeable que tu as osé servir en faisant semblant que c'était délicieux ?",
+    extra: 'Avoue tout ou bois {sips} gorgées',
     sips: 3,
+    min_players: 2,
   },
   {
-    game_id: 'debrief',
+    id: 7,
+    game: 'debrief',
+    mode: 'mixte',
     category: 'verite',
-    title: 'Flemme Matinale',
-    content: "Quel matin de camp as-tu prétendu être malade ou indisponible pour échapper au réveil matinal ?",
-    extra_data: 'Confesse-toi ou prends {sips} gorgées',
-    sips: 2,
-  },
-  {
-    game_id: 'debrief',
-    category: 'verite',
-    title: 'Perte de Matériel',
-    content: "Quel objet cher ou symbolique as-tu perdu en camp en faisant porter le chapeau à un jeune ?",
-    extra_data: 'Assume ou bois {sips} gorgées',
+    title: 'Le Dossier Inavouable',
+    content: "Révèle la pire bêtise commise en camp dont les jeunes ou la brigade n'ont jamais su que tu étais l'auteur.",
+    extra: 'Confession obligatoire ou {sips} gorgées',
     sips: 3,
-  },
-  {
-    game_id: 'debrief',
-    category: 'jamais',
-    title: "Je n'ai jamais",
-    content: "Je n'ai jamais fait brûler la gamelle de pâtes au point d'enfumer tout le sous-bois.",
-    extra_data: 'Tous les coupables boivent {sips}',
-    sips: 2,
-  },
-  {
-    game_id: 'debrief',
-    category: 'jamais',
-    title: "Je n'ai jamais",
-    content: "Je n'ai jamais falsifié un message codé en grand jeu pour que ma troupe gagne.",
-    extra_data: 'Les tricheurs boivent {sips}',
-    sips: 2,
-  },
-  {
-    game_id: 'debrief',
-    category: 'jamais',
-    title: "Je n'ai jamais",
-    content: "Je n'ai jamais oublié d'éteindre complètement le feu de camp avant d'aller dormir.",
-    extra_data: 'Ceux qui ont eu chaud boivent {sips}',
-    sips: 3,
-  },
-  {
-    game_id: 'debrief',
-    category: 'jamais',
-    title: "Je n'ai jamais",
-    content: "Je n'ai jamais caché de la nourriture industrielle dans mon sac lors d'un week-end de survie.",
-    extra_data: 'Les gourmands boivent {sips}',
-    sips: 2,
-  },
-  {
-    game_id: 'debrief',
-    category: 'jamais',
-    title: "Je n'ai jamais",
-    content: "Je n'ai jamais confondu deux éclaireurs pendant toute une semaine de camp sans qu'ils le sachent.",
-    extra_data: 'Tous les concernés boivent {sips}',
-    sips: 1,
+    min_players: 2,
   },
 ]
-
-type FilterMode = 'all' | 'verite' | 'jamais'
 
 export default function App() {
   const [isVerifying, setIsVerifying] = useState(true)
   const [blackoutMessage, setBlackoutMessage] = useState<string | null>(null)
 
   const [cards, setCards] = useState<Card[]>([])
+  const [currentMode, setCurrentMode] = useState<DebriefMode>('mixte')
   const [currentIndex, setCurrentIndex] = useState(0)
-  const [filterMode, setFilterMode] = useState<FilterMode>('all')
 
   const [players, setPlayers] = useState<Player[]>([])
   const [designatedPlayer, setDesignatedPlayer] = useState<string | null>(null)
   const [newPlayerName, setNewPlayerName] = useState('')
   const [showPlayerModal, setShowPlayerModal] = useState(false)
   const [showFeedbackModal, setShowFeedbackModal] = useState(false)
+  const [totalDrinksCount, setTotalDrinksCount] = useState(0)
 
-  const [historyCount, setHistoryCount] = useState(1)
   const startTimeRef = useRef<number>(Date.now())
   const hubUrl = getHubUrl()
 
   // 1. Initial Device Auth & Heartbeat
   useEffect(() => {
-    let timer: ReturnType<typeof setInterval> | null = null
-
     async function checkAuth() {
       const pass = loadDevicePass()
       if (!pass) {
+        if (typeof window !== 'undefined' && !window.location.hostname.endsWith('scoutgame.ch')) {
+          setIsVerifying(false)
+          return
+        }
         window.location.href = hubUrl
         return
       }
@@ -140,35 +129,11 @@ export default function App() {
         }
         setIsVerifying(false)
       } catch {
-        // En cas d'erreur réseau, on permet l'accès temporaire si pass existe
         setIsVerifying(false)
       }
     }
 
     checkAuth()
-
-    // Heartbeat toutes les 30 secondes
-    timer = setInterval(async () => {
-      const pass = loadDevicePass()
-      if (!pass) {
-        window.location.href = hubUrl
-        return
-      }
-      try {
-        const res = await verifyDevice(pass)
-        if (res.blackout) {
-          setBlackoutMessage(res.reason || 'Période de camp en cours.')
-        } else if (!res.valid) {
-          window.location.href = hubUrl
-        }
-      } catch {
-        // Silencieux sur heartbeat
-      }
-    }, 30_000)
-
-    return () => {
-      if (timer) clearInterval(timer)
-    }
   }, [hubUrl])
 
   // 2. Load Cards & Players
@@ -190,19 +155,12 @@ export default function App() {
 
   // 3. Telemetry on unmount
   useEffect(() => {
-    const handleBeforeUnload = () => {
-      const elapsed = (Date.now() - startTimeRef.current) / 1000
-      sendTelemetry(elapsed)
-    }
-    window.addEventListener('beforeunload', handleBeforeUnload)
     return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload)
       const elapsed = (Date.now() - startTimeRef.current) / 1000
       sendTelemetry(elapsed)
     }
   }, [])
 
-  // Helper shuffle
   function shuffleArray<T>(arr: T[]): T[] {
     const copy = [...arr]
     for (let i = copy.length - 1; i > 0; i--) {
@@ -212,12 +170,20 @@ export default function App() {
     return copy
   }
 
-  // Filtered Cards
+  // Filter cards by selected mode
   const activeDeck = useMemo(() => {
     if (cards.length === 0) return []
-    if (filterMode === 'all') return cards
-    return cards.filter(c => c.category === filterMode)
-  }, [cards, filterMode])
+    if (currentMode === 'jamais') {
+      const filtered = cards.filter(c => c.mode === 'jamais' || c.category === 'jamais')
+      return filtered.length > 0 ? filtered : cards
+    }
+    if (currentMode === 'prefere') {
+      const filtered = cards.filter(c => c.mode === 'prefere' || c.category === 'prefere' || c.category === 'dilemme')
+      return filtered.length > 0 ? filtered : cards
+    }
+    // 'mixte' / Fond de Veillée
+    return cards
+  }, [cards, currentMode])
 
   const currentCard = activeDeck[currentIndex % (activeDeck.length || 1)]
 
@@ -226,10 +192,9 @@ export default function App() {
     if (!currentCard) return ''
     let text = currentCard.content
 
-    const sipsVal = currentCard.sips || Math.floor(Math.random() * 2) + 2
+    const sipsVal = currentCard.sips || 2
     text = text.replace(/{sips}/g, `${sipsVal}`)
 
-    // Player replacement if present
     if (players.length > 0) {
       const randomP1 = designatedPlayer || players[Math.floor(Math.random() * players.length)].name
       text = text.replace(/{p1}/g, randomP1)
@@ -243,17 +208,14 @@ export default function App() {
   }, [currentCard, players, designatedPlayer])
 
   const formattedExtra = useMemo(() => {
-    if (!currentCard || !currentCard.extra_data) return null
-    let extra = currentCard.extra_data
-    const sipsVal = currentCard.sips || 2
-    extra = extra.replace(/{sips}/g, `${sipsVal}`)
-    return extra
+    const extra = currentCard?.extra || currentCard?.extra_data
+    if (!extra) return null
+    const sipsVal = currentCard?.sips || 2
+    return extra.replace(/{sips}/g, `${sipsVal}`)
   }, [currentCard])
 
   const drawNextCard = () => {
     setCurrentIndex(prev => prev + 1)
-    setHistoryCount(prev => prev + 1)
-    // Re-pick or clear designated player
     if (players.length > 0 && Math.random() < 0.6) {
       const random = players[Math.floor(Math.random() * players.length)].name
       setDesignatedPlayer(random)
@@ -262,17 +224,25 @@ export default function App() {
     }
   }
 
-  const pickRandomResponsable = () => {
-    if (players.length === 0) return
-    const random = players[Math.floor(Math.random() * players.length)].name
-    setDesignatedPlayer(random)
+  // Quick drink counter increment
+  const handleQuickDrink = (sips = 1) => {
+    setTotalDrinksCount(prev => prev + sips)
   }
 
   const addPlayer = (e: React.FormEvent) => {
     e.preventDefault()
     const trimmed = newPlayerName.trim()
     if (!trimmed) return
-    const updated = [...players, { id: 'p_' + Date.now(), name: trimmed }]
+    const avatars = ['⛺', '🪵', '🔥', '🪓', '🐺', '🦊', '🦅', '🐻']
+    const updated = [
+      ...players,
+      {
+        id: 'p_' + Date.now(),
+        name: trimmed,
+        avatar: avatars[players.length % avatars.length],
+        sipsCount: 0,
+      },
+    ]
     setPlayers(updated)
     savePlayers(updated)
     setNewPlayerName('')
@@ -286,10 +256,10 @@ export default function App() {
 
   if (isVerifying) {
     return (
-      <div className="app-container bg-[#0b0e14] flex items-center justify-center text-purple-400">
+      <div className="min-h-screen bg-[#0d090a] flex items-center justify-center text-amber-500">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 border-2 border-purple-500/30 border-t-purple-400 rounded-full animate-spin" />
-          <span className="text-sm font-semibold">Vérification de l'accès maîtrise…</span>
+          <div className="w-8 h-8 border-2 border-amber-500/30 border-t-amber-400 rounded-full animate-spin" />
+          <span className="text-sm font-semibold">Accès au Débrief de veillée...</span>
         </div>
       </div>
     )
@@ -299,292 +269,224 @@ export default function App() {
     return <BlackoutScreen message={blackoutMessage} />
   }
 
-  const isVerite = currentCard?.category === 'verite'
+  const modesConfig = [
+    { id: 'mixte', label: 'Fond de Veillée', icon: '🔥', desc: 'Mixte' },
+    { id: 'jamais', label: 'Je n\'ai jamais', icon: '🤫', desc: 'Spécial Camp' },
+    { id: 'prefere', label: 'Tu préfères', icon: '⚖️', desc: 'Dilemmes' },
+  ] as const
 
   return (
-    <div className="app-container bg-[#0b0e14] text-white">
+    <div className="min-h-screen bg-gradient-to-b from-[#0f090b] via-[#140b0e] to-[#0a0607] text-white flex flex-col justify-between selection:bg-amber-600">
       {/* ── Header ────────────────────────────────────────────────────────── */}
-      <header className="px-4 py-3 border-b border-white/10 flex items-center justify-between sticky top-0 bg-[#0b0e14]/90 backdrop-blur-md z-40">
+      <header className="px-4 py-2.5 border-b border-amber-900/30 flex items-center justify-between sticky top-0 bg-[#0f090b]/95 backdrop-blur-md z-40">
         <div className="flex items-center gap-2.5">
           <a
             href={hubUrl}
-            className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center text-xs text-gray-300 hover:text-white hover:bg-white/15"
+            className="w-8 h-8 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-xs text-gray-300 hover:text-white"
             title="Retour au Hub"
           >
             ←
           </a>
           <div>
             <div className="flex items-center gap-1.5">
-              <span className="text-sm">🤫</span>
-              <h1 className="font-display font-black text-sm tracking-wide bg-gradient-to-r from-purple-400 to-indigo-300 bg-clip-text text-transparent">
+              <span className="text-lg">🔥</span>
+              <h1 className="font-display font-black text-sm tracking-wide bg-gradient-to-r from-amber-400 via-orange-300 to-rose-400 bg-clip-text text-transparent">
                 DÉBRIEF
               </h1>
-              <span className="text-[10px] px-1.5 py-0.5 rounded bg-purple-900/40 text-purple-300 border border-purple-700/40 font-mono">
-                Face B
+              <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-950/60 text-amber-300 border border-amber-700/40 font-mono">
+                Carnotzet
               </span>
             </div>
-            <p className="text-[10px] text-gray-400">Veillée de maîtrise & confidences (Froideville)</p>
+            <p className="text-[10px] text-gray-400">Veillée de maîtrise & dossiers d'après-camp</p>
           </div>
         </div>
 
         <div className="flex items-center gap-1.5">
           <button
             onClick={() => setShowFeedbackModal(true)}
-            className="btn-ghost py-1 px-2.5 text-xs text-purple-300 border border-purple-500/30 rounded-lg bg-purple-950/30 hover:bg-purple-900/50"
+            className="py-1 px-2.5 text-xs text-amber-300 border border-amber-500/30 rounded-lg bg-amber-950/40 hover:bg-amber-900/50 flex items-center gap-1"
             title="Proposer une carte"
           >
             <span>✍️</span>
-            <span className="hidden sm:inline ml-1 font-semibold">Proposer</span>
+            <span className="hidden sm:inline font-semibold">Proposer</span>
           </button>
           <button
             onClick={() => setShowPlayerModal(true)}
-            className="btn-ghost py-1 px-2.5 text-xs text-gray-300 border border-white/10 rounded-lg hover:bg-white/10"
+            className="py-1 px-2.5 text-xs text-gray-300 border border-white/10 rounded-lg hover:bg-white/10 flex items-center gap-1"
           >
             <span>👥</span>
-            <span className="ml-1 font-mono font-bold">{players.length}</span>
+            <span className="font-mono font-bold">{players.length}</span>
           </button>
         </div>
       </header>
 
-      {/* ── Filter / Category Bar ─────────────────────────────────────────── */}
-      <div className="px-4 py-2 border-b border-white/5 flex items-center justify-between gap-2 bg-[#12161f]">
-        <div className="flex items-center gap-1.5 overflow-x-auto text-xs py-0.5">
-          <button
-            onClick={() => setFilterMode('all')}
-            className={`px-3 py-1 rounded-full text-xs font-semibold transition-all ${
-              filterMode === 'all'
-                ? 'bg-purple-600 text-white shadow-sm shadow-purple-600/30'
-                : 'text-gray-400 hover:text-white'
-            }`}
-          >
-            Mixte
-          </button>
-          <button
-            onClick={() => setFilterMode('verite')}
-            className={`px-3 py-1 rounded-full text-xs font-semibold transition-all flex items-center gap-1 ${
-              filterMode === 'verite'
-                ? 'bg-purple-600 text-white shadow-sm shadow-purple-600/30'
-                : 'text-gray-400 hover:text-white'
-            }`}
-          >
-            <span>🤫</span>
-            <span>Vérités</span>
-          </button>
-          <button
-            onClick={() => setFilterMode('jamais')}
-            className={`px-3 py-1 rounded-full text-xs font-semibold transition-all flex items-center gap-1 ${
-              filterMode === 'jamais'
-                ? 'bg-amber-600 text-white shadow-sm shadow-amber-600/30'
-                : 'text-gray-400 hover:text-white'
-            }`}
-          >
-            <span>🍻</span>
-            <span>Je n'ai jamais</span>
-          </button>
-        </div>
-
-        <span className="text-[11px] font-mono text-gray-500 whitespace-nowrap">
-          #{historyCount}
-        </span>
+      {/* ── Mode Selection Tabs ────────────────────────────────────────────── */}
+      <div className="px-4 py-2 border-b border-amber-950/40 flex items-center justify-between gap-1.5 bg-[#170e12]/60 backdrop-blur-md">
+        {modesConfig.map(m => {
+          const isActive = currentMode === m.id
+          return (
+            <button
+              key={m.id}
+              onClick={() => {
+                setCurrentMode(m.id)
+                setCurrentIndex(0)
+              }}
+              className={`flex-1 py-1.5 px-2 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+                isActive
+                  ? 'bg-gradient-to-r from-amber-600 to-orange-600 text-white shadow-md shadow-amber-950/60 border border-amber-400/40'
+                  : 'text-gray-400 hover:text-white bg-white/[0.02] border border-white/5'
+              }`}
+            >
+              <span>{m.icon}</span>
+              <span className="truncate">{m.label}</span>
+            </button>
+          )
+        })}
       </div>
 
-      {/* ── Main Content Area ─────────────────────────────────────────────── */}
-      <main className="flex-1 p-4 flex flex-col items-center justify-between max-w-lg mx-auto w-full gap-4">
-        {/* Designated Player Alert (for Truths) */}
-        {isVerite && (
-          <div className="w-full flex items-center justify-between px-4 py-2.5 rounded-xl bg-purple-950/40 border border-purple-500/30 text-xs animate-fade-in">
-            <div className="flex items-center gap-2">
-              <span className="text-base">🎯</span>
-              <div>
-                <span className="text-gray-400">Responsable désigné : </span>
-                <strong className="text-purple-300 font-bold">
-                  {designatedPlayer || (players.length > 0 ? 'Aucun (au choix)' : 'Ajoutez votre maîtrise')}
-                </strong>
-              </div>
-            </div>
-            {players.length > 0 && (
-              <button
-                onClick={pickRandomResponsable}
-                className="btn-ghost py-1 px-2 text-[11px] text-purple-200 border border-purple-400/30 rounded-lg hover:bg-purple-900/50"
-              >
-                🎲 Tirer au sort
-              </button>
-            )}
+      {/* ── Main Discussion Card Canvas ───────────────────────────────────── */}
+      <main className="flex-1 flex flex-col justify-between p-4 max-w-lg mx-auto w-full my-auto py-6">
+        {/* Designated Player Badge (if any) */}
+        {designatedPlayer && (
+          <div className="text-center pb-2 animate-fade-in">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-950/60 border border-amber-500/40 rounded-full text-xs font-bold text-amber-200 shadow-md">
+              <span>👉</span>
+              <span>Parole à : {designatedPlayer}</span>
+            </span>
           </div>
         )}
 
-        {/* ── Main Card ───────────────────────────────────────────────────── */}
-        <div className="w-full flex-1 flex flex-col justify-center my-auto min-h-[340px]">
-          {currentCard ? (
-            <div
-              key={currentIndex}
-              onClick={drawNextCard}
-              className={`glass-card p-6 md:p-8 flex flex-col justify-between cursor-pointer select-none transition-all duration-300 border shadow-2xl relative overflow-hidden group ${
-                isVerite
-                  ? 'border-purple-500/30 hover:border-purple-500/60 shadow-purple-950/30 bg-gradient-to-b from-[#1c142b]/90 to-[#12161f]/90'
-                  : 'border-amber-500/30 hover:border-amber-500/60 shadow-amber-950/20 bg-gradient-to-b from-[#241a12]/90 to-[#12161f]/90'
-              }`}
-            >
-              {/* Subtle background glow */}
-              <div
-                className={`absolute -top-16 -right-16 w-36 h-36 rounded-full blur-3xl pointer-events-none opacity-20 ${
-                  isVerite ? 'bg-purple-500' : 'bg-amber-500'
-                }`}
-              />
-
-              {/* Card Badge & Category */}
-              <div className="flex items-center justify-between mb-4">
-                <span
-                  className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border ${
-                    isVerite
-                      ? 'bg-purple-950/80 text-purple-300 border-purple-500/40'
-                      : 'bg-amber-950/80 text-amber-300 border-amber-500/40'
-                  }`}
-                >
-                  <span>{isVerite ? '🤫' : '🍻'}</span>
-                  <span>{isVerite ? 'Vérité' : "Je n'ai jamais"}</span>
-                </span>
-
-                {currentCard.sips && (
-                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-white/5 border border-white/10 text-gray-300">
-                    🍺 {currentCard.sips} {currentCard.sips > 1 ? 'gorgées' : 'gorgée'}
-                  </span>
-                )}
-              </div>
-
-              {/* Card Title */}
-              <h2 className="font-display font-black text-xl md:text-2xl text-white mb-4">
-                {currentCard.title}
-              </h2>
-
-              {/* Card Content Statement */}
-              <p className="text-base md:text-lg text-gray-100 font-medium leading-relaxed my-auto">
-                {formattedContent}
-              </p>
-
-              {/* Card Penalty / Consequence */}
-              {formattedExtra && (
-                <div
-                  className={`mt-6 p-3.5 rounded-xl border text-sm font-semibold flex items-center gap-2 ${
-                    isVerite
-                      ? 'bg-purple-950/50 border-purple-500/30 text-purple-200'
-                      : 'bg-amber-950/50 border-amber-500/30 text-amber-200'
-                  }`}
-                >
-                  <span className="text-lg">⚖️</span>
-                  <span>{formattedExtra}</span>
-                </div>
-              )}
-
-              {/* Tap to continue indicator */}
-              <div className="mt-6 pt-3 border-t border-white/5 flex items-center justify-between text-xs text-gray-400 group-hover:text-gray-200 transition-colors">
-                <span>Cliquez pour passer ➔</span>
-                <span className="font-mono text-[10px]">Scout Débrief</span>
-              </div>
-            </div>
-          ) : (
-            <div className="glass-card p-8 text-center space-y-3">
-              <div className="text-4xl">🏕️</div>
-              <h3 className="font-bold text-white text-base">Aucune carte disponible</h3>
-              <p className="text-xs text-gray-400">Changez de filtre ou ajoutez des cartes.</p>
-            </div>
+        {/* Card Frame */}
+        <div className="bg-gradient-to-b from-[#1b1015] to-[#12090c] border border-amber-600/30 rounded-3xl p-6 sm:p-8 shadow-2xl shadow-orange-950/30 text-center space-y-6">
+          {/* Card Title */}
+          {currentCard?.title && (
+            <h2 className="font-display font-black text-xl sm:text-2xl text-amber-100 tracking-wide">
+              {currentCard.title}
+            </h2>
           )}
+
+          {/* Statement / Dilemma */}
+          <p className="font-display text-lg sm:text-xl text-gray-100 font-medium leading-relaxed italic">
+            « {formattedContent} »
+          </p>
+
+          {/* Extra Rule / Consequence */}
+          <div className="flex flex-col items-center gap-2 pt-2">
+            {formattedExtra && (
+              <span className="text-xs text-amber-300 font-semibold bg-amber-950/50 px-3 py-1 rounded-full border border-amber-800/40">
+                💡 {formattedExtra}
+              </span>
+            )}
+            {currentCard?.sips && currentCard.sips > 0 ? (
+              <div className="inline-flex items-center gap-1.5 bg-amber-500/10 border border-amber-500/30 px-3 py-1 rounded-full">
+                <span className="text-sm">🍺</span>
+                <span className="font-mono text-xs font-bold text-amber-300">
+                  {currentCard.sips} gorgée{currentCard.sips > 1 ? 's' : ''} associées
+                </span>
+              </div>
+            ) : null}
+          </div>
         </div>
 
-        {/* ── Actions Footer ──────────────────────────────────────────────── */}
-        <div className="w-full space-y-2">
+        {/* Quick Sip Counters Bar & Next Button */}
+        <div className="pt-6 space-y-3">
+          {/* Interactive sip counting buttons */}
+          <div className="flex items-center justify-between p-2.5 rounded-2xl bg-black/40 border border-amber-900/30">
+            <div className="flex items-center gap-2 text-xs font-mono text-gray-400 pl-1">
+              <span>🍺 Gorgées totales :</span>
+              <strong className="text-amber-300 text-sm font-bold">{totalDrinksCount}</strong>
+            </div>
+
+            <div className="flex items-center gap-1.5">
+              <button
+                onClick={() => handleQuickDrink(1)}
+                className="px-2.5 py-1 bg-amber-950/60 hover:bg-amber-900 border border-amber-600/40 rounded-lg text-xs font-mono font-bold text-amber-200 active:scale-95"
+              >
+                +1 🍺
+              </button>
+              <button
+                onClick={() => handleQuickDrink(2)}
+                className="px-2.5 py-1 bg-amber-950/60 hover:bg-amber-900 border border-amber-600/40 rounded-lg text-xs font-mono font-bold text-amber-200 active:scale-95"
+              >
+                +2 🍺
+              </button>
+            </div>
+          </div>
+
           <button
             onClick={drawNextCard}
-            className="btn-primary w-full py-4 text-base font-black shadow-lg shadow-purple-600/20 active:scale-95 transition-all"
+            className="w-full py-4 bg-gradient-to-r from-amber-600 via-orange-600 to-rose-600 hover:brightness-110 active:scale-98 text-white font-black text-base rounded-2xl shadow-xl shadow-amber-950/50 flex items-center justify-center gap-2"
           >
-            🔥 Confession suivante ➔
+            <span>Passer à la suite</span>
+            <span>→</span>
           </button>
-
-          <div className="flex gap-2">
-            <button
-              onClick={() => setShowFeedbackModal(true)}
-              className="btn-secondary flex-1 py-2 text-xs text-gray-300 flex items-center justify-center gap-1.5"
-            >
-              <span>✍️</span>
-              <span>Proposer une carte</span>
-            </button>
-            <button
-              onClick={() => setShowPlayerModal(true)}
-              className="btn-secondary flex-1 py-2 text-xs text-gray-300 flex items-center justify-center gap-1.5"
-            >
-              <span>👥</span>
-              <span>Gérer la maîtrise ({players.length})</span>
-            </button>
-          </div>
         </div>
       </main>
 
-      {/* ── Player Management Modal ───────────────────────────────────────── */}
+      {/* ── Player Management Modal ────────────────────────────────────────── */}
       {showPlayerModal && (
-        <div
-          className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-end justify-center p-0"
-          onClick={() => setShowPlayerModal(false)}
-        >
-          <div
-            className="glass-card w-full max-w-md rounded-b-none rounded-t-3xl p-6 space-y-4 max-h-[80dvh] overflow-y-auto border border-purple-500/30"
-            onClick={e => e.stopPropagation()}
-          >
-            <div className="w-10 h-1 bg-white/20 rounded-full mx-auto mb-2" />
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-[#180e12] border border-amber-700/30 rounded-2xl p-5 max-w-sm w-full space-y-4">
             <div className="flex items-center justify-between">
-              <div>
-                <h3 className="font-bold text-base text-white">Membres de la maîtrise</h3>
-                <p className="text-xs text-gray-400">Pour cibler les questions et vérités</p>
-              </div>
-              <button onClick={() => setShowPlayerModal(false)} className="btn-ghost py-1 px-3 text-xs">✕</button>
+              <h3 className="font-display font-bold text-sm text-white">Participants ({players.length})</h3>
+              <button
+                onClick={() => setShowPlayerModal(false)}
+                className="text-gray-400 hover:text-white text-sm"
+              >
+                ✕
+              </button>
             </div>
 
             <form onSubmit={addPlayer} className="flex gap-2">
               <input
                 type="text"
-                placeholder="Prénom ou totem…"
                 value={newPlayerName}
                 onChange={e => setNewPlayerName(e.target.value)}
-                className="input-scout py-2 text-xs flex-1"
+                placeholder="Nouveau chef..."
+                className="flex-1 bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500"
               />
-              <button type="submit" className="btn-primary py-2 px-4 text-xs font-bold">
+              <button
+                type="submit"
+                className="px-3 py-2 bg-amber-600 text-white font-bold text-xs rounded-xl"
+              >
                 Ajouter
               </button>
             </form>
 
-            <div className="flex flex-wrap gap-1.5 max-h-48 overflow-y-auto">
-              {players.length === 0 ? (
-                <p className="text-xs text-gray-500 italic py-2">Aucun prénom renseigné.</p>
-              ) : (
-                players.map(p => (
-                  <span
-                    key={p.id}
-                    className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-white/10 text-white border border-white/10"
+            <div className="max-h-48 overflow-y-auto space-y-1.5">
+              {players.map(p => (
+                <div
+                  key={p.id}
+                  className="flex items-center justify-between p-2 rounded-lg bg-white/[0.02] border border-white/5 text-xs"
+                >
+                  <span className="font-semibold text-gray-200">{p.avatar || '⛺'} {p.name}</span>
+                  <button
+                    onClick={() => removePlayer(p.id)}
+                    className="text-gray-400 hover:text-red-400 text-xs px-1"
                   >
-                    <span>{p.name}</span>
-                    <button
-                      type="button"
-                      onClick={() => removePlayer(p.id)}
-                      className="text-gray-400 hover:text-red-400 ml-1 text-sm font-bold"
-                    >
-                      ×
-                    </button>
-                  </span>
-                ))
-              )}
+                    Supprimer
+                  </button>
+                </div>
+              ))}
             </div>
 
-            <button onClick={() => setShowPlayerModal(false)} className="btn-secondary w-full py-2.5 text-xs font-bold">
-              Terminer
+            <button
+              onClick={() => setShowPlayerModal(false)}
+              className="w-full py-2 bg-white/10 hover:bg-white/15 text-white font-bold text-xs rounded-xl"
+            >
+              Fermer
             </button>
           </div>
         </div>
       )}
 
-      {/* ── Feedback / Card Proposal Modal ─────────────────────────────────── */}
-      <FeedbackModal
-        isOpen={showFeedbackModal}
-        onClose={() => setShowFeedbackModal(false)}
-      />
+      {/* ── Feedback Modal ─────────────────────────────────────────────────── */}
+      {showFeedbackModal && (
+        <FeedbackModal
+          isOpen={showFeedbackModal}
+          onClose={() => setShowFeedbackModal(false)}
+        />
+      )}
     </div>
   )
 }

@@ -97,11 +97,13 @@ CREATE TABLE IF NOT EXISTS telemetry_events (
 CREATE TABLE IF NOT EXISTS cards (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     game TEXT NOT NULL,
+    mode TEXT,
     category TEXT NOT NULL,
     title TEXT,
     content TEXT NOT NULL,
     extra TEXT,
     sips INTEGER DEFAULT 0,
+    loss_percent REAL DEFAULT 0.0,
     min_players INTEGER DEFAULT 2
 );
 """
@@ -117,17 +119,34 @@ async def init_db() -> None:
         await db.execute("PRAGMA busy_timeout = 5000")
         await db.execute("PRAGMA foreign_keys = ON")
         await db.executescript(SCHEMA_SQL)
+
+        # Migrations légères pour colonnes récentes
+        try:
+            await db.execute("ALTER TABLE cards ADD COLUMN mode TEXT")
+        except Exception:
+            pass
+        try:
+            await db.execute("ALTER TABLE cards ADD COLUMN loss_percent REAL DEFAULT 0.0")
+        except Exception:
+            pass
+
         await db.commit()
 
 
 async def get_db():
-    """
-    Dépendance FastAPI : ouvre une connexion SQLite par requête.
-    Ré-active les PRAGMAs essentiels à chaque connexion (ils ne sont pas hérités).
-    """
-    async with aiosqlite.connect(DB_PATH) as db:
+    # isolation_level=None active l'autocommit natif pour permettre les transactions manuelles explicites
+    async with aiosqlite.connect(DB_PATH, isolation_level=None) as db:
         await db.execute("PRAGMA journal_mode = WAL")
         await db.execute("PRAGMA busy_timeout = 5000")
         await db.execute("PRAGMA foreign_keys = ON")
+        await db.execute("PRAGMA synchronous = NORMAL")
         db.row_factory = aiosqlite.Row
-        yield db
+        try:
+            yield db
+        except Exception:
+            try:
+                await db.execute("ROLLBACK")
+            except Exception:
+                pass
+            raise
+

@@ -74,11 +74,13 @@ class BlackoutMessagePayload(BaseModel):
 
 class CardCreatePayload(BaseModel):
     game: str
+    mode: Optional[str] = None
     category: str
     title: Optional[str] = None
     content: str
     extra: Optional[str] = None
     sips: int = 0
+    loss_percent: float = 0.0
     min_players: int = 2
 
 
@@ -124,11 +126,13 @@ class TelemetryEvent(BaseModel):
 class CardOut(BaseModel):
     id: int
     game: str
+    mode: Optional[str] = None
     category: str
     title: Optional[str]
     content: str
     extra: Optional[str]
     sips: int
+    loss_percent: float = 0.0
     min_players: int
 
     model_config = {"from_attributes": True}

@@ -59,15 +59,14 @@ export function useDeviceAuth() {
       }
       setAuthState('unauthorized')
       return 'unauthorized'
-    } catch {
-      // En cas d'erreur réseau, on ne bloque pas l'accès —
-      // on traite comme non-autorisé silencieusement
-      setAuthState('unauthorized')
-      return 'unauthorized'
+    } catch (err) {
+      // S'il s'agit d'une coupure réseau ou d'un timeout, conserver l'état actuel pour permettre le jeu hors-ligne
+      console.warn('[auth] Défaillance réseau temporaire lors de la vérification, maintien de l’état local :', err)
+      return authState
     } finally {
       setIsVerifying(false)
     }
-  }, [devicePass])
+  }, [devicePass, authState])
 
   const logout = useCallback(() => {
     try {

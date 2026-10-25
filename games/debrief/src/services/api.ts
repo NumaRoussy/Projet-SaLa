@@ -31,16 +31,9 @@ export async function verifyDevice(pass: string): Promise<VerifyResult> {
   return res.json()
 }
 
-export async function fetchDeboutCards(): Promise<Card[]> {
-  const res = await fetch(`${API}/api/cards/debrief`)
-  if (!res.ok) {
-    throw new Error(`Erreur lors du chargement des cartes (${res.status})`)
-  }
-  return res.json()
-}
-
-export async function fetchDebriefCards(): Promise<Card[]> {
-  const res = await fetch(`${API}/api/cards/debrief`)
+export async function fetchDebriefCards(mode?: string): Promise<Card[]> {
+  const url = mode ? `${API}/api/cards/debrief?mode=${mode}` : `${API}/api/cards/debrief`
+  const res = await fetch(url)
   if (!res.ok) {
     throw new Error(`Erreur lors du chargement des cartes (${res.status})`)
   }

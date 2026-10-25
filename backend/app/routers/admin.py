@@ -198,8 +198,8 @@ async def create_campaign(
             (payload.id, payload.name, token_hash, payload.expires_at),
         )
         await db.commit()
-    except Exception as e:
-        raise HTTPException(status_code=409, detail=f"Conflit d'ID ou de token : {e}")
+    except Exception:
+        raise HTTPException(status_code=409, detail="Conflit d'identifiant ou de token de campagne.")
     return {"id": payload.id, "status": "created"}
 
 
@@ -284,14 +284,14 @@ async def sync_db_to_csv(db: aiosqlite.Connection) -> None:
     csv_path = get_csv_path()
     os.makedirs(os.path.dirname(csv_path), exist_ok=True)
     async with db.execute(
-        "SELECT game, category, title, content, extra, sips, min_players FROM cards ORDER BY game ASC, id ASC"
+        "SELECT game, mode, category, title, content, extra, sips, loss_percent, min_players FROM cards ORDER BY game ASC, id ASC"
     ) as cursor:
         rows = await cursor.fetchall()
     with open(csv_path, mode="w", encoding="utf-8", newline="") as f:
         writer = csv.writer(f)
-        writer.writerow(["game", "category", "title", "content", "extra", "sips", "min_players"])
+        writer.writerow(["game", "mode", "category", "title", "content", "extra", "sips", "loss_percent", "min_players"])
         for r in rows:
-            writer.writerow([r[0], r[1] or "", r[2] or "", r[3], r[4] or "", r[5] or 0, r[6] or 2])
+            writer.writerow([r[0], r[1] or "", r[2] or "", r[3] or "", r[4], r[5] or "", r[6] or 0, r[7] if r[7] is not None else 0.0, r[8] or 2])
 
 
 async def import_csv_to_db(db: aiosqlite.Connection, raw_csv: str) -> int:
@@ -304,14 +304,20 @@ async def import_csv_to_db(db: aiosqlite.Connection, raw_csv: str) -> int:
     for row in reader:
         if not row.get("game") or not row.get("content"):
             continue
+        try:
+            loss_val = float(row.get("loss_percent") or 0.0)
+        except ValueError:
+            loss_val = 0.0
         records.append(
             (
                 row["game"],
+                row.get("mode") or "",
                 row.get("category") or "",
                 row.get("title") or "",
                 row["content"],
                 row.get("extra") or "",
                 int(row.get("sips") or 0),
+                loss_val,
                 int(row.get("min_players") or 2),
             )
         )
@@ -320,13 +326,18 @@ async def import_csv_to_db(db: aiosqlite.Connection, raw_csv: str) -> int:
             status_code=400,
             detail="Le contenu CSV ne contient aucune carte valide.",
         )
-    await db.execute("DELETE FROM cards")
-    await db.executemany(
-        """INSERT INTO cards (game, category, title, content, extra, sips, min_players)
-           VALUES (?, ?, ?, ?, ?, ?, ?)""",
-        records,
-    )
-    await db.commit()
+    await db.execute("BEGIN IMMEDIATE")
+    try:
+        await db.execute("DELETE FROM cards")
+        await db.executemany(
+            """INSERT INTO cards (game, mode, category, title, content, extra, sips, loss_percent, min_players)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            records,
+        )
+        await db.execute("COMMIT")
+    except Exception as e:
+        await db.execute("ROLLBACK")
+        raise HTTPException(status_code=500, detail=f"Erreur lors de l'import atomique du catalogue : {e}")
     return len(records)
 
 
@@ -548,7 +559,7 @@ async def list_admin_cards(
     db: aiosqlite.Connection = Depends(get_db),
 ):
     """Liste les cartes du catalogue avec filtre optionnel par jeu."""
-    query = "SELECT id, game, category, title, content, extra, sips, min_players FROM cards"
+    query = "SELECT id, game, mode, category, title, content, extra, sips, loss_percent, min_players FROM cards"
     params = []
     if game:
         query += " WHERE game = ?"
@@ -560,12 +571,14 @@ async def list_admin_cards(
         {
             "id": r[0],
             "game": r[1],
-            "category": r[2],
-            "title": r[3],
-            "content": r[4],
-            "extra": r[5],
-            "sips": r[6],
-            "min_players": r[7],
+            "mode": r[2],
+            "category": r[3],
+            "title": r[4],
+            "content": r[5],
+            "extra": r[6],
+            "sips": r[7],
+            "loss_percent": r[8] if r[8] is not None else 0.0,
+            "min_players": r[9],
         }
         for r in rows
     ]
@@ -579,15 +592,17 @@ async def create_admin_card(
 ):
     """Ajoute une nouvelle carte et resynchronise data/content.csv."""
     cursor = await db.execute(
-        """INSERT INTO cards (game, category, title, content, extra, sips, min_players)
-           VALUES (?, ?, ?, ?, ?, ?, ?)""",
+        """INSERT INTO cards (game, mode, category, title, content, extra, sips, loss_percent, min_players)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
         (
             payload.game,
+            payload.mode or "",
             payload.category,
             payload.title or "",
             payload.content,
             payload.extra or "",
             payload.sips,
+            payload.loss_percent,
             payload.min_players,
         ),
     )
@@ -611,15 +626,17 @@ async def update_admin_card(
 
     await db.execute(
         """UPDATE cards
-           SET game = ?, category = ?, title = ?, content = ?, extra = ?, sips = ?, min_players = ?
+           SET game = ?, mode = ?, category = ?, title = ?, content = ?, extra = ?, sips = ?, loss_percent = ?, min_players = ?
            WHERE id = ?""",
         (
             payload.game,
+            payload.mode or "",
             payload.category,
             payload.title or "",
             payload.content,
             payload.extra or "",
             payload.sips,
+            payload.loss_percent,
             payload.min_players,
             card_id,
         ),
