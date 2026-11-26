@@ -9,150 +9,68 @@ interface Props {
   onFinish: (result: MiniGameResult) => void
 }
 
-type GameState = 'countdown' | 'waiting' | 'ready' | 'finished'
+type Phase = 'waiting' | 'blue' | 'false_start' | 'result'
 
 export function FlammeBleue({ player1, player2, sips = 2, onFinish }: Props) {
-  const [gameState, setGameState] = useState<GameState>('countdown')
-  const [countdown, setCountdown] = useState(3)
-  const [reactionTimes, setReactionTimes] = useState<{ p1: number | null; p2: number | null }>({ p1: null, p2: null })
-  const [faultPlayer, setFaultPlayer] = useState<string | null>(null)
+  const [phase, setPhase] = useState<Phase>('waiting')
+  const [reactionMs, setReactionMs] = useState<number | null>(null)
+  const [faultPlayer, setFaultPlayer] = useState<Player | null>(null)
   const [winner, setWinner] = useState<Player | null>(null)
   const [loser, setLoser] = useState<Player | null>(null)
 
-  const triggerTimeRef = useRef<number>(0)
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const canvasRef = useRef<HTMLCanvasElement | null>(null)
-  const animFrameRef = useRef<number>(0)
+  const blueStartedAtRef = useRef<number>(0)
+  const onFinishRef = useRef(onFinish)
 
-  // Countdown 3, 2, 1 -> waiting
   useEffect(() => {
-    if (gameState === 'countdown') {
-      if (countdown > 0) {
-        const t = setTimeout(() => setCountdown(c => c - 1), 800)
-        return () => clearTimeout(t)
-      } else {
-        setGameState('waiting')
-        // Schedule blue flame between 2.2s and 6.0s
-        const delay = 2200 + Math.random() * 3800
-        timerRef.current = setTimeout(() => {
-          triggerTimeRef.current = performance.now()
-          setGameState('ready')
-          playPing(1200, 0.3)
-        }, delay)
-      }
-    }
-    return () => {
-      if (timerRef.current) clearTimeout(timerRef.current)
-    }
-  }, [gameState, countdown])
+    onFinishRef.current = onFinish
+  }, [onFinish])
 
-  // Embers animation
+  // Single timer strictly driven by [phase] so parent re-renders never reset it
   useEffect(() => {
-    const canvas = canvasRef.current
-    if (!canvas) return
-    const ctx = canvas.getContext('2d')
-    if (!ctx) return
+    if (phase !== 'waiting') return
 
-    canvas.width = canvas.clientWidth
-    canvas.height = canvas.clientHeight
+    const delay = 2000 + Math.floor(Math.random() * 3500)
+    const timer = setTimeout(() => {
+      blueStartedAtRef.current = performance.now()
+      playPing(1200, 0.25)
+      setPhase('blue')
+    }, delay)
 
-    const embers: Array<{ x: number; y: number; r: number; vx: number; vy: number; alpha: number }> = []
-    for (let i = 0; i < 40; i++) {
-      embers.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        r: 1 + Math.random() * 3,
-        vx: (Math.random() - 0.5) * 1.5,
-        vy: -1 - Math.random() * 2,
-        alpha: 0.2 + Math.random() * 0.8,
-      })
-    }
+    return () => clearTimeout(timer)
+  }, [phase])
 
-    const render = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height)
-      const isBlue = gameState === 'ready' || gameState === 'finished'
+  const handleTap = (player: Player) => {
+    if (phase === 'false_start' || phase === 'result') return
 
-      embers.forEach(e => {
-        e.x += e.vx
-        e.y += e.vy
-        e.alpha -= 0.005
-        if (e.y < 0 || e.alpha <= 0) {
-          e.y = canvas.height
-          e.x = Math.random() * canvas.width
-          e.alpha = 0.5 + Math.random() * 0.5
-        }
-        ctx.beginPath()
-        ctx.arc(e.x, e.y, e.r, 0, Math.PI * 2)
-        ctx.fillStyle = isBlue
-          ? `rgba(56, 189, 248, ${e.alpha})`
-          : `rgba(249, 115, 22, ${e.alpha})`
-        ctx.fill()
-      })
-
-      animFrameRef.current = requestAnimationFrame(render)
-    }
-
-    animFrameRef.current = requestAnimationFrame(render)
-    return () => cancelAnimationFrame(animFrameRef.current)
-  }, [gameState])
-
-  const handleTap = (playerId: string) => {
-    if (gameState === 'countdown' || gameState === 'finished') return
-
-    // Faux départ
-    if (gameState === 'waiting') {
-      if (timerRef.current) clearTimeout(timerRef.current)
-      setGameState('finished')
+    if (phase === 'waiting') {
+      const otherPlayer = player.id === player1.id ? player2 : player1
+      setFaultPlayer(player)
+      setWinner(otherPlayer)
+      setLoser(player)
+      setPhase('false_start')
       playBuzzer()
-
-      if (playerId === player1.id) {
-        setFaultPlayer(player1.name)
-        setWinner(player2)
-        setLoser(player1)
-      } else {
-        setFaultPlayer(player2.name)
-        setWinner(player1)
-        setLoser(player2)
-      }
       return
     }
 
-    // Reaction tap
-    if (gameState === 'ready') {
-      const now = performance.now()
-      const diff = Math.round(now - triggerTimeRef.current)
-
-      if (playerId === player1.id && reactionTimes.p1 === null) {
-        const nextTimes = { ...reactionTimes, p1: diff }
-        setReactionTimes(nextTimes)
-        if (nextTimes.p2 === null) {
-          // Player 1 tapped first!
-          setGameState('finished')
-          setWinner(player1)
-          setLoser(player2)
-          playVictory()
-        }
-      } else if (playerId === player2.id && reactionTimes.p2 === null) {
-        const nextTimes = { ...reactionTimes, p2: diff }
-        setReactionTimes(nextTimes)
-        if (nextTimes.p1 === null) {
-          // Player 2 tapped first!
-          setGameState('finished')
-          setWinner(player2)
-          setLoser(player1)
-          playVictory()
-        }
-      }
+    if (phase === 'blue') {
+      const elapsed = Math.max(1, Math.round(performance.now() - blueStartedAtRef.current))
+      const otherPlayer = player.id === player1.id ? player2 : player1
+      setReactionMs(elapsed)
+      setWinner(player)
+      setLoser(otherPlayer)
+      setPhase('result')
+      playVictory()
     }
   }
 
   const handleConfirm = () => {
     if (!winner || !loser) return
-    const details = faultPlayer
-      ? `Faux départ de ${faultPlayer} !`
-      : `${winner.name} l'emporte au réflexe !`
+    const details =
+      phase === 'false_start' && faultPlayer
+        ? `Faux départ de ${faultPlayer.name} !`
+        : `${winner.name} l'emporte en ${reactionMs ?? 0} ms !`
 
-    onFinish({
+    onFinishRef.current({
       winnerId: winner.id,
       loserId: loser.id,
       winnerName: winner.name,
@@ -162,74 +80,99 @@ export function FlammeBleue({ player1, player2, sips = 2, onFinish }: Props) {
     })
   }
 
-  const isBlue = gameState === 'ready' || (gameState === 'finished' && !faultPlayer)
+  const isBlue = phase === 'blue'
 
   return (
-    <div className="fixed inset-0 z-50 bg-[#07090e] select-none flex flex-col touch-none overflow-hidden">
-      {/* Canvas des braises */}
-      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none z-0" />
-
+    <div
+      className={`fixed inset-0 z-50 select-none flex flex-col touch-none overflow-hidden transition-colors duration-100 ${
+        isBlue ? 'bg-[#2563eb]' : 'bg-[#0e1722]'
+      }`}
+    >
       {/* Moitié Joueur 1 (Haut - orienté face à face) */}
       <div
-        onPointerDown={() => handleTap(player1.id)}
-        className={`relative z-10 flex-1 flex flex-col items-center justify-center p-6 border-b-2 border-white/10 transition-colors duration-200 cursor-pointer ${
-          isBlue ? 'bg-cyan-950/40 active:bg-cyan-800/60' : 'bg-orange-950/20 active:bg-orange-900/40'
+        onPointerDown={() => handleTap(player1)}
+        className={`flex-1 flex flex-col items-center justify-center p-6 border-b border-[#28527a] cursor-pointer transition-colors ${
+          isBlue
+            ? 'bg-[#2563eb] active:bg-[#3b82f6]'
+            : 'bg-[#0e1722] active:bg-[#152233]'
         }`}
       >
-        <div className="rotate-180 flex flex-col items-center gap-2">
+        <div className="rotate-180 flex flex-col items-center gap-2 text-center">
           <span className="text-3xl">{player1.avatar || '⛺'}</span>
-          <span className="font-display font-black text-xl tracking-wide text-white">{player1.name}</span>
-          {reactionTimes.p1 !== null && (
-            <span className="text-cyan-300 font-mono text-lg font-bold">{reactionTimes.p1} ms</span>
-          )}
-          {faultPlayer === player1.name && (
-            <span className="text-red-400 font-bold bg-red-950/80 px-3 py-1 rounded-full text-xs animate-bounce">
-              FAUX DÉPART ! 🚨
+          <span className="font-display font-black text-xl tracking-wide text-[#f3f4f6]">
+            {player1.name}
+          </span>
+
+          {phase === 'result' && winner?.id === player1.id && reactionMs !== null && (
+            <span className="px-3 py-1 rounded-full bg-[#152233] border border-[#32689c] text-sky-200 font-mono text-sm font-bold">
+              🏆 {reactionMs} ms
             </span>
           )}
-          <span className="text-xs text-gray-400">Touchez ici dès que la flamme devient BLEUE</span>
+
+          {phase === 'false_start' && faultPlayer?.id === player1.id && (
+            <span className="px-3 py-1 rounded-full bg-[#2b171b] border border-[#7f2d38] text-red-200 font-bold text-xs">
+              FAUX DÉPART !
+            </span>
+          )}
+
+          <span className={`text-xs ${isBlue ? 'text-blue-100 font-semibold' : 'text-slate-400'}`}>
+            {isBlue ? 'TOUCHEZ MAINTENANT !' : 'Touchez ici dès que la flamme devient bleue'}
+          </span>
         </div>
       </div>
 
       {/* Centre : Flamme & Statut */}
-      <div className="relative z-20 h-28 flex items-center justify-center bg-black/60 backdrop-blur-md border-y border-white/10">
-        {gameState === 'countdown' && (
-          <div className="flex flex-col items-center">
-            <span className="text-4xl font-black text-amber-400 animate-pulse">{countdown}</span>
-            <span className="text-xs text-gray-400 mt-1">Préparez vos pouces...</span>
-          </div>
-        )}
-
-        {gameState === 'waiting' && (
-          <div className="flex flex-col items-center animate-pulse">
+      <div
+        className={`px-4 py-5 flex items-center justify-center border-y ${
+          isBlue
+            ? 'bg-[#3b82f6] border-blue-300'
+            : 'bg-[#152233] border-[#28527a]'
+        }`}
+      >
+        {phase === 'waiting' && (
+          <div className="flex flex-col items-center text-center gap-1">
             <span className="text-4xl">🔥</span>
-            <span className="text-xs font-semibold text-orange-400 mt-1">Attendez le bleu... Ne touchez pas !</span>
+            <span className="text-xs font-bold text-orange-300">
+              Attendez le bleu... Ne touchez pas !
+            </span>
           </div>
         )}
 
-        {gameState === 'ready' && (
-          <div className="flex flex-col items-center scale-125 transition-transform">
-            <span className="text-5xl animate-bounce">⚡🔷⚡</span>
-            <span className="text-sm font-black text-cyan-300 tracking-wider">MAINTENANT !</span>
+        {phase === 'blue' && (
+          <div className="flex flex-col items-center text-center gap-1">
+            <span className="text-4xl">🔷</span>
+            <span className="text-lg font-black text-white tracking-wider uppercase">
+              MAINTENANT !
+            </span>
           </div>
         )}
 
-        {gameState === 'finished' && (
-          <div className="flex flex-col items-center">
-            {faultPlayer ? (
-              <span className="text-sm font-black text-red-400 text-center">
-                PÉNALITÉ ! {faultPlayer} prend {sips} gorgées
-              </span>
-            ) : (
-              <span className="text-sm font-black text-cyan-300 text-center">
-                🏆 {winner?.name} l'emporte ! {loser?.name} boit {sips} gorgées
-              </span>
-            )}
+        {phase === 'false_start' && (
+          <div className="flex flex-col items-center text-center gap-2">
+            <span className="text-sm font-bold text-red-300">
+              🚨 Faux départ de {faultPlayer?.name} ! {loser?.name} prend {sips} gorgée{sips > 1 ? 's' : ''}
+            </span>
             <button
+              type="button"
               onClick={handleConfirm}
-              className="mt-2 px-5 py-1.5 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold text-xs rounded-full shadow-lg hover:brightness-110 active:scale-95"
+              className="px-5 py-2 bg-[#32689c] hover:bg-[#3c7ab5] border border-[#28527a] text-[#f3f4f6] font-bold text-xs rounded-xl transition-colors"
             >
-              Continuer la veillée →
+              Continuer →
+            </button>
+          </div>
+        )}
+
+        {phase === 'result' && (
+          <div className="flex flex-col items-center text-center gap-2">
+            <span className="text-sm font-bold text-sky-200">
+              🏆 {winner?.name} gagne ({reactionMs} ms) ! {loser?.name} boit {sips} gorgée{sips > 1 ? 's' : ''}
+            </span>
+            <button
+              type="button"
+              onClick={handleConfirm}
+              className="px-5 py-2 bg-[#32689c] hover:bg-[#3c7ab5] border border-[#28527a] text-[#f3f4f6] font-bold text-xs rounded-xl transition-colors"
+            >
+              Continuer →
             </button>
           </div>
         )}
@@ -237,22 +180,33 @@ export function FlammeBleue({ player1, player2, sips = 2, onFinish }: Props) {
 
       {/* Moitié Joueur 2 (Bas) */}
       <div
-        onPointerDown={() => handleTap(player2.id)}
-        className={`relative z-10 flex-1 flex flex-col items-center justify-center p-6 border-t-2 border-white/10 transition-colors duration-200 cursor-pointer ${
-          isBlue ? 'bg-cyan-950/40 active:bg-cyan-800/60' : 'bg-orange-950/20 active:bg-orange-900/40'
+        onPointerDown={() => handleTap(player2)}
+        className={`flex-1 flex flex-col items-center justify-center p-6 border-t border-[#28527a] cursor-pointer transition-colors ${
+          isBlue
+            ? 'bg-[#2563eb] active:bg-[#3b82f6]'
+            : 'bg-[#0e1722] active:bg-[#152233]'
         }`}
       >
-        <div className="flex flex-col items-center gap-2">
-          <span className="text-xs text-gray-400">Touchez ici dès que la flamme devient BLEUE</span>
-          {faultPlayer === player2.name && (
-            <span className="text-red-400 font-bold bg-red-950/80 px-3 py-1 rounded-full text-xs animate-bounce">
-              FAUX DÉPART ! 🚨
+        <div className="flex flex-col items-center gap-2 text-center">
+          <span className={`text-xs ${isBlue ? 'text-blue-100 font-semibold' : 'text-slate-400'}`}>
+            {isBlue ? 'TOUCHEZ MAINTENANT !' : 'Touchez ici dès que la flamme devient bleue'}
+          </span>
+
+          {phase === 'false_start' && faultPlayer?.id === player2.id && (
+            <span className="px-3 py-1 rounded-full bg-[#2b171b] border border-[#7f2d38] text-red-200 font-bold text-xs">
+              FAUX DÉPART !
             </span>
           )}
-          {reactionTimes.p2 !== null && (
-            <span className="text-cyan-300 font-mono text-lg font-bold">{reactionTimes.p2} ms</span>
+
+          {phase === 'result' && winner?.id === player2.id && reactionMs !== null && (
+            <span className="px-3 py-1 rounded-full bg-[#152233] border border-[#32689c] text-sky-200 font-mono text-sm font-bold">
+              🏆 {reactionMs} ms
+            </span>
           )}
-          <span className="font-display font-black text-xl tracking-wide text-white">{player2.name}</span>
+
+          <span className="font-display font-black text-xl tracking-wide text-[#f3f4f6]">
+            {player2.name}
+          </span>
           <span className="text-3xl">{player2.avatar || '🪵'}</span>
         </div>
       </div>

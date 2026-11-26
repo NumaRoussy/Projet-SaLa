@@ -31,3 +31,18 @@ export interface VerifyResult {
   blackout?: boolean
   reason?: string
 }
+
+export type CrisisCategory = 'attaque' | 'dilemme' | 'regle'
+
+export interface FeedbackPayload {
+  type: 'PROPOSITION'
+  target_game: 'crise'
+  mode: 'crise'
+  category: CrisisCategory
+  title: string
+  content: string
+  loss_percent: number
+  sips: number
+  min_players: number
+  author_alias: null
+}

@@ -42,14 +42,19 @@ export interface GameInfo {
 
 // ── Feedback ─────────────────────────────────────────────────────────────────
 export interface FeedbackPayload {
-  type: 'PROPOSITION' | 'CONTACT_LEGAL'
+  type: 'PROPOSITION' | 'SUGGESTION' | 'CONTACT_LEGAL'
   target_game?: string
+  mode?: string
   category?: string
   title?: string
   content: string
+  extra?: string
   extra_data?: string
-  author_alias?: string
-  contact_email?: string
+  sips?: number
+  loss_percent?: number
+  min_players?: number
+  author_alias?: string | null
+  contact_email?: string | null
 }
 
 // ── Report ───────────────────────────────────────────────────────────────────

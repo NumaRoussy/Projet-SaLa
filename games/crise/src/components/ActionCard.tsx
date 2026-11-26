@@ -64,7 +64,7 @@ export function ActionCard({
   return (
     <div className="flex-1 flex flex-col justify-between p-4 max-w-lg mx-auto w-full animate-fade-in">
       {/* Active Responsable Banner */}
-      <div className="bg-gradient-to-r from-red-950/60 via-slate-900 to-red-950/60 border border-red-500/30 rounded-2xl p-3 flex items-center justify-between">
+      <div className="bg-[#161922] border border-[#8c2d38] rounded-2xl p-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <span className="text-2xl">{activeResponsable.avatar || '👮'}</span>
           <div>
@@ -86,7 +86,7 @@ export function ActionCard({
 
       {/* Main Crisis Action Card */}
       <div className="my-auto py-4">
-        <div className="bg-[#121520] border-2 border-red-600/40 rounded-3xl p-6 sm:p-7 shadow-2xl shadow-red-950/50 space-y-5">
+        <div className="bg-[#161922] border border-red-900/60 rounded-2xl p-6 sm:p-7 space-y-5">
           {/* Category Tag */}
           <div className="flex items-center justify-between">
             <span
@@ -139,10 +139,10 @@ export function ActionCard({
                     key={target.id}
                     type="button"
                     onClick={() => setSelectedTargetId(target.id)}
-                    className={`p-2.5 rounded-xl border text-left flex items-center justify-between transition-all ${
+                    className={`p-2.5 rounded-xl border text-left flex items-center justify-between transition-colors ${
                       isSelected
-                        ? 'bg-red-950/60 border-red-500 text-white shadow-md'
-                        : 'bg-[#181d2c] border-white/5 text-gray-300 hover:border-white/20'
+                        ? 'bg-[#2b171b] border-[#8c2d38] text-[#f3f4f6]'
+                        : 'bg-[#0d1016] border-[#2a2f3d] text-slate-300 hover:border-[#8c2d38]'
                     }`}
                   >
                     <div className="flex items-center gap-1.5 min-w-0">
@@ -164,7 +164,7 @@ export function ActionCard({
       <div className="pb-2">
         <button
           onClick={handleApply}
-          className="w-full py-4 bg-gradient-to-r from-red-600 to-rose-700 hover:brightness-110 active:scale-98 text-white font-black text-base rounded-2xl shadow-xl shadow-red-950 flex items-center justify-center gap-2"
+          className="w-full py-4 bg-red-700 hover:bg-red-600 text-white font-black text-base rounded-2xl transition-colors flex items-center justify-center gap-2"
         >
           <span>🚨</span>
           <span>APPLIQUER LA PERTE J+S</span>

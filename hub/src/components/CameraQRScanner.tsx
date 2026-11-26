@@ -177,7 +177,7 @@ export function CameraQRScanner({
 
       {/* Cadre de visée de la caméra */}
       <div
-        className={`relative w-full aspect-square max-w-[280px] sm:max-w-[320px] mx-auto rounded-2xl overflow-hidden bg-black/90 border-2 ${borderColor} shadow-2xl flex items-center justify-center`}
+        className={`relative w-full aspect-square max-w-[280px] sm:max-w-[320px] mx-auto rounded-2xl overflow-hidden bg-black/90 border-2 ${borderColor} flex items-center justify-center`}
       >
         {streamActive ? (
           <>
@@ -190,7 +190,7 @@ export function CameraQRScanner({
             />
             {/* Viseur animé */}
             <div
-              className={`absolute inset-8 border-2 ${focusBorderColor} rounded-xl pointer-events-none transition-all duration-300 shadow-inner`}
+              className={`absolute inset-8 border-2 ${focusBorderColor} rounded-xl pointer-events-none transition-colors duration-300`}
             >
               {/* Coins de cadrage */}
               <div
@@ -206,12 +206,12 @@ export function CameraQRScanner({
                 className={`absolute -bottom-1 -right-1 w-4 h-4 border-b-4 border-r-4 ${focusBorderColor}`}
               />
               {/* Ligne laser de balayage */}
-              <div className="w-full h-0.5 bg-gradient-to-r from-transparent via-scout-amber to-transparent animate-pulse absolute top-1/2 -translate-y-1/2" />
+              <div className="w-full h-0.5 bg-amber-400 absolute top-1/2 -translate-y-1/2" />
             </div>
           </>
         ) : (
           <div className="p-4 text-center space-y-3 flex flex-col items-center justify-center h-full">
-            <div className="w-16 h-16 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-3xl">
+            <div className="w-16 h-16 rounded-full bg-[#162920] border border-[#2d6a4f] flex items-center justify-center text-3xl">
               📷
             </div>
             <p className="text-xs text-gray-300 font-medium px-2">
@@ -223,7 +223,7 @@ export function CameraQRScanner({
               <button
                 type="button"
                 onClick={startLiveCamera}
-                className="btn-ghost py-1 px-3 text-xs border border-white/20 text-scout-amber"
+                className="btn-ghost py-1 px-3 text-xs border border-[#2d6a4f] text-scout-amber"
               >
                 🔄 Relancer le flux direct
               </button>
@@ -233,7 +233,7 @@ export function CameraQRScanner({
 
         {/* Overlay d'analyse de photo */}
         {isAnalyzingPhoto && (
-          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm flex flex-col items-center justify-center gap-2 p-4 text-center z-20">
+          <div className="absolute inset-0 bg-black/85 flex flex-col items-center justify-center gap-2 p-4 text-center z-20">
             <div className="w-8 h-8 border-2 border-scout-amber border-t-transparent rounded-full animate-spin" />
             <span className="text-xs font-semibold text-white">
               Décodage du QR code…
@@ -270,7 +270,7 @@ export function CameraQRScanner({
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
-          className="btn-primary w-full py-2.5 px-4 text-xs font-bold flex items-center justify-center gap-2 shadow-lg shadow-black/40"
+          className="btn-primary w-full py-2.5 px-4 text-xs font-bold flex items-center justify-center gap-2"
         >
           <span>📸</span>
           <span>

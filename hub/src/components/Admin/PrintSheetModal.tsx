@@ -27,23 +27,23 @@ export function PrintSheetModal({ campaignName, token, onClose }: Props) {
   const strips = Array.from({ length: 8 }, (_, i) => i)
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+    <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4 overflow-y-auto">
       {/* Container - hide on print except printable area */}
-      <div className="bg-[#12161f] text-white rounded-2xl max-w-4xl w-full p-6 space-y-5 max-h-[95dvh] overflow-y-auto border border-white/10 shadow-2xl print:p-0 print:m-0 print:border-none print:bg-white print:text-black">
+      <div className="bg-[#162920] text-[#f3f4f6] rounded-2xl max-w-4xl w-full p-6 space-y-5 max-h-[95dvh] overflow-y-auto border border-[#2d6a4f] print:p-0 print:m-0 print:border-none print:bg-white print:text-black">
         {/* Modal Controls (Hidden when printing) */}
-        <div className="flex items-center justify-between pb-3 border-b border-white/10 print:hidden">
+        <div className="flex items-center justify-between pb-3 border-b border-[#2d6a4f] print:hidden">
           <div>
-            <h2 className="font-display font-bold text-lg text-white">
+            <h2 className="font-display font-bold text-lg text-[#f3f4f6]">
               Planche de bandelettes QR — {campaignName}
             </h2>
-            <p className="text-xs text-gray-400">
+            <p className="text-xs text-slate-300">
               Format A4 prêt à imprimer. Découpez les bandelettes le long des pointillés.
             </p>
           </div>
           <div className="flex items-center gap-2">
             <button
               onClick={() => window.print()}
-              className="btn-primary py-2 px-4 text-xs font-bold bg-emerald-600 hover:bg-emerald-500 border-emerald-400/30 text-white flex items-center gap-1.5"
+              className="btn-primary py-2 px-4 text-xs font-bold bg-[#388463] hover:bg-[#439973] border-[#2d6a4f] text-[#f3f4f6] flex items-center gap-1.5"
             >
               <span>🖨️</span>
               <span>Imprimer (A4)</span>
@@ -55,7 +55,7 @@ export function PrintSheetModal({ campaignName, token, onClose }: Props) {
         </div>
 
         {/* Clear Bootstrap URL + Copy Button (Hidden when printing) */}
-        <div className="bg-white/5 border border-white/10 rounded-xl p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 print:hidden">
+        <div className="bg-[#0f1f18] border border-[#2d6a4f] rounded-xl p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 print:hidden">
           <div className="min-w-0 flex-1">
             <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider block mb-0.5">
               Lien direct d'amorce AG (en clair)

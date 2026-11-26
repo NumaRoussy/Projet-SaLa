@@ -12,11 +12,8 @@
 }
 
 html, body {
-  /* Empêche le pull-to-refresh natif des navigateurs mobiles (Chrome/Safari) */
   overscroll-behavior-y: none;
-  /* Supprime la surbrillance tactile bleue sur mobile */
   -webkit-tap-highlight-color: transparent;
-  /* Interdit la sélection de texte intempestive en tapant vite */
   user-select: none;
   -webkit-user-select: none;
   -webkit-touch-callout: none;
@@ -35,20 +32,19 @@ body {
   min-height: 100dvh;
   margin: 0;
   padding: 0;
-  background: #0d1117;
-  color: #e5e7eb;
+  background: #0f1f18;
+  color: #f3f4f6;
   font-family: 'Inter', system-ui, sans-serif;
   overflow: visible;
   touch-action: auto;
   -webkit-overflow-scrolling: touch;
 }
 
-/* Zone tactile réactive sans latence de double-tap */
 button, .touch-target {
   touch-action: manipulation;
 }
 
-input, textarea {
+input, textarea, select {
   user-select: text;
   -webkit-user-select: text;
 }
@@ -67,93 +63,68 @@ input, textarea {
   padding-right: env(safe-area-inset-right);
 }
 
-/* ── Glassmorphism card ──────────────────────────────────────────────────── */
+/* ── Surface card ────────────────────────────────────────────────────────── */
 .glass-card {
-  background: rgba(31, 41, 55, 0.65);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(116, 198, 157, 0.12);
-  border-radius: 1.25rem;
-  transition: all 0.25s ease;
+  background: #162920;
+  border: 1px solid #2d6a4f;
+  border-radius: 1rem;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
 }
 
 .glass-card:hover {
-  border-color: rgba(116, 198, 157, 0.35);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 32px rgba(0,0,0,0.4), 0 0 0 1px rgba(116,198,157,0.1);
-}
-
-/* ── Gradient backgrounds ────────────────────────────────────────────────── */
-.bg-scout-gradient {
-  background: radial-gradient(ellipse at 20% 20%, rgba(45, 106, 79, 0.25) 0%, transparent 60%),
-              radial-gradient(ellipse at 80% 80%, rgba(13, 17, 23, 0.9) 0%, #0d1117 100%);
-}
-
-.bg-faceb-gradient {
-  background: radial-gradient(ellipse at 20% 20%, rgba(100, 40, 20, 0.3) 0%, transparent 60%),
-              radial-gradient(ellipse at 80% 80%, rgba(13, 17, 23, 0.95) 0%, #0d1117 100%);
+  border-color: #3d8b68;
 }
 
 /* ── Button variants ─────────────────────────────────────────────────────── */
 .btn-primary {
   @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm
-         bg-scout-mid text-white border border-scout-sage/20
-         hover:bg-scout-sage hover:text-scout-forest
-         active:scale-95 transition-all duration-200 cursor-pointer;
+         bg-[#2d6a4f] text-white border border-[#388463]
+         hover:bg-[#388463]
+         active:scale-[0.98] transition-colors cursor-pointer disabled:opacity-45 disabled:cursor-not-allowed;
 }
 
 .btn-amber {
   @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm
-         bg-scout-amber text-scout-forest border border-scout-amber/20
-         hover:bg-scout-orange hover:border-scout-orange
-         active:scale-95 transition-all duration-200 cursor-pointer;
+         bg-[#966530] text-white border border-[#b0783b]
+         hover:bg-[#a87136]
+         active:scale-[0.98] transition-colors cursor-pointer disabled:opacity-45 disabled:cursor-not-allowed;
 }
 
 .btn-ghost {
   @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-medium text-sm
-         text-gray-400 hover:text-white border border-transparent hover:border-white/10
-         active:scale-95 transition-all duration-200 cursor-pointer;
+         text-gray-300 hover:text-white border border-transparent hover:border-[#2d6a4f]
+         active:scale-[0.98] transition-colors cursor-pointer;
 }
 
 .btn-danger {
   @apply inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-semibold text-sm
-         bg-red-900/50 text-red-300 border border-red-700/30
-         hover:bg-red-800/70 hover:text-red-200
-         active:scale-95 transition-all duration-200 cursor-pointer;
+         bg-[#7a242e] text-red-100 border border-[#9c323e]
+         hover:bg-[#8c2d38]
+         active:scale-[0.98] transition-colors cursor-pointer disabled:opacity-45;
 }
 
 /* ── Input style ─────────────────────────────────────────────────────────── */
 .input-scout {
-  @apply w-full px-4 py-3 rounded-xl bg-scout-dark border border-white/10
-         text-white placeholder-gray-500 text-sm
-         focus:outline-none focus:border-scout-sage/50 focus:ring-1 focus:ring-scout-sage/30
-         transition-all duration-200;
+  @apply w-full px-4 py-3 rounded-xl bg-[#0d1914] border border-[#2d6a4f]
+         text-white placeholder-gray-400 text-sm
+         focus:outline-none focus:border-[#52b788] focus:ring-1 focus:ring-[#52b788]/40
+         transition-colors;
 }
 
 /* ── Scrollbar ───────────────────────────────────────────────────────────── */
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(116,198,157,0.25); border-radius: 2px; }
+::-webkit-scrollbar-thumb { background: rgba(116, 198, 157, 0.25); border-radius: 2px; }
 
 /* ── Overlay ─────────────────────────────────────────────────────────────── */
 .overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.75);
-  backdrop-filter: blur(4px);
+  background: rgba(8, 14, 11, 0.85);
   z-index: 40;
-  animation: fadeIn 0.25s ease;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   touch-action: pan-y;
-}
-
-/* ── Countdown bar ───────────────────────────────────────────────────────── */
-.countdown-bar {
-  height: 3px;
-  background: linear-gradient(90deg, #40916c, #e9c46a);
-  border-radius: 2px;
-  animation: countdownShrink linear forwards;
 }
 
 /* ── Game link card ──────────────────────────────────────────────────────── */
@@ -165,12 +136,12 @@ input, textarea {
 /* ── Badge faceb ─────────────────────────────────────────────────────────── */
 .badge-secret {
   @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold
-         bg-red-900/40 text-red-300 border border-red-700/30;
+         bg-[#3a1b20] text-red-200 border border-[#8c2d38];
 }
 
 /* ── Section divider ─────────────────────────────────────────────────────── */
 .section-divider {
-  @apply border-t border-white/5 my-6;
+  @apply border-t border-[#2d6a4f]/40 my-6;
 }
 
 /* ── Onboarding Secret Gesture Animation ─────────────────────────────────── */
@@ -179,7 +150,6 @@ input, textarea {
     transform: translate(-50%, 8px) scale(1);
     opacity: 0.95;
   }
-  /* Tap 1 */
   14% {
     transform: translate(-50%, -16px) scale(0.9);
     opacity: 1;
@@ -187,7 +157,6 @@ input, textarea {
   22% {
     transform: translate(-50%, -4px) scale(1);
   }
-  /* Tap 2 */
   34% {
     transform: translate(-50%, -16px) scale(0.9);
     opacity: 1;
@@ -195,7 +164,6 @@ input, textarea {
   42% {
     transform: translate(-50%, -4px) scale(1);
   }
-  /* Tap 3 */
   54% {
     transform: translate(-50%, -18px) scale(0.88);
     opacity: 1;
@@ -203,7 +171,6 @@ input, textarea {
   64% {
     transform: translate(-50%, -24px) scale(1.1);
   }
-  /* Celebration / Success hold */
   82% {
     transform: translate(-50%, -24px) scale(1.1);
     opacity: 1;
@@ -215,155 +182,50 @@ input, textarea {
 }
 
 @keyframes tapRippleLoop1 {
-  0%, 12% {
-    transform: scale(0.2);
-    opacity: 0;
-  }
-  14% {
-    transform: scale(0.5);
-    opacity: 0.9;
-  }
-  28% {
-    transform: scale(2.2);
-    opacity: 0;
-  }
-  100% {
-    transform: scale(2.2);
-    opacity: 0;
-  }
+  0%, 12% { transform: scale(0.2); opacity: 0; }
+  14% { transform: scale(0.5); opacity: 0.9; }
+  28% { transform: scale(2.2); opacity: 0; }
+  100% { transform: scale(2.2); opacity: 0; }
 }
 
 @keyframes tapRippleLoop2 {
-  0%, 32% {
-    transform: scale(0.2);
-    opacity: 0;
-  }
-  34% {
-    transform: scale(0.5);
-    opacity: 0.9;
-  }
-  48% {
-    transform: scale(2.2);
-    opacity: 0;
-  }
-  100% {
-    transform: scale(2.2);
-    opacity: 0;
-  }
+  0%, 32% { transform: scale(0.2); opacity: 0; }
+  34% { transform: scale(0.5); opacity: 0.9; }
+  48% { transform: scale(2.2); opacity: 0; }
+  100% { transform: scale(2.2); opacity: 0; }
 }
 
 @keyframes tapRippleLoop3 {
-  0%, 52% {
-    transform: scale(0.2);
-    opacity: 0;
-  }
-  54% {
-    transform: scale(0.5);
-    opacity: 1;
-  }
-  70% {
-    transform: scale(2.8);
-    opacity: 0;
-  }
-  100% {
-    transform: scale(2.8);
-    opacity: 0;
-  }
+  0%, 52% { transform: scale(0.2); opacity: 0; }
+  54% { transform: scale(0.5); opacity: 1; }
+  70% { transform: scale(2.8); opacity: 0; }
+  100% { transform: scale(2.8); opacity: 0; }
 }
 
 @keyframes tapBadgeSync1 {
-  0%, 12% {
-    opacity: 0.45;
-    transform: scale(1);
-  }
-  14%, 28% {
-    opacity: 1;
-    transform: scale(1.08);
-    color: #fcd34d;
-  }
-  30%, 88% {
-    opacity: 0.85;
-    transform: scale(1);
-  }
-  94%, 100% {
-    opacity: 0.45;
-  }
+  0%, 12% { opacity: 0.45; transform: scale(1); }
+  14%, 28% { opacity: 1; transform: scale(1.08); color: #fcd34d; }
+  30%, 88% { opacity: 0.85; transform: scale(1); }
+  94%, 100% { opacity: 0.45; }
 }
 
 @keyframes tapBadgeSync2 {
-  0%, 32% {
-    opacity: 0.45;
-    transform: scale(1);
-  }
-  34%, 48% {
-    opacity: 1;
-    transform: scale(1.08);
-    color: #fcd34d;
-  }
-  50%, 88% {
-    opacity: 0.85;
-    transform: scale(1);
-  }
-  94%, 100% {
-    opacity: 0.45;
-  }
+  0%, 32% { opacity: 0.45; transform: scale(1); }
+  34%, 48% { opacity: 1; transform: scale(1.08); color: #fcd34d; }
+  50%, 88% { opacity: 0.85; transform: scale(1); }
+  94%, 100% { opacity: 0.45; }
 }
 
 @keyframes tapBadgeSync3 {
-  0%, 52% {
-    opacity: 0.45;
-    transform: scale(1);
-  }
-  54%, 86% {
-    opacity: 1;
-    transform: scale(1.12);
-    color: #34d399;
-  }
-  94%, 100% {
-    opacity: 0.45;
-  }
+  0%, 52% { opacity: 0.45; transform: scale(1); }
+  54%, 86% { opacity: 1; transform: scale(1.12); color: #34d399; }
+  94%, 100% { opacity: 0.45; }
 }
 
-.animate-gesture-finger {
-  animation: gestureFingerTap 3.4s ease-in-out infinite;
-}
-
-.animate-tap-ripple-1 {
-  animation: tapRippleLoop1 3.4s ease-out infinite;
-}
-
-.animate-tap-ripple-2 {
-  animation: tapRippleLoop2 3.4s ease-out infinite;
-}
-
-.animate-tap-ripple-3 {
-  animation: tapRippleLoop3 3.4s ease-out infinite;
-}
-
-.animate-tap-badge-1 {
-  animation: tapBadgeSync1 3.4s ease-in-out infinite;
-}
-
-.animate-tap-badge-2 {
-  animation: tapBadgeSync2 3.4s ease-in-out infinite;
-}
-
-.animate-tap-badge-3 {
-  animation: tapBadgeSync3 3.4s ease-in-out infinite;
-}
-
-@keyframes slideUp {
-  from { transform: translateY(100%); opacity: 0; }
-  to   { transform: translateY(0);    opacity: 1; }
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
-
-@keyframes countdownShrink {
-  from { width: 100%; }
-  to   { width: 0%; }
-}
-
+.animate-gesture-finger { animation: gestureFingerTap 3.4s ease-in-out infinite; }
+.animate-tap-ripple-1 { animation: tapRippleLoop1 3.4s ease-out infinite; }
+.animate-tap-ripple-2 { animation: tapRippleLoop2 3.4s ease-out infinite; }
+.animate-tap-ripple-3 { animation: tapRippleLoop3 3.4s ease-out infinite; }
+.animate-tap-badge-1 { animation: tapBadgeSync1 3.4s ease-in-out infinite; }
+.animate-tap-badge-2 { animation: tapBadgeSync2 3.4s ease-in-out infinite; }
+.animate-tap-badge-3 { animation: tapBadgeSync3 3.4s ease-in-out infinite; }

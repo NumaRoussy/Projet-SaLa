@@ -707,8 +707,8 @@ async def list_admin_feedback(
 ):
     """Liste les retours et propositions de cartes soumises par les joueurs."""
     query = """
-    SELECT id, type, target_game, category, title, content, extra_data,
-           author_alias, contact_email, status, created_at
+    SELECT id, type, target_game, mode, category, title, content, extra_data, extra,
+           sips, loss_percent, min_players, author_alias, contact_email, status, created_at
     FROM user_feedback
     """
     params = []
@@ -725,14 +725,19 @@ async def list_admin_feedback(
             "id": r[0],
             "type": r[1],
             "target_game": r[2],
-            "category": r[3],
-            "title": r[4],
-            "content": r[5],
-            "extra_data": r[6],
-            "author_alias": r[7],
-            "contact_email": r[8],
-            "status": r[9],
-            "created_at": r[10],
+            "mode": r[3],
+            "category": r[4],
+            "title": r[5],
+            "content": r[6],
+            "extra_data": r[7] if r[7] is not None else r[8],
+            "extra": r[8] if r[8] is not None else r[7],
+            "sips": r[9] if r[9] is not None else 0,
+            "loss_percent": float(r[10]) if r[10] is not None else 0.0,
+            "min_players": r[11] if r[11] is not None else 2,
+            "author_alias": r[12],
+            "contact_email": r[13],
+            "status": r[14],
+            "created_at": r[15],
         }
         for r in rows
     ]
@@ -747,10 +752,13 @@ async def review_feedback(
 ):
     """
     Valide ou rejette une proposition :
-    Si APPROVED, insère automatiquement la carte dans SQLite et synchronise data/content.csv.
+    Si APPROVED (et pas une suggestion couvrefeu), insère automatiquement la carte
+    dans SQLite et synchronise data/content.csv.
     """
     async with db.execute(
-        "SELECT id, type, target_game, category, title, content, extra_data FROM user_feedback WHERE id = ?",
+        """SELECT id, type, target_game, mode, category, title, content,
+                  extra_data, extra, sips, loss_percent, min_players
+           FROM user_feedback WHERE id = ?""",
         (feedback_id,),
     ) as cur:
         fb = await cur.fetchone()
@@ -758,21 +766,54 @@ async def review_feedback(
     if not fb:
         raise HTTPException(status_code=404, detail="Feedback introuvable.")
 
+    card_inserted = False
     if payload.action == "APPROVED":
-        game = payload.target_game or fb[2] or "debrief"
-        category = payload.category or fb[3] or "verite"
-        title = payload.title or fb[4] or ""
-        content = fb[5]
-        extra = payload.extra or fb[6] or ""
-        sips = payload.sips if payload.sips is not None else 2
-        min_players = payload.min_players if payload.min_players is not None else 2
+        game = (payload.target_game if payload.target_game is not None else fb[2]) or "debrief"
+        is_suggestion = fb[1] == "SUGGESTION" or game == "couvrefeu"
+        if not is_suggestion:
+            mode = payload.mode if payload.mode is not None else (fb[3] or "")
+            category = payload.category if payload.category is not None else (fb[4] or "")
+            if not category:
+                if game == "infiltre":
+                    category = "defi"
+                elif game == "chrono":
+                    category = "campement" if mode == "scout" else "objet"
+                elif game == "vachao":
+                    category = "carte"
+                elif game == "crise":
+                    category = "attaque"
+                else:
+                    category = "dossiers"
+            if not mode:
+                if game == "crise":
+                    mode = "crise"
+                elif game == "debrief":
+                    mode = "debrief"
+                elif game == "vachao":
+                    mode = "passif"
+                elif game == "chrono":
+                    mode = "scout"
 
-        await db.execute(
-            """INSERT INTO cards (game, category, title, content, extra, sips, min_players)
-               VALUES (?, ?, ?, ?, ?, ?, ?)""",
-            (game, category, title, content, extra, sips, min_players),
-        )
-        await sync_db_to_csv(db)
+            content = (payload.content if payload.content is not None else fb[6]) or ""
+            title = payload.title if payload.title is not None else (fb[5] or "")
+            if game == "chrono" and not title:
+                title = content
+            extra = payload.extra if payload.extra is not None else (fb[8] if fb[8] is not None else (fb[7] or ""))
+            sips = payload.sips if payload.sips is not None else (fb[9] if fb[9] is not None else 0)
+            loss_percent = (
+                float(payload.loss_percent)
+                if payload.loss_percent is not None
+                else (float(fb[10]) if fb[10] is not None else 0.0)
+            )
+            default_min = 3 if game == "infiltre" else (4 if game == "chrono" else 2)
+            min_players = payload.min_players if payload.min_players is not None else (fb[11] if fb[11] is not None else default_min)
+
+            await db.execute(
+                """INSERT INTO cards (game, mode, category, title, content, extra, sips, loss_percent, min_players)
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                (game, mode, category, title, content, extra, sips, loss_percent, min_players),
+            )
+            card_inserted = True
 
     await db.execute(
         "UPDATE user_feedback SET status = ? WHERE id = ?",
@@ -780,4 +821,7 @@ async def review_feedback(
     )
     await db.commit()
 
-    return {"id": feedback_id, "status": payload.action}
+    if card_inserted:
+        await sync_db_to_csv(db)
+
+    return {"id": feedback_id, "status": payload.action, "card_inserted": card_inserted}

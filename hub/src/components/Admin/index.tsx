@@ -49,32 +49,39 @@ function getExtraFieldConfig(game: string, category: string) {
       help: 'Choix du dilemme (ex: A: Option 1 | B: Option 2)',
     }
   }
+  if (game === 'vachao') {
+    return {
+      label: 'Champ Extra (sous-texte ou durée)',
+      placeholder: 'Ex: durée:3 tours ou Duel réflexe',
+      help: 'Sous-texte ou règle optionnelle (variables {p1}, {p2}, {sips}).',
+    }
+  }
+  if (game === 'crise') {
+    return {
+      label: 'Libellé court / Malus (optionnel)',
+      placeholder: 'Ex: Attaque ciblée, Malus permanent',
+      help: 'Catégorie courte affichée sur la carte.',
+    }
+  }
   if (game === 'infiltre') {
     return {
-      label: "Mot secret de l'Infiltré (différent du mot des Éclés)",
+      label: "Mot secret de l'Infiltré (différent du mot des Joueurs ordinaires)",
       placeholder: "Mot secret de l'infiltré",
-      help: "Mot secret de l'Infiltré (différent du mot des Éclés).",
+      help: "Mot secret de l'Infiltré.",
     }
   }
   if (game === 'chrono') {
     return {
-      label: 'Mots interdits à la Manche 1 (séparés par des virgules)',
+      label: 'Mots interdits à la Manche 1 (séparés par des virgules, optionnel)',
       placeholder: 'mot1, mot2, mot3',
-      help: 'Mots interdits à la Manche 1 (séparés par des virgules).',
-    }
-  }
-  if (game === 'debout' && normCategory === 'chrono') {
-    return {
-      label: 'Durée cible (ex: duree:10s)',
-      placeholder: 'duree:10s',
-      help: 'Durée cible (ex: duree:10s).',
+      help: 'Optionnel pour Chrono.',
     }
   }
   if (game === 'debrief') {
     return {
-      label: 'Sous-texte / Pénalité (ex: Avoue ou prends {sips} gorgées)',
-      placeholder: 'Avoue ou prends {sips} gorgées',
-      help: 'Sous-texte / Pénalité (ex: Avoue ou prends {sips} gorgées).',
+      label: 'Options A|B (Tu préfères) ou Sous-texte / Pénalité',
+      placeholder: 'Ex: A: Option 1 | B: Option 2',
+      help: 'Pour Tu préfères: A: ... | B: ... — sinon sous-texte avec {sips}.',
     }
   }
   return {
@@ -88,7 +95,7 @@ interface Props {
   onClose: () => void
 }
 
-type TabType = 'blackout' | 'tree' | 'stats' | 'cards' | 'campaigns' | 'reports'
+type TabType = 'blackout' | 'tree' | 'stats' | 'cards' | 'feedback' | 'campaigns' | 'reports'
 
 // ── Composant récursif pour l'Arbre Visuel des Responsables ─────────────────
 function TreeNodeItem({
@@ -199,22 +206,24 @@ export function AdminConsole({ onClose }: Props) {
   const [statsData, setStatsData] = useState<AdminStatsResponse | null>(null)
   const [statsLoading, setStatsLoading] = useState(false)
 
-  // ── Tab 4: Cards & CSV State
+  // ── Tab 4: Cards & CSV + Propositions State
   const [cards, setCards] = useState<AdminCard[]>([])
   const [selectedGameFilter, setSelectedGameFilter] = useState<string>('all')
   const [cardsLoading, setCardsLoading] = useState(false)
   const [feedbackList, setFeedbackList] = useState<AdminFeedback[]>([])
-  const [cardsSubTab, setCardsSubTab] = useState<'catalog' | 'feedback'>('catalog')
   const [showAddCardModal, setShowAddCardModal] = useState(false)
   const [editingCardId, setEditingCardId] = useState<number | null>(null)
+  const [editingFeedbackId, setEditingFeedbackId] = useState<number | null>(null)
   const [copiedCampaignId, setCopiedCampaignId] = useState<string | null>(null)
   const [newCardForm, setNewCardForm] = useState({
-    game: 'carnotzet',
-    category: 'duel',
+    game: 'vachao',
+    mode: 'passif',
+    category: 'carte',
     title: '',
     content: '',
     extra: '',
     sips: 2,
+    loss_percent: 0.0,
     min_players: 2,
   })
 
@@ -234,10 +243,11 @@ export function AdminConsole({ onClose }: Props) {
   // ── Initial Refresh
   const refreshCoreData = useCallback(async (key: string) => {
     try {
-      const [bo, reps, camps] = await Promise.all([
+      const [bo, reps, camps, fb] = await Promise.all([
         apiAdminGetBlackout(key),
         apiAdminGetReports(key),
         apiAdminGetCampaigns(key),
+        apiAdminGetFeedback(key),
       ])
       setBlackout(bo)
       setStartDateInput(bo.camp_blackout_start || '')
@@ -245,6 +255,7 @@ export function AdminConsole({ onClose }: Props) {
       setBlackoutMessageInput(bo.camp_blackout_message || '')
       setReports(reps)
       setCampaigns(camps)
+      setFeedbackList(fb)
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Erreur chargement'
       setActionMsg({ type: 'error', text: msg })
@@ -314,7 +325,7 @@ export function AdminConsole({ onClose }: Props) {
     if (!isAuthenticated || !adminKey) return
     if (activeTab === 'tree') loadTree(adminKey)
     else if (activeTab === 'stats') loadStats(adminKey)
-    else if (activeTab === 'cards') loadCardsAndFeedback(adminKey)
+    else if (activeTab === 'cards' || activeTab === 'feedback') loadCardsAndFeedback(adminKey)
   }, [activeTab, isAuthenticated, adminKey, loadTree, loadStats, loadCardsAndFeedback])
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -527,13 +538,16 @@ export function AdminConsole({ onClose }: Props) {
 
   const handleOpenAddCardModal = () => {
     setEditingCardId(null)
+    setEditingFeedbackId(null)
     setNewCardForm({
-      game: 'carnotzet',
-      category: 'duel',
+      game: 'vachao',
+      mode: 'passif',
+      category: 'carte',
       title: '',
       content: '',
       extra: '',
       sips: 2,
+      loss_percent: 0.0,
       min_players: 2,
     })
     setShowAddCardModal(true)
@@ -541,14 +555,58 @@ export function AdminConsole({ onClose }: Props) {
 
   const handleStartEditCard = (card: AdminCard) => {
     setEditingCardId(card.id)
+    setEditingFeedbackId(null)
     setNewCardForm({
       game: card.game,
+      mode: card.mode || '',
       category: card.category,
       title: card.title || '',
       content: card.content,
       extra: card.extra || '',
       sips: card.sips,
+      loss_percent: card.loss_percent ?? 0.0,
       min_players: card.min_players,
+    })
+    setShowAddCardModal(true)
+  }
+
+  const handleStartEditFeedback = (fb: AdminFeedback) => {
+    setEditingCardId(null)
+    setEditingFeedbackId(fb.id)
+    const g = fb.target_game || 'debrief'
+    const defaultCat =
+      g === 'infiltre'
+        ? 'defi'
+        : g === 'chrono'
+        ? fb.mode === 'moldu'
+          ? 'objet'
+          : 'campement'
+        : g === 'vachao'
+        ? 'carte'
+        : g === 'crise'
+        ? 'attaque'
+        : 'dossiers'
+    const defaultMode =
+      fb.mode ||
+      (g === 'crise'
+        ? 'crise'
+        : g === 'debrief'
+        ? 'debrief'
+        : g === 'vachao'
+        ? 'passif'
+        : g === 'chrono'
+        ? 'scout'
+        : '')
+    setNewCardForm({
+      game: g,
+      mode: defaultMode,
+      category: fb.category || defaultCat,
+      title: fb.title || '',
+      content: fb.content,
+      extra: fb.extra || fb.extra_data || '',
+      sips: fb.sips ?? 2,
+      loss_percent: fb.loss_percent ?? 0.0,
+      min_players: fb.min_players ?? (g === 'infiltre' ? 3 : g === 'chrono' ? 4 : 2),
     })
     setShowAddCardModal(true)
   }
@@ -570,40 +628,54 @@ export function AdminConsole({ onClose }: Props) {
     if (!newCardForm.content.trim()) return
 
     try {
-      if (editingCardId !== null) {
+      if (editingFeedbackId !== null) {
+        const res = await apiAdminReviewFeedback(adminKey, editingFeedbackId, 'APPROVED', {
+          target_game: newCardForm.game,
+          mode: newCardForm.mode.trim(),
+          category: newCardForm.category.trim(),
+          title: newCardForm.title.trim(),
+          content: newCardForm.content.trim(),
+          extra: newCardForm.extra.trim(),
+          sips: Number(newCardForm.sips),
+          loss_percent: Number(newCardForm.loss_percent),
+          min_players: Number(newCardForm.min_players),
+        })
+        setActionMsg({
+          type: 'success',
+          text: res.card_inserted
+            ? 'Proposition modifiée, publiée en base et synchronisée dans content.csv !'
+            : 'Proposition marquée comme traitée.',
+        })
+      } else if (editingCardId !== null) {
         await apiAdminUpdateCard(adminKey, editingCardId, {
           game: newCardForm.game,
+          mode: newCardForm.mode.trim() || undefined,
           category: newCardForm.category.trim(),
           title: newCardForm.title.trim() || undefined,
           content: newCardForm.content.trim(),
           extra: newCardForm.extra.trim() || undefined,
           sips: Number(newCardForm.sips),
+          loss_percent: Number(newCardForm.loss_percent),
           min_players: Number(newCardForm.min_players),
         })
         setActionMsg({ type: 'success', text: `Carte #${editingCardId} mise à jour et content.csv synchronisé !` })
       } else {
         await apiAdminCreateCard(adminKey, {
           game: newCardForm.game,
+          mode: newCardForm.mode.trim() || undefined,
           category: newCardForm.category.trim(),
           title: newCardForm.title.trim() || undefined,
           content: newCardForm.content.trim(),
           extra: newCardForm.extra.trim() || undefined,
           sips: Number(newCardForm.sips),
+          loss_percent: Number(newCardForm.loss_percent),
           min_players: Number(newCardForm.min_players),
         })
         setActionMsg({ type: 'success', text: 'Nouvelle carte ajoutée et synchronisée dans content.csv !' })
       }
       setShowAddCardModal(false)
       setEditingCardId(null)
-      setNewCardForm({
-        game: 'carnotzet',
-        category: 'duel',
-        title: '',
-        content: '',
-        extra: '',
-        sips: 2,
-        min_players: 2,
-      })
+      setEditingFeedbackId(null)
       loadCardsAndFeedback(adminKey)
     } catch (err: unknown) {
       setActionMsg({ type: 'error', text: err instanceof Error ? err.message : 'Erreur sauvegarde carte' })
@@ -623,12 +695,14 @@ export function AdminConsole({ onClose }: Props) {
 
   const handleReviewFeedback = async (id: number, action: 'APPROVED' | 'REJECTED') => {
     try {
-      await apiAdminReviewFeedback(adminKey, id, action)
+      const res = await apiAdminReviewFeedback(adminKey, id, action)
       setActionMsg({
         type: 'success',
         text: action === 'APPROVED'
-          ? 'Proposition validée et intégrée dans le catalogue de cartes !'
-          : 'Proposition marquée comme rejetée.',
+          ? res.card_inserted
+            ? 'Proposition acceptée, ajoutée en base et synchronisée dans content.csv !'
+            : 'Suggestion acceptée et marquée comme traitée.'
+          : 'Proposition refusée sans ajout au catalogue.',
       })
       loadCardsAndFeedback(adminKey)
     } catch (err: unknown) {
@@ -776,6 +850,23 @@ export function AdminConsole({ onClose }: Props) {
           {cards.length > 0 && (
             <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-purple-700 text-white font-mono">
               {cards.length}
+            </span>
+          )}
+        </button>
+
+        <button
+          onClick={() => setActiveTab('feedback')}
+          className={`py-2.5 px-3 text-xs font-bold border-b-2 transition-all flex items-center gap-1.5 shrink-0 ${
+            activeTab === 'feedback'
+              ? 'border-amber-400 text-amber-300 bg-amber-500/5'
+              : 'border-transparent text-gray-400 hover:text-gray-200'
+          }`}
+        >
+          <span>💡</span>
+          <span>Propositions</span>
+          {feedbackList.filter(f => f.status === 'PENDING').length > 0 && (
+            <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-amber-500 text-black font-mono font-bold">
+              {feedbackList.filter(f => f.status === 'PENDING').length}
             </span>
           )}
         </button>
@@ -1168,7 +1259,7 @@ export function AdminConsole({ onClose }: Props) {
 
                 <button
                   onClick={handleOpenAddCardModal}
-                  className="btn-amber py-2 px-3.5 text-xs font-bold flex items-center gap-1.5 shadow-lg shadow-amber-500/20"
+                  className="btn-amber py-2 px-3.5 text-xs font-bold flex items-center gap-1.5"
                 >
                   <span>➕</span>
                   <span>Ajouter une carte</span>
@@ -1176,191 +1267,238 @@ export function AdminConsole({ onClose }: Props) {
               </div>
             </div>
 
-            {/* Sub-tabs: Catalogue vs Propositions */}
-            <div className="flex gap-2 border-b border-white/10 pb-2">
+            {/* Catalog Table */}
+            <div className="bg-[#111827] border border-white/10 rounded-2xl p-4 space-y-4">
+              {/* Game filter pills */}
+              <div className="flex gap-1.5 overflow-x-auto pb-1 text-xs">
+                {['all', 'infiltre', 'couvrefeu', 'chrono', 'vachao', 'crise', 'debrief', 'rondedenuit'].map(g => (
+                  <button
+                    key={g}
+                    onClick={() => setSelectedGameFilter(g)}
+                    className={`px-3 py-1.5 rounded-full capitalize font-semibold transition-colors shrink-0 ${
+                      selectedGameFilter === g
+                        ? 'bg-scout-amber text-black'
+                        : 'bg-white/5 text-gray-400 hover:text-white'
+                    }`}
+                  >
+                    {g === 'all' ? 'Tous les jeux' : g}
+                  </button>
+                ))}
+              </div>
+
+              {cardsLoading ? (
+                <div className="p-8 text-center text-gray-400 text-xs italic">
+                  Chargement des cartes…
+                </div>
+              ) : filteredCards.length === 0 ? (
+                <div className="p-8 text-center text-gray-400 text-xs italic">
+                  Aucune carte trouvée pour ce filtre.
+                </div>
+              ) : (
+                <div className="space-y-2 max-h-[500px] overflow-y-auto pr-1">
+                  {filteredCards.map(c => (
+                    <div
+                      key={c.id}
+                      className="p-3 rounded-xl bg-white/5 border border-white/10 hover:border-white/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
+                    >
+                      <div className="space-y-1 flex-1">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="px-2 py-0.5 rounded bg-purple-900/50 text-purple-200 font-bold font-mono text-[10px]">
+                            {c.game}
+                          </span>
+                          {c.mode && (
+                            <span className="px-2 py-0.5 rounded bg-sky-900/50 text-sky-200 font-mono text-[10px]">
+                              {c.mode}
+                            </span>
+                          )}
+                          <span className="text-gray-400 text-[10px] font-mono">
+                            {c.category}
+                          </span>
+                          {c.title && (
+                            <span className="font-bold text-white">
+                              {c.title}
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-gray-200 leading-relaxed">
+                          {c.content}
+                        </p>
+                        {c.extra && (
+                          <p className="text-[11px] text-scout-amber font-mono">
+                            ℹ️ {c.extra}
+                          </p>
+                        )}
+                      </div>
+
+                      <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
+                        {(c.loss_percent ?? 0) > 0 && (
+                          <span className="text-[10px] px-2 py-0.5 rounded bg-red-950/60 text-red-300 font-bold border border-red-500/30 font-mono">
+                            +{(c.loss_percent ?? 0).toFixed(1)}%
+                          </span>
+                        )}
+                        {c.sips > 0 && (
+                          <span className="text-[10px] px-2 py-0.5 rounded bg-amber-950/60 text-amber-300 font-bold border border-amber-500/30">
+                            🍺 {c.sips}
+                          </span>
+                        )}
+                        <button
+                          onClick={() => handleStartEditCard(c)}
+                          className="text-xs text-scout-amber hover:text-white px-2 py-1 rounded bg-white/5 hover:bg-white/10 border border-white/10 transition-colors flex items-center gap-1"
+                          title="Modifier cette carte"
+                        >
+                          <span>✏️</span>
+                          <span>Modifier</span>
+                        </button>
+                        <button
+                          onClick={() => handleDeleteCard(c.id)}
+                          className="text-gray-500 hover:text-red-400 px-2 py-1"
+                          title="Supprimer cette carte"
+                        >
+                          🗑️
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* ── TAB 4b: PROPOSITIONS ─────────────────────────────────────────── */}
+        {activeTab === 'feedback' && (
+          <div className="space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div>
+                <h2 className="font-display font-bold text-base text-white flex items-center gap-2">
+                  <span>💡</span>
+                  <span>Propositions de Cartes &amp; Suggestions</span>
+                </h2>
+                <p className="text-xs text-gray-400">
+                  Acceptez directement en base + CSV, modifiez avant publication, ou refusez.
+                </p>
+              </div>
               <button
-                onClick={() => setCardsSubTab('catalog')}
-                className={`py-1.5 px-3 rounded-lg text-xs font-bold transition-all ${
-                  cardsSubTab === 'catalog'
-                    ? 'bg-purple-600 text-white'
-                    : 'text-gray-400 hover:text-white bg-white/5'
-                }`}
+                type="button"
+                onClick={() => loadCardsAndFeedback(adminKey)}
+                disabled={cardsLoading}
+                className="btn-ghost py-1.5 px-3 text-xs border border-white/10 self-start sm:self-auto"
               >
-                Catalogue Actuel ({cards.length})
-              </button>
-              <button
-                onClick={() => setCardsSubTab('feedback')}
-                className={`py-1.5 px-3 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
-                  cardsSubTab === 'feedback'
-                    ? 'bg-purple-600 text-white'
-                    : 'text-gray-400 hover:text-white bg-white/5'
-                }`}
-              >
-                <span>Propositions Joueurs</span>
-                {feedbackList.filter(f => f.status === 'PENDING').length > 0 && (
-                  <span className="px-1.5 py-0.2 rounded-full bg-amber-500 text-black text-[10px] font-bold">
-                    {feedbackList.filter(f => f.status === 'PENDING').length}
-                  </span>
-                )}
+                🔄 Actualiser
               </button>
             </div>
 
-            {/* Sub-view: Catalog Table */}
-            {cardsSubTab === 'catalog' && (
-              <div className="glass-card p-4 space-y-4">
-                {/* Game filter pills */}
-                <div className="flex gap-1.5 overflow-x-auto pb-1 text-xs">
-                  {['all', 'infiltre', 'couvrefeu', 'chrono', 'carnotzet', 'debout', 'debrief', 'rondedenuit'].map(g => (
-                    <button
-                      key={g}
-                      onClick={() => setSelectedGameFilter(g)}
-                      className={`px-3 py-1.5 rounded-full capitalize font-semibold transition-all shrink-0 ${
-                        selectedGameFilter === g
-                          ? 'bg-scout-amber text-black'
-                          : 'bg-white/5 text-gray-400 hover:text-white'
-                      }`}
-                    >
-                      {g === 'all' ? 'Tous les jeux' : g}
-                    </button>
-                  ))}
+            <div className="bg-[#111827] border border-white/10 rounded-2xl p-4 space-y-3">
+              {cardsLoading && feedbackList.length === 0 ? (
+                <div className="p-8 text-center text-gray-400 text-xs italic">
+                  Chargement des propositions…
                 </div>
-
-                {cardsLoading ? (
-                  <div className="p-8 text-center text-gray-400 text-xs italic">
-                    Chargement des cartes…
-                  </div>
-                ) : filteredCards.length === 0 ? (
-                  <div className="p-8 text-center text-gray-400 text-xs italic">
-                    Aucune carte trouvée pour ce filtre.
-                  </div>
-                ) : (
-                  <div className="space-y-2 max-h-[500px] overflow-y-auto pr-1">
-                    {filteredCards.map(c => (
-                      <div
-                        key={c.id}
-                        className="p-3 rounded-xl bg-white/5 border border-white/5 hover:border-white/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
-                      >
-                        <div className="space-y-1 flex-1">
-                          <div className="flex items-center gap-2">
-                            <span className="px-2 py-0.5 rounded bg-purple-900/40 text-purple-300 font-bold font-mono text-[10px]">
-                              {c.game}
-                            </span>
-                            <span className="text-gray-400 text-[10px] font-mono">
-                              {c.category}
-                            </span>
-                            {c.title && (
-                              <span className="font-bold text-white">
-                                {c.title}
-                              </span>
-                            )}
-                          </div>
-                          <p className="text-gray-200 leading-relaxed">
-                            {c.content}
-                          </p>
-                          {c.extra && (
-                            <p className="text-[11px] text-scout-amber font-mono">
-                              ℹ️ {c.extra}
-                            </p>
-                          )}
-                        </div>
-
-                        <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
-                          {c.sips > 0 && (
-                            <span className="text-[10px] px-2 py-0.5 rounded bg-amber-950/40 text-amber-300 font-bold border border-amber-500/30">
-                              🍺 {c.sips}
-                            </span>
-                          )}
-                          <button
-                            onClick={() => handleStartEditCard(c)}
-                            className="text-xs text-scout-amber hover:text-white px-2 py-1 rounded bg-white/5 hover:bg-white/10 border border-white/10 transition-colors flex items-center gap-1"
-                            title="Modifier cette carte"
-                          >
-                            <span>✏️</span>
-                            <span>Modifier</span>
-                          </button>
-                          <button
-                            onClick={() => handleDeleteCard(c.id)}
-                            className="text-gray-500 hover:text-red-400 px-2 py-1"
-                            title="Supprimer cette carte"
-                          >
-                            🗑️
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Sub-view: Player Feedback Proposals */}
-            {cardsSubTab === 'feedback' && (
-              <div className="glass-card p-4 space-y-4">
-                <h3 className="font-bold text-sm text-white flex items-center gap-2">
-                  <span>📬</span>
-                  <span>Propositions Soumises par les Joueurs</span>
-                </h3>
-
-                {feedbackList.length === 0 ? (
-                  <div className="p-8 text-center text-gray-400 text-xs italic bg-white/5 rounded-xl">
-                    Aucune proposition reçue pour le moment.
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {feedbackList.map(fb => (
+              ) : feedbackList.length === 0 ? (
+                <div className="p-8 text-center text-gray-400 text-xs italic bg-white/5 rounded-xl">
+                  Aucune proposition reçue pour le moment.
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {feedbackList.map(fb => {
+                    const extraText = fb.extra || fb.extra_data
+                    return (
                       <div
                         key={fb.id}
-                        className="p-4 rounded-xl bg-white/5 border border-white/10 space-y-2 text-xs"
+                        className="p-4 rounded-xl bg-[#182132] border border-white/10 space-y-2.5 text-xs"
                       >
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <span className="font-bold text-scout-amber">
-                              {fb.target_game || 'Général'} · {fb.category || 'Idée'}
+                        <div className="flex items-center justify-between gap-2 flex-wrap">
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <span className="px-2 py-0.5 rounded bg-scout-amber text-black font-bold font-mono text-[10px] uppercase">
+                              {fb.target_game || 'Général'}
                             </span>
-                            {fb.author_alias && (
-                              <span className="text-gray-400 font-mono text-[10px]">
-                                par {fb.author_alias}
+                            {fb.mode && (
+                              <span className="px-2 py-0.5 rounded bg-sky-900/60 text-sky-200 border border-sky-700/40 font-mono text-[10px]">
+                                mode: {fb.mode}
                               </span>
                             )}
+                            {fb.category && (
+                              <span className="px-2 py-0.5 rounded bg-purple-900/50 text-purple-200 border border-purple-700/40 font-mono text-[10px]">
+                                {fb.category}
+                              </span>
+                            )}
+                            <span className="px-2 py-0.5 rounded bg-white/5 text-gray-300 border border-white/10 font-mono text-[10px]">
+                              {fb.type}
+                            </span>
                           </div>
                           <span
                             className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
                               fb.status === 'APPROVED'
-                                ? 'bg-emerald-900/60 text-emerald-300'
+                                ? 'bg-emerald-900/70 text-emerald-300 border border-emerald-600/40'
                                 : fb.status === 'REJECTED'
-                                ? 'bg-red-900/60 text-red-300'
-                                : 'bg-amber-900/60 text-amber-300'
+                                ? 'bg-red-900/70 text-red-300 border border-red-600/40'
+                                : 'bg-amber-900/70 text-amber-300 border border-amber-600/40'
                             }`}
                           >
                             {fb.status}
                           </span>
                         </div>
 
-                        {fb.title && <h4 className="font-bold text-white">{fb.title}</h4>}
-                        <p className="text-gray-200 leading-relaxed">{fb.content}</p>
+                        {fb.title && (
+                          <h4 className="font-bold text-white text-sm">{fb.title}</h4>
+                        )}
+                        <p className="text-gray-200 leading-relaxed whitespace-pre-line">{fb.content}</p>
+
+                        {(extraText || (fb.sips ?? 0) > 0 || (fb.loss_percent ?? 0) > 0 || (fb.min_players ?? 0) > 2) && (
+                          <div className="flex flex-wrap gap-2 pt-0.5">
+                            {extraText && (
+                              <span className="px-2.5 py-1 rounded-lg bg-black/30 border border-white/10 text-amber-200 font-mono text-[11px]">
+                                Extra : {extraText}
+                              </span>
+                            )}
+                            {(fb.sips ?? 0) > 0 && (
+                              <span className="px-2.5 py-1 rounded-lg bg-amber-950/60 border border-amber-600/30 text-amber-300 font-bold text-[11px]">
+                                🍺 {fb.sips} gorgée{(fb.sips ?? 0) > 1 ? 's' : ''}
+                              </span>
+                            )}
+                            {(fb.loss_percent ?? 0) > 0 && (
+                              <span className="px-2.5 py-1 rounded-lg bg-red-950/60 border border-red-600/30 text-red-300 font-bold font-mono text-[11px]">
+                                📉 +{(fb.loss_percent ?? 0).toFixed(1)}% J+S
+                              </span>
+                            )}
+                            {(fb.min_players ?? 2) > 2 && (
+                              <span className="px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-gray-300 font-mono text-[11px]">
+                                👥 min {fb.min_players}
+                              </span>
+                            )}
+                          </div>
+                        )}
 
                         {fb.status === 'PENDING' && (
-                          <div className="pt-2 flex gap-2">
+                          <div className="pt-2 flex flex-wrap gap-2 border-t border-white/10">
                             <button
+                              type="button"
                               onClick={() => handleReviewFeedback(fb.id, 'APPROVED')}
-                              className="btn-primary py-1.5 px-3 text-xs font-bold bg-emerald-600 hover:bg-emerald-500 border-emerald-400/30"
+                              className="py-1.5 px-3 rounded-lg text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white transition-colors"
                             >
-                              ✅ Valider & intégrer au catalogue
+                              ✅ Accepter
                             </button>
                             <button
-                              onClick={() => handleReviewFeedback(fb.id, 'REJECTED')}
-                              className="btn-ghost py-1.5 px-3 text-xs text-red-400 border border-white/10 hover:bg-red-950/40"
+                              type="button"
+                              onClick={() => handleStartEditFeedback(fb)}
+                              className="py-1.5 px-3 rounded-lg text-xs font-bold bg-amber-600 hover:bg-amber-500 text-white transition-colors"
                             >
-                              ❌ Rejeter
+                              ✏️ Modifier
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleReviewFeedback(fb.id, 'REJECTED')}
+                              className="py-1.5 px-3 rounded-lg text-xs font-bold bg-red-950/70 hover:bg-red-900 text-red-300 border border-red-700/40 transition-colors"
+                            >
+                              ❌ Refuser
                             </button>
                           </div>
                         )}
                       </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
+                    )
+                  })}
+                </div>
+              )}
+            </div>
           </div>
         )}
 
@@ -1632,28 +1770,44 @@ export function AdminConsole({ onClose }: Props) {
         )}
       </main>
 
-      {/* ── Modal Add Card ─────────────────────────────────────────────────── */}
+      {/* ── Modal Add / Edit Card or Proposal ─────────────────────────────── */}
       {showAddCardModal && (
         <div
-          className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4"
-          onClick={() => setShowAddCardModal(false)}
+          className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4 overflow-y-auto"
+          onClick={() => {
+            setShowAddCardModal(false)
+            setEditingFeedbackId(null)
+          }}
         >
           <div
-            className="glass-card max-w-lg w-full p-6 space-y-4 border border-scout-amber/40 shadow-2xl animate-fade-in"
+            className="bg-[#111827] max-w-lg w-full p-6 rounded-2xl space-y-4 border border-scout-amber/40 max-h-[90dvh] overflow-y-auto"
             onClick={e => e.stopPropagation()}
           >
             <div className="flex items-center justify-between border-b border-white/10 pb-3">
               <h3 className="font-bold text-base text-white flex items-center gap-2">
-                <span>{editingCardId !== null ? '✏️' : '➕'}</span>
-                <span>{editingCardId !== null ? `Modifier la Carte #${editingCardId}` : 'Ajouter une Carte au Catalogue'}</span>
+                <span>{editingFeedbackId !== null || editingCardId !== null ? '✏️' : '➕'}</span>
+                <span>
+                  {editingFeedbackId !== null
+                    ? `Modifier & Valider la Proposition #${editingFeedbackId}`
+                    : editingCardId !== null
+                    ? `Modifier la Carte #${editingCardId}`
+                    : 'Ajouter une Carte au Catalogue'}
+                </span>
               </h3>
-              <button onClick={() => setShowAddCardModal(false)} className="text-gray-400 hover:text-white">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowAddCardModal(false)
+                  setEditingFeedbackId(null)
+                }}
+                className="text-gray-400 hover:text-white"
+              >
                 ✕
               </button>
             </div>
 
             <form onSubmit={handleSaveCard} className="space-y-3">
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-3 gap-2.5">
                 <div>
                   <label className="block text-xs font-semibold text-gray-300 mb-1">Jeu</label>
                   <select
@@ -1663,19 +1817,28 @@ export function AdminConsole({ onClose }: Props) {
                   >
                     <option value="infiltre">infiltre</option>
                     <option value="couvrefeu">couvrefeu</option>
-                    <option value="rondedenuit">rondedenuit</option>
                     <option value="chrono">chrono</option>
-                    <option value="carnotzet">carnotzet</option>
-                    <option value="debout">debout</option>
+                    <option value="vachao">vachao</option>
+                    <option value="crise">crise</option>
                     <option value="debrief">debrief</option>
+                    <option value="rondedenuit">rondedenuit</option>
                   </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-300 mb-1">Mode</label>
+                  <input
+                    value={newCardForm.mode}
+                    onChange={e => setNewCardForm({ ...newCardForm, mode: e.target.value })}
+                    placeholder="scout, moldu, passif, actif..."
+                    className="input-scout text-xs"
+                  />
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-gray-300 mb-1">Catégorie</label>
                   <input
                     value={newCardForm.category}
                     onChange={e => setNewCardForm({ ...newCardForm, category: e.target.value })}
-                    placeholder="duel, vote, pub, regle, etc."
+                    placeholder="defi, attaque, dossiers..."
                     className="input-scout text-xs"
                     required
                   />
@@ -1687,7 +1850,7 @@ export function AdminConsole({ onClose }: Props) {
                 <input
                   value={newCardForm.title}
                   onChange={e => setNewCardForm({ ...newCardForm, title: e.target.value })}
-                  placeholder="Bras de Fer de Froideville"
+                  placeholder="Titre de la carte"
                   className="input-scout text-xs"
                 />
               </div>
@@ -1725,7 +1888,7 @@ export function AdminConsole({ onClose }: Props) {
                 )
               })()}
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-3 gap-2.5">
                 <div>
                   <label className="block text-xs font-semibold text-gray-300 mb-1">Gorgées (sips)</label>
                   <input
@@ -1737,13 +1900,24 @@ export function AdminConsole({ onClose }: Props) {
                   />
                 </div>
                 <div>
+                  <label className="block text-xs font-semibold text-gray-300 mb-1">Perte % J+S</label>
+                  <input
+                    type="number"
+                    step="0.5"
+                    value={newCardForm.loss_percent}
+                    onChange={e => setNewCardForm({ ...newCardForm, loss_percent: parseFloat(e.target.value) || 0 })}
+                    className="input-scout text-xs"
+                    min="0"
+                  />
+                </div>
+                <div>
                   <label className="block text-xs font-semibold text-gray-300 mb-1">Min joueurs</label>
                   <input
                     type="number"
                     value={newCardForm.min_players}
                     onChange={e => setNewCardForm({ ...newCardForm, min_players: parseInt(e.target.value, 10) || 2 })}
                     className="input-scout text-xs"
-                    min="2"
+                    min="1"
                   />
                 </div>
               </div>
@@ -1751,13 +1925,20 @@ export function AdminConsole({ onClose }: Props) {
               <div className="pt-2 flex gap-2">
                 <button
                   type="button"
-                  onClick={() => setShowAddCardModal(false)}
+                  onClick={() => {
+                    setShowAddCardModal(false)
+                    setEditingFeedbackId(null)
+                  }}
                   className="btn-ghost flex-1 py-2 text-xs"
                 >
                   Annuler
                 </button>
                 <button type="submit" className="btn-amber flex-1 py-2 text-xs font-bold">
-                  {editingCardId !== null ? 'Enregistrer les modifications' : 'Enregistrer la carte'}
+                  {editingFeedbackId !== null
+                    ? '✅ Valider & Publier la carte'
+                    : editingCardId !== null
+                    ? 'Enregistrer les modifications'
+                    : 'Enregistrer la carte'}
                 </button>
               </div>
             </form>

@@ -1,4 +1,4 @@
-import type { Card } from '../types'
+import type { FeedbackPayload } from '../types'
 
 export function getApiBaseUrl(): string {
   if (typeof window !== 'undefined') {
@@ -19,7 +19,7 @@ export function getApiBaseUrl(): string {
 
 const API = getApiBaseUrl()
 
-export async function fetchRondeCards(): Promise<Card[]> {
+export async function fetchRondeCards(): Promise<unknown[]> {
   const res = await fetch(`${API}/api/cards/rondedenuit`)
   if (!res.ok) {
     throw new Error(`Erreur lors du chargement des cartes (${res.status})`)
@@ -40,4 +40,17 @@ export async function sendTelemetry(durationSeconds: number): Promise<void> {
   } catch {
     // Non-bloquant
   }
+}
+
+export async function submitFeedback(payload: FeedbackPayload): Promise<{ status: string; message?: string }> {
+  const res = await fetch(`${API}/api/feedback`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  })
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}))
+    throw new Error(err.detail || `Erreur serveur (${res.status})`)
+  }
+  return res.json()
 }

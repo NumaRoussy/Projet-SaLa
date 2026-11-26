@@ -74,10 +74,15 @@ CREATE TABLE IF NOT EXISTS user_feedback (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     type TEXT NOT NULL,
     target_game TEXT,
+    mode TEXT,
     category TEXT,
     title TEXT,
     content TEXT NOT NULL,
     extra_data TEXT,
+    extra TEXT,
+    sips INTEGER DEFAULT 0,
+    loss_percent REAL DEFAULT 0.0,
+    min_players INTEGER DEFAULT 2,
     author_alias TEXT,
     contact_email TEXT,
     status TEXT DEFAULT 'PENDING',
@@ -121,14 +126,19 @@ async def init_db() -> None:
         await db.executescript(SCHEMA_SQL)
 
         # Migrations légères pour colonnes récentes
-        try:
-            await db.execute("ALTER TABLE cards ADD COLUMN mode TEXT")
-        except Exception:
-            pass
-        try:
-            await db.execute("ALTER TABLE cards ADD COLUMN loss_percent REAL DEFAULT 0.0")
-        except Exception:
-            pass
+        for alter_sql in (
+            "ALTER TABLE cards ADD COLUMN mode TEXT",
+            "ALTER TABLE cards ADD COLUMN loss_percent REAL DEFAULT 0.0",
+            "ALTER TABLE user_feedback ADD COLUMN mode TEXT",
+            "ALTER TABLE user_feedback ADD COLUMN extra TEXT",
+            "ALTER TABLE user_feedback ADD COLUMN sips INTEGER DEFAULT 0",
+            "ALTER TABLE user_feedback ADD COLUMN loss_percent REAL DEFAULT 0.0",
+            "ALTER TABLE user_feedback ADD COLUMN min_players INTEGER DEFAULT 2",
+        ):
+            try:
+                await db.execute(alter_sql)
+            except Exception:
+                pass
 
         await db.commit()
 

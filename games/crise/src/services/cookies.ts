@@ -8,17 +8,13 @@ function isScoutDomain(): boolean {
 }
 
 function domainAttr(): string {
-  if (isScoutDomain()) {
-    return '; Domain=.scoutgame.ch'
-  }
-  return ''
+  return isScoutDomain() ? '; Domain=.scoutgame.ch' : ''
 }
 
 function secureAttr(): string {
-  if (isScoutDomain() && typeof window !== 'undefined' && window.location.protocol === 'https:') {
-    return 'Secure'
-  }
-  return ''
+  return isScoutDomain() && typeof window !== 'undefined' && window.location.protocol === 'https:'
+    ? 'Secure'
+    : ''
 }
 
 function getCookie(name: string): string | null {
@@ -33,19 +29,21 @@ function getCookie(name: string): string | null {
 
 export function loadPlayers(): CrisisPlayer[] {
   const val = getCookie(PLAYERS_COOKIE)
-  let rawList: any[] = []
-  if (val) {
+  let rawList: unknown[] | null = null
+  if (val !== null) {
     try {
-      rawList = JSON.parse(val)
+      const parsed = JSON.parse(val)
+      if (Array.isArray(parsed)) rawList = parsed
     } catch {
       rawList = []
     }
   }
-  if (rawList.length === 0 && typeof localStorage !== 'undefined') {
+  if (rawList === null && typeof localStorage !== 'undefined') {
     const fromStorage = localStorage.getItem(PLAYERS_COOKIE)
     if (fromStorage) {
       try {
-        rawList = JSON.parse(fromStorage)
+        const parsed = JSON.parse(fromStorage)
+        if (Array.isArray(parsed)) rawList = parsed
       } catch {
         rawList = []
       }
@@ -53,15 +51,34 @@ export function loadPlayers(): CrisisPlayer[] {
   }
 
   if (Array.isArray(rawList) && rawList.length > 0) {
-    return rawList.map((p, idx) => ({
-      id: p.id || `p_${idx + 1}`,
-      name: typeof p === 'string' ? p : p.name || `Responsable ${idx + 1}`,
-      avatar: p.avatar || ['👮', '🦺', '📋', '🚨', '🎒', '🔦', '📻', '🛠️'][idx % 8],
-      lossPercent: 0.0,
-      isEliminated: false,
-      activeDebuffs: [],
-      sipsDrunk: 0,
-    }))
+    return rawList
+      .map((p, idx): CrisisPlayer | null => {
+        if (typeof p === 'string') {
+          return {
+            id: `p_${idx + 1}`,
+            name: p.trim(),
+            avatar: ['👮', '🦺', '📋', '🚨', '🎒', '🔦', '📻', '🛠️'][idx % 8],
+            lossPercent: 0.0,
+            isEliminated: false,
+            activeDebuffs: [],
+            sipsDrunk: 0,
+          }
+        }
+        if (p && typeof p === 'object' && 'name' in p) {
+          const obj = p as Partial<CrisisPlayer>
+          return {
+            id: obj.id || `p_${idx + 1}`,
+            name: String(obj.name || '').trim(),
+            avatar: obj.avatar || ['👮', '🦺', '📋', '🚨', '🎒', '🔦', '📻', '🛠️'][idx % 8],
+            lossPercent: 0.0,
+            isEliminated: false,
+            activeDebuffs: [],
+            sipsDrunk: 0,
+          }
+        }
+        return null
+      })
+      .filter((p): p is CrisisPlayer => Boolean(p && p.name))
   }
 
   return []
@@ -74,25 +91,30 @@ export function savePlayers(players: CrisisPlayer[]): void {
     avatar: p.avatar,
   }))
   const jsonStr = JSON.stringify(minimal)
-  const encoded = encodeURIComponent(jsonStr)
-
-  if (typeof document !== 'undefined') {
-    document.cookie = [
-      `${PLAYERS_COOKIE}=${encoded}`,
-      `Path=/`,
-      `Max-Age=86400`,
-      `SameSite=Lax`,
-      secureAttr(),
-      domainAttr(),
-    ]
-      .filter(Boolean)
-      .join('; ')
+  try {
+    const encoded = encodeURIComponent(jsonStr)
+    if (typeof document !== 'undefined') {
+      document.cookie = [
+        `${PLAYERS_COOKIE}=${encoded}`,
+        'Path=/',
+        'Max-Age=86400',
+        'SameSite=Lax',
+        secureAttr(),
+        domainAttr(),
+      ]
+        .filter(Boolean)
+        .join('; ')
+    }
+  } catch {
+    // Ignore cookie errors
   }
 
   if (typeof localStorage !== 'undefined') {
     try {
       localStorage.setItem(PLAYERS_COOKIE, jsonStr)
-    } catch {}
+    } catch {
+      // Ignore storage errors
+    }
   }
 }
 

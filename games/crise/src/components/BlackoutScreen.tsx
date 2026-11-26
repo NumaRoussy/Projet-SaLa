@@ -7,8 +7,8 @@ interface Props {
 export function BlackoutScreen({ message }: Props) {
   const hubUrl = getHubUrl()
   return (
-    <div className="fixed inset-0 z-50 bg-[#0d1117]/95 backdrop-blur-md flex items-center justify-center p-6 text-center">
-      <div className="glass-card max-w-md w-full p-8 space-y-5 animate-fade-in border border-amber-500/30">
+    <div className="fixed inset-0 z-50 bg-[#0d1016] flex items-center justify-center p-6 text-center">
+      <div className="glass-card max-w-md w-full p-8 space-y-5 border border-[#8c2d38]">
         <div className="text-6xl">⛺</div>
         <h2 className="font-display font-bold text-white text-xl">
           Période de camp scoute

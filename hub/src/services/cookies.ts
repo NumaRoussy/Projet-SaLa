@@ -68,7 +68,18 @@ export function loadPlayers(): Player[] {
   if (match) {
     try {
       const decoded = decodeURIComponent(match[2])
-      return JSON.parse(decoded) as Player[]
+      const parsed = JSON.parse(decoded)
+      if (!Array.isArray(parsed)) return []
+      return parsed
+        .map((p, idx) => {
+          if (typeof p === 'string') return { id: `p_${idx + 1}`, name: p.trim() }
+          if (p && typeof p === 'object' && 'name' in p) {
+            const obj = p as { id?: string; name?: string }
+            return { id: obj.id || `p_${idx + 1}`, name: String(obj.name || '').trim() }
+          }
+          return null
+        })
+        .filter((p): p is Player => Boolean(p && p.name))
     } catch (e) {
       console.warn('[cookies] Erreur de décodage des joueurs du cookie, réinitialisation gracieuse :', e)
       return []

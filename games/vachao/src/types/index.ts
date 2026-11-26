@@ -40,3 +40,14 @@ export interface VerifyResult {
   blackout?: boolean
   reason?: string
 }
+
+export interface FeedbackPayload {
+  type: 'PROPOSITION'
+  target_game: 'vachao'
+  mode: 'passif' | 'actif'
+  category: 'carte'
+  content: string
+  sips: number
+  min_players: number
+  author_alias: null
+}

@@ -94,3 +94,10 @@ export interface VictoryResult {
   title: string
   description: string
 }
+
+export interface FeedbackPayload {
+  type: 'SUGGESTION'
+  target_game: 'couvrefeu'
+  content: string
+  author_alias: null
+}

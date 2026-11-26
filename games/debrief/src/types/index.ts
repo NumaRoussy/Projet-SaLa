@@ -29,12 +29,15 @@ export interface VerifyResult {
 }
 
 export interface FeedbackPayload {
-  type: 'PROPOSITION' | 'CONTACT_LEGAL'
-  target_game?: string
-  category?: string
+  type: 'PROPOSITION'
+  target_game: 'debrief'
+  mode: 'debrief'
+  category: DebriefMode
   title?: string
   content: string
+  extra?: string
   extra_data?: string
-  author_alias?: string
-  contact_email?: string
+  sips: number
+  min_players: number
+  author_alias: null
 }

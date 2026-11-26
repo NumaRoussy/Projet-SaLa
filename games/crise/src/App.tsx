@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import type { Card, CrisisPlayer, CrisisPhase } from './types'
+import type { Card, CrisisPlayer, CrisisPhase, CrisisCategory } from './types'
 import { loadPlayers, savePlayers, loadDevicePass, getHubUrl } from './services/cookies'
 import { verifyDevice, fetchCrisisCards, sendTelemetry } from './services/api'
 import { useCrisisStore } from './hooks/useCrisisStore'
@@ -8,6 +8,7 @@ import { ActionCard } from './components/ActionCard'
 import { SetupScreen } from './components/SetupScreen'
 import { EliminationModal } from './components/EliminationModal'
 import { VictoryModal } from './components/VictoryModal'
+import { ProposeModal } from './components/ProposeModal'
 import { useWakeLock } from './hooks/useWakeLock'
 
 const FALLBACK_CARDS: Card[] = [
@@ -25,16 +26,9 @@ export default function App() {
   useWakeLock()
   const [isVerifying, setIsVerifying] = useState(true)
   const [blackoutMessage, setBlackoutMessage] = useState<string | null>(null)
+  const [proposeOpen, setProposeOpen] = useState(false)
 
-  const [initialPlayers, setInitialPlayers] = useState<CrisisPlayer[]>(() => {
-    const raw = loadPlayers()
-    if (raw.length >= 2) return raw
-    return [
-      { id: '1', name: 'Loup Vigilant', avatar: '🐺', lossPercent: 0, isEliminated: false, activeDebuffs: [], sipsDrunk: 0 },
-      { id: '2', name: 'Renard Rusé', avatar: '🦊', lossPercent: 0, isEliminated: false, activeDebuffs: [], sipsDrunk: 0 },
-      { id: '3', name: 'Faucon Auditeur', avatar: '🦅', lossPercent: 0, isEliminated: false, activeDebuffs: [], sipsDrunk: 0 },
-    ]
-  })
+  const [initialPlayers, setInitialPlayers] = useState<CrisisPlayer[]>(() => loadPlayers())
 
   const [phase, setPhase] = useState<CrisisPhase>('setup')
   const [cards, setCards] = useState<Card[]>([])
@@ -44,7 +38,6 @@ export default function App() {
   const sessionStartRef = useRef<number>(Date.now())
   const hubUrl = getHubUrl()
 
-  // 1. Auth & Blackout
   useEffect(() => {
     async function checkAuth() {
       const pass = loadDevicePass()
@@ -77,22 +70,15 @@ export default function App() {
     checkAuth()
   }, [hubUrl])
 
-  // 2. Fetch cards
   useEffect(() => {
     fetchCrisisCards()
       .then(data => {
-        if (data && data.length > 0) {
-          setCards(shuffleArray(data))
-        } else {
-          setCards(shuffleArray(FALLBACK_CARDS))
-        }
+        if (data && data.length > 0) setCards(shuffleArray(data))
+        else setCards(shuffleArray(FALLBACK_CARDS))
       })
-      .catch(() => {
-        setCards(shuffleArray(FALLBACK_CARDS))
-      })
+      .catch(() => setCards(shuffleArray(FALLBACK_CARDS)))
   }, [])
 
-  // 3. Telemetry on unmount
   useEffect(() => {
     return () => {
       const elapsed = (Date.now() - sessionStartRef.current) / 1000
@@ -109,7 +95,6 @@ export default function App() {
     return copy
   }
 
-  // Player modification
   const handleAddPlayer = (name: string) => {
     const avatars = ['👮', '🦺', '📋', '🚨', '🎒', '🔦', '📻', '🛠️']
     const newPlayer: CrisisPlayer = {
@@ -134,7 +119,14 @@ export default function App() {
     savePlayers(updated)
   }
 
+  const handleClearPlayers = () => {
+    setInitialPlayers([])
+    crisis.setPlayers([])
+    savePlayers([])
+  }
+
   const handleStartGame = () => {
+    if (initialPlayers.length < 2) return
     savePlayers(initialPlayers)
     crisis.resetGame(initialPlayers)
     setCurrentCardIndex(0)
@@ -150,7 +142,8 @@ export default function App() {
     isDebuff: boolean,
     debuffTitle?: string
   ) => {
-    const isMaterial = currentCard?.title.toLowerCase().includes('hache') ||
+    const isMaterial =
+      currentCard?.title.toLowerCase().includes('hache') ||
       currentCard?.title.toLowerCase().includes('tronçonneuse') ||
       currentCard?.title.toLowerCase().includes('pneu')
 
@@ -160,14 +153,13 @@ export default function App() {
       crisis.addDebuff(targetId, debuffTitle)
     }
 
-    // Advance card and turn
     setCurrentCardIndex(prev => prev + 1)
     crisis.nextTurn()
   }
 
   if (isVerifying) {
     return (
-      <div className="min-h-screen bg-[#0b0c10] flex items-center justify-center text-red-500">
+      <div className="min-h-screen bg-[#0d1016] flex items-center justify-center text-red-500">
         <div className="flex flex-col items-center gap-3">
           <div className="w-8 h-8 border-2 border-red-500/30 border-t-red-500 rounded-full animate-spin" />
           <span className="text-sm font-semibold">Connexion à la Cellule de Crise...</span>
@@ -178,76 +170,108 @@ export default function App() {
 
   if (blackoutMessage) {
     return (
-      <div className="fixed inset-0 z-50 bg-[#0b0c10]/95 flex items-center justify-center p-6 text-center">
-        <div className="max-w-md w-full p-8 border border-red-500/30 rounded-2xl bg-[#141620] space-y-4">
+      <div className="fixed inset-0 z-50 bg-[#0d1016] flex items-center justify-center p-6 text-center">
+        <div className="max-w-md w-full p-8 border border-[#2a2f3d] rounded-2xl bg-[#161922] space-y-4">
           <div className="text-5xl">⛺</div>
           <h2 className="font-display font-bold text-white text-lg">Période de camp scoute</h2>
           <p className="text-xs text-gray-300 leading-relaxed">{blackoutMessage}</p>
-          <a href={hubUrl} className="block w-full py-2.5 bg-red-600 rounded-xl font-bold text-sm text-white">
-            Retour au Hub
+          <a href={hubUrl} className="block w-full py-2.5 bg-red-700 rounded-xl font-bold text-sm text-white">
+            ← Menu
           </a>
         </div>
       </div>
     )
   }
 
-  if (phase === 'setup') {
-    return (
-      <SetupScreen
-        players={initialPlayers}
-        onAddPlayer={handleAddPlayer}
-        onRemovePlayer={handleRemovePlayer}
-        onStartGame={handleStartGame}
-      />
-    )
-  }
+  const currentProposeCategory: CrisisCategory =
+    phase === 'playing' &&
+    currentCard &&
+    (currentCard.category === 'attaque' ||
+      currentCard.category === 'dilemme' ||
+      currentCard.category === 'regle')
+      ? currentCard.category
+      : 'attaque'
 
   return (
-    <div className="min-h-screen bg-[#0b0c10] text-white flex flex-col justify-between">
-      {/* Header */}
-      <header className="px-4 py-2 border-b border-white/10 flex items-center justify-between sticky top-0 bg-[#0b0c10]/95 backdrop-blur-md z-30">
-        <div className="flex items-center gap-2">
-          <span className="text-xl">🚨</span>
-          <div>
-            <div className="font-display font-black text-sm text-red-500">CELLULE DE CRISE</div>
-            <div className="text-[10px] text-gray-400">Tour #{crisis.roundNumber}</div>
+    <div className="app-container bg-[#0d1016] text-gray-100">
+      {/* ── En-tête uniforme ──────────────────────────────────────────────── */}
+      <header className="sticky top-0 z-30 bg-[#12151d] border-b border-[#2a2f3d] px-4 py-3">
+        <div className="max-w-lg mx-auto grid grid-cols-3 items-center gap-2">
+          <div className="justify-self-start">
+            <a
+              href={hubUrl}
+              className="inline-flex items-center px-2.5 py-1.5 rounded-lg border border-[#2a2f3d] bg-[#161922] hover:bg-[#1f2330] text-gray-200 text-xs font-semibold transition-colors"
+            >
+              ← Menu
+            </a>
+          </div>
+          <h1 className="justify-self-center font-display font-bold text-base text-white truncate">
+            Cellule de crise
+          </h1>
+          <div className="justify-self-end">
+            <button
+              type="button"
+              onClick={() => setProposeOpen(true)}
+              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-amber-500/40 bg-amber-950/50 hover:bg-amber-900/60 text-amber-200 text-xs font-semibold transition-colors"
+            >
+              <span>💡</span>
+              <span>Proposer</span>
+            </button>
           </div>
         </div>
       </header>
 
-      {/* Permanent Leaderboard */}
-      <Leaderboard
-        players={crisis.players}
-        activeResponsableId={crisis.activeResponsable?.id}
+      {phase === 'setup' ? (
+        <SetupScreen
+          players={initialPlayers}
+          onAddPlayer={handleAddPlayer}
+          onRemovePlayer={handleRemovePlayer}
+          onClearPlayers={handleClearPlayers}
+          onStartGame={handleStartGame}
+        />
+      ) : (
+        <div className="flex-1 flex flex-col justify-between">
+          <Leaderboard
+            players={crisis.players}
+            activeResponsableId={crisis.activeResponsable?.id}
+          />
+
+          {currentCard && crisis.activeResponsable && (
+            <ActionCard
+              card={currentCard}
+              activeResponsable={crisis.activeResponsable}
+              survivors={crisis.survivors}
+              roundNumber={crisis.roundNumber}
+              onExecute={handleExecuteAction}
+            />
+          )}
+
+          {crisis.recentlyEliminated && (
+            <EliminationModal
+              player={crisis.recentlyEliminated}
+              onDismiss={crisis.dismissElimination}
+            />
+          )}
+
+          {crisis.isGameOver && crisis.winner && (
+            <VictoryModal
+              winner={crisis.winner}
+              totalRounds={crisis.roundNumber}
+              onRestart={() => setPhase('setup')}
+            />
+          )}
+        </div>
+      )}
+
+      <footer className="py-3 px-4 text-center border-t border-[#1c202c] text-[11px] text-gray-500">
+        Projet indépendant — Non affilié à l'ASVd, au MSdS, à J+S ou à toute autre organisation.
+      </footer>
+
+      <ProposeModal
+        isOpen={proposeOpen}
+        initialCategory={currentProposeCategory}
+        onClose={() => setProposeOpen(false)}
       />
-
-      {/* Action Card */}
-      {currentCard && crisis.activeResponsable && (
-        <ActionCard
-          card={currentCard}
-          activeResponsable={crisis.activeResponsable}
-          survivors={crisis.survivors}
-          roundNumber={crisis.roundNumber}
-          onExecute={handleExecuteAction}
-        />
-      )}
-
-      {/* Elimination Modal with Administrative Sealing Stamp */}
-      {crisis.recentlyEliminated && (
-        <EliminationModal
-          player={crisis.recentlyEliminated}
-          onDismiss={crisis.dismissElimination}
-        />
-      )}
-
-      {/* Top 1 Victory Modal */}
-      {crisis.isGameOver && crisis.winner && (
-        <VictoryModal
-          winner={crisis.winner}
-          totalRounds={crisis.roundNumber}
-          onRestart={() => setPhase('setup')}
-        />
-      )}
     </div>
   )
 }

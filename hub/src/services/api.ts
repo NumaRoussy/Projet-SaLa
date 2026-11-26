@@ -166,11 +166,13 @@ export interface AdminStatsResponse {
 export interface AdminCard {
   id: number
   game: string
+  mode?: string | null
   category: string
   title: string | null
   content: string
   extra: string | null
   sips: number
+  loss_percent?: number
   min_players: number
 }
 
@@ -178,10 +180,15 @@ export interface AdminFeedback {
   id: number
   type: string
   target_game: string | null
+  mode?: string | null
   category: string | null
   title: string | null
   content: string
+  extra?: string | null
   extra_data: string | null
+  sips?: number
+  loss_percent?: number
+  min_players?: number
   author_alias: string | null
   contact_email: string | null
   status: string
@@ -297,7 +304,7 @@ export async function apiAdminGetCards(adminKey: string, game?: string): Promise
 
 export async function apiAdminCreateCard(
   adminKey: string,
-  card: { game: string; category: string; title?: string; content: string; extra?: string; sips?: number; min_players?: number },
+  card: { game: string; mode?: string; category: string; title?: string; content: string; extra?: string; sips?: number; loss_percent?: number; min_players?: number },
 ): Promise<{ id: number; status: string }> {
   return adminPost('/api/admin/cards', card, adminKey)
 }
@@ -319,7 +326,7 @@ export async function apiAdminDeleteCard(
 export async function apiAdminUpdateCard(
   adminKey: string,
   cardId: number,
-  card: { game: string; category: string; title?: string; content: string; extra?: string; sips?: number; min_players?: number },
+  card: { game: string; mode?: string; category: string; title?: string; content: string; extra?: string; sips?: number; loss_percent?: number; min_players?: number },
 ): Promise<{ id: number; status: string }> {
   const res = await fetch(`${API}/api/admin/cards/${cardId}`, {
     method: 'PUT',
@@ -349,8 +356,19 @@ export async function apiAdminReviewFeedback(
   adminKey: string,
   feedbackId: number,
   action: 'APPROVED' | 'REJECTED',
-): Promise<{ id: number; status: string }> {
-  return adminPost(`/api/admin/feedback/${feedbackId}/status`, { action }, adminKey)
+  overrides?: {
+    target_game?: string
+    mode?: string
+    category?: string
+    title?: string
+    content?: string
+    extra?: string
+    sips?: number
+    loss_percent?: number
+    min_players?: number
+  },
+): Promise<{ id: number; status: string; card_inserted?: boolean }> {
+  return adminPost(`/api/admin/feedback/${feedbackId}/status`, { action, ...overrides }, adminKey)
 }
 
 

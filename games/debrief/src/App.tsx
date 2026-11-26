@@ -7,13 +7,6 @@ import { FeedbackModal } from './components/FeedbackModal'
 import { SetupScreen } from './components/SetupScreen'
 import { useWakeLock } from './hooks/useWakeLock'
 
-const DEFAULT_PLAYERS: Player[] = [
-  { id: 'p_def_1', name: 'Loup Vigilant', avatar: '🐺', sipsCount: 0 },
-  { id: 'p_def_2', name: 'Renard Rusé', avatar: '🦊', sipsCount: 0 },
-  { id: 'p_def_3', name: 'Faucon Malicieux', avatar: '🦅', sipsCount: 0 },
-  { id: 'p_def_4', name: 'Écureuil Curieux', avatar: '⛺', sipsCount: 0 },
-]
-
 const FALLBACK_CARDS: Card[] = [
   {
     id: 1,
@@ -164,7 +157,7 @@ function renderCardContent(text: string, p1Name: string | null, p2Name: string |
       return (
         <span
           key={idx}
-          className="inline-block px-2 py-0.5 mx-0.5 rounded-lg bg-amber-500/25 text-amber-200 border border-amber-400/40 font-bold not-italic"
+          className="inline-block px-2 py-0.5 mx-0.5 rounded-lg bg-amber-950/70 text-amber-200 border border-amber-600/50 font-bold not-italic"
         >
           {p1Name || 'Un responsable'}
         </span>
@@ -174,7 +167,7 @@ function renderCardContent(text: string, p1Name: string | null, p2Name: string |
       return (
         <span
           key={idx}
-          className="inline-block px-2 py-0.5 mx-0.5 rounded-lg bg-orange-500/25 text-orange-200 border border-orange-400/40 font-bold not-italic"
+          className="inline-block px-2 py-0.5 mx-0.5 rounded-lg bg-orange-950/70 text-orange-200 border border-orange-600/50 font-bold not-italic"
         >
           {p2Name || 'un autre responsable'}
         </span>
@@ -196,17 +189,13 @@ export default function App() {
   const [gameDeck, setGameDeck] = useState<Card[]>([])
   const [currentIndex, setCurrentIndex] = useState(0)
 
-  const [players, setPlayers] = useState<Player[]>(() => {
-    const stored = loadPlayers()
-    return stored.length > 0 ? stored : DEFAULT_PLAYERS
-  })
+  const [players, setPlayers] = useState<Player[]>(() => loadPlayers())
   const [targetPlayer, setTargetPlayer] = useState<string | null>(null)
   const [showFeedbackModal, setShowFeedbackModal] = useState(false)
 
   const startTimeRef = useRef<number>(Date.now())
   const hubUrl = getHubUrl()
 
-  // 1. Initial Device Auth & Heartbeat
   useEffect(() => {
     async function checkAuth() {
       const pass = loadDevicePass()
@@ -239,22 +228,15 @@ export default function App() {
     checkAuth()
   }, [hubUrl])
 
-  // 2. Load Cards
   useEffect(() => {
     fetchDebriefCards()
       .then(apiCards => {
-        if (apiCards && apiCards.length > 0) {
-          setAllCards(apiCards)
-        } else {
-          setAllCards(FALLBACK_CARDS)
-        }
+        if (apiCards && apiCards.length > 0) setAllCards(apiCards)
+        else setAllCards(FALLBACK_CARDS)
       })
-      .catch(() => {
-        setAllCards(FALLBACK_CARDS)
-      })
+      .catch(() => setAllCards(FALLBACK_CARDS))
   }, [])
 
-  // 3. Telemetry on unmount
   useEffect(() => {
     return () => {
       const elapsed = (Date.now() - startTimeRef.current) / 1000
@@ -298,8 +280,13 @@ export default function App() {
     savePlayers(updated)
   }
 
+  const handleClearPlayers = () => {
+    setPlayers([])
+    savePlayers([])
+  }
+
   const handleStartGame = () => {
-    if (selectedModes.length === 0) return
+    if (selectedModes.length === 0 || players.length < 2) return
     const source = allCards.length > 0 ? allCards : FALLBACK_CARDS
     const filtered = source.filter(c => selectedModes.includes(normalizeCardCategory(c)))
     const deck = shuffleArray(filtered.length > 0 ? filtered : source)
@@ -316,7 +303,9 @@ export default function App() {
   }
 
   const currentCard = gameDeck[currentIndex % (gameDeck.length || 1)]
-  const currentCategory: DebriefMode = currentCard ? normalizeCardCategory(currentCard) : 'dossiers'
+  const currentCategory: DebriefMode = currentCard
+    ? normalizeCardCategory(currentCard)
+    : selectedModes[0] || 'dossiers'
 
   const secondaryPlayer = useMemo(() => {
     if (players.length < 2) return null
@@ -352,7 +341,7 @@ export default function App() {
 
   if (isVerifying) {
     return (
-      <div className="min-h-screen bg-[#0d090a] flex items-center justify-center text-amber-500">
+      <div className="min-h-screen bg-[#0e0a0c] flex items-center justify-center text-amber-500">
         <div className="flex flex-col items-center gap-3">
           <div className="w-8 h-8 border-2 border-amber-500/30 border-t-amber-400 rounded-full animate-spin" />
           <span className="text-sm font-semibold">Accès au Débrief de veillée...</span>
@@ -371,20 +360,52 @@ export default function App() {
     currentCategory === 'dossiers'
       ? {
           label: '📁 Dossier de camp',
-          className: 'bg-purple-950/70 text-purple-200 border-purple-500/40',
+          className: 'bg-purple-950/70 text-purple-200 border-purple-600/40',
         }
       : currentCategory === 'jamais'
       ? {
           label: "🙈 Je n'ai jamais",
-          className: 'bg-amber-950/70 text-amber-200 border-amber-500/40',
+          className: 'bg-amber-950/70 text-amber-200 border-amber-600/40',
         }
       : {
           label: '⚖️ Tu préfères',
-          className: 'bg-rose-950/70 text-rose-200 border-rose-500/40',
+          className: 'bg-rose-950/70 text-rose-200 border-rose-600/40',
         }
 
+  const initialProposeCategory: DebriefMode =
+    phase === 'playing' && currentCard
+      ? normalizeCardCategory(currentCard)
+      : selectedModes[0] || 'dossiers'
+
   return (
-    <>
+    <div className="app-container bg-[#0e0a0c] text-gray-100">
+      {/* ── En-tête uniforme (sans ⚙️ Modes & Joueurs) ───────────────────── */}
+      <header className="sticky top-0 z-30 bg-[#140e11] border-b border-[#302429] px-4 py-3">
+        <div className="max-w-lg mx-auto grid grid-cols-3 items-center gap-2">
+          <div className="justify-self-start">
+            <a
+              href={hubUrl}
+              className="inline-flex items-center px-2.5 py-1.5 rounded-lg border border-[#302429] bg-[#181215] hover:bg-[#231a1e] text-gray-200 text-xs font-semibold transition-colors"
+            >
+              ← Menu
+            </a>
+          </div>
+          <h1 className="justify-self-center font-display font-bold text-base text-white truncate">
+            Débrief
+          </h1>
+          <div className="justify-self-end">
+            <button
+              type="button"
+              onClick={() => setShowFeedbackModal(true)}
+              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-amber-500/40 bg-amber-950/50 hover:bg-amber-900/60 text-amber-200 text-xs font-semibold transition-colors"
+            >
+              <span>💡</span>
+              <span>Proposer</span>
+            </button>
+          </div>
+        </div>
+      </header>
+
       {phase === 'setup' ? (
         <SetupScreen
           selectedModes={selectedModes}
@@ -392,149 +413,107 @@ export default function App() {
           players={players}
           onAddPlayer={handleAddPlayer}
           onRemovePlayer={handleRemovePlayer}
+          onClearPlayers={handleClearPlayers}
           onStartGame={handleStartGame}
-          onOpenFeedback={() => setShowFeedbackModal(true)}
-          hubUrl={hubUrl}
         />
       ) : (
-        <div className="app-container min-h-screen bg-gradient-to-b from-[#0f090b] via-[#140b0e] to-[#0a0607] text-white flex flex-col justify-between selection:bg-amber-600">
-          {/* ── Header ────────────────────────────────────────────────────────── */}
-          <header className="px-4 py-2.5 border-b border-amber-900/30 flex items-center justify-between sticky top-0 bg-[#0f090b]/95 backdrop-blur-md z-40">
-            <div className="flex items-center gap-2.5">
-              <a
-                href={hubUrl}
-                className="w-8 h-8 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-xs text-gray-300 hover:text-white"
-                title="Retour au Hub"
-              >
-                ←
-              </a>
-              <div>
-                <div className="flex items-center gap-1.5">
-                  <span className="text-lg">🔥</span>
-                  <h1 className="font-display font-black text-sm tracking-wide bg-gradient-to-r from-amber-400 via-orange-300 to-rose-400 bg-clip-text text-transparent">
-                    DÉBRIEF
-                  </h1>
-                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-950/60 text-amber-300 border border-amber-700/40 font-mono">
-                    Carnotzet
-                  </span>
-                </div>
-                <p className="text-[10px] text-gray-400">
-                  Carte {(currentIndex % (gameDeck.length || 1)) + 1} / {gameDeck.length}
-                </p>
-              </div>
-            </div>
-
+        <main className="flex-1 flex flex-col justify-between p-4 max-w-lg mx-auto w-full py-5 gap-4">
+          <div className="flex items-center justify-between text-xs text-gray-400 font-mono">
+            <span>
+              Carte {(currentIndex % (gameDeck.length || 1)) + 1} / {gameDeck.length}
+            </span>
             <button
               type="button"
               onClick={() => setPhase('setup')}
-              className="py-1.5 px-2.5 text-xs text-gray-300 hover:text-white border border-white/10 rounded-lg bg-white/5 hover:bg-white/10 flex items-center gap-1 font-medium"
-              title="Configurer les modes et les responsables"
+              className="text-amber-400 hover:underline font-sans font-semibold"
             >
-              <span>⚙️</span>
-              <span>Modes &amp; Joueurs</span>
+              Changer les modes
             </button>
-          </header>
+          </div>
 
-          {/* ── Main Discussion Card Canvas ───────────────────────────────────── */}
-          <main className="flex-1 flex flex-col justify-between p-4 max-w-lg mx-auto w-full my-auto py-5 gap-4">
-            {/* Card Frame */}
-            {currentCard && (
-              <div className="bg-gradient-to-b from-[#1b1015] to-[#12090c] border border-amber-600/30 rounded-3xl p-6 sm:p-7 shadow-2xl shadow-orange-950/30 text-center space-y-5 my-auto">
-                {/* Category Badge */}
-                <div className="flex justify-center">
-                  <span
-                    className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-bold border ${categoryBadge.className}`}
-                  >
-                    {categoryBadge.label}
+          {currentCard && (
+            <div className="bg-[#181215] border border-[#302429] rounded-2xl p-6 sm:p-7 text-center space-y-5 my-auto">
+              <div className="flex justify-center">
+                <span
+                  className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-bold border ${categoryBadge.className}`}
+                >
+                  {categoryBadge.label}
+                </span>
+              </div>
+
+              {currentCard.title && currentCard.title !== "Je n'ai jamais" && (
+                <h2 className="font-display font-black text-xl sm:text-2xl text-amber-100 tracking-wide">
+                  {currentCard.title}
+                </h2>
+              )}
+
+              <p className="font-display text-lg sm:text-xl text-gray-100 font-medium leading-relaxed italic">
+                «{' '}
+                {currentCategory === 'dossiers'
+                  ? renderCardContent(currentCard.content, targetPlayer, secondaryPlayer)
+                  : currentCard.content}{' '}
+                »
+              </p>
+
+              {currentCategory === 'prefere' && prefereOptions && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-left pt-1">
+                  <div className="p-3 rounded-xl bg-emerald-950/40 border border-emerald-700/40 space-y-1">
+                    <div className="text-[11px] font-mono font-bold text-emerald-300 uppercase">
+                      Option A
+                    </div>
+                    <div className="text-sm font-semibold text-white leading-snug">
+                      {prefereOptions.optionA}
+                    </div>
+                  </div>
+                  <div className="p-3 rounded-xl bg-sky-950/40 border border-sky-700/40 space-y-1">
+                    <div className="text-[11px] font-mono font-bold text-sky-300 uppercase">
+                      Option B
+                    </div>
+                    <div className="text-sm font-semibold text-white leading-snug">
+                      {prefereOptions.optionB}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div className="pt-2 flex justify-center">
+                <div className="inline-flex items-center gap-2 bg-amber-950/60 border border-amber-600/40 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-amber-200">
+                  <span>🍺</span>
+                  <span>
+                    {currentCategory === 'dossiers' &&
+                      `Avoue le dossier ou bois ${sipsText}.`}
+                    {currentCategory === 'jamais' &&
+                      `Si tu as déjà, tu bois ${sipsText}.`}
+                    {currentCategory === 'prefere' &&
+                      `Votez en même temps : la minorité boit ${sipsText} !`}
                   </span>
                 </div>
-
-                {/* Card Title (skip generic "Je n'ai jamais" repetition) */}
-                {currentCard.title && currentCard.title !== "Je n'ai jamais" && (
-                  <h2 className="font-display font-black text-xl sm:text-2xl text-amber-100 tracking-wide">
-                    {currentCard.title}
-                  </h2>
-                )}
-
-                {/* Statement / Question / Dilemma */}
-                <p className="font-display text-lg sm:text-xl text-gray-100 font-medium leading-relaxed italic">
-                  «{' '}
-                  {currentCategory === 'dossiers'
-                    ? renderCardContent(currentCard.content, targetPlayer, secondaryPlayer)
-                    : currentCard.content}{' '}
-                  »
-                </p>
-
-                {/* Options A & B for Tu préfères */}
-                {currentCategory === 'prefere' && prefereOptions && (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-left pt-1">
-                    <div className="p-3 rounded-2xl bg-emerald-950/40 border border-emerald-500/35 space-y-1">
-                      <div className="text-[11px] font-mono font-bold text-emerald-300 uppercase">
-                        Option A
-                      </div>
-                      <div className="text-sm font-semibold text-white leading-snug">
-                        {prefereOptions.optionA}
-                      </div>
-                    </div>
-                    <div className="p-3 rounded-2xl bg-sky-950/40 border border-sky-500/35 space-y-1">
-                      <div className="text-[11px] font-mono font-bold text-sky-300 uppercase">
-                        Option B
-                      </div>
-                      <div className="text-sm font-semibold text-white leading-snug">
-                        {prefereOptions.optionB}
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Drinking / Vote Instruction */}
-                <div className="pt-2 flex justify-center">
-                  <div className="inline-flex items-center gap-2 bg-amber-500/15 border border-amber-500/35 px-4 py-2 rounded-2xl text-xs sm:text-sm font-bold text-amber-200">
-                    <span>🍺</span>
-                    <span>
-                      {currentCategory === 'dossiers' &&
-                        `Avoue le dossier ou bois ${sipsText}.`}
-                      {currentCategory === 'jamais' &&
-                        `Si tu as déjà, tu bois ${sipsText}.`}
-                      {currentCategory === 'prefere' &&
-                        `Votez en même temps : la minorité boit ${sipsText} !`}
-                    </span>
-                  </div>
-                </div>
               </div>
-            )}
-
-            {/* Action Buttons & Next Card */}
-            <div className="space-y-3">
-              <button
-                type="button"
-                onClick={drawNextCard}
-                className="w-full py-4 bg-gradient-to-r from-amber-600 via-orange-600 to-rose-600 hover:brightness-110 active:scale-98 text-white font-black text-base rounded-2xl shadow-xl shadow-amber-950/50 flex items-center justify-center gap-2"
-              >
-                <span>Carte suivante</span>
-                <span>→</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setShowFeedbackModal(true)}
-                className="w-full py-2.5 px-3 rounded-xl bg-amber-950/50 hover:bg-amber-900/50 border border-amber-500/30 text-xs font-bold text-amber-200 flex items-center justify-center gap-1.5 active:scale-95 transition-all"
-              >
-                <span>💡</span>
-                <span>Proposer une carte</span>
-              </button>
             </div>
-          </main>
-        </div>
+          )}
+
+          <div className="space-y-2">
+            <button
+              type="button"
+              onClick={drawNextCard}
+              className="btn-primary w-full py-4 text-base font-bold font-display"
+            >
+              <span>Carte suivante</span>
+              <span>→</span>
+            </button>
+          </div>
+        </main>
       )}
 
-      {/* ── Feedback Modal ─────────────────────────────────────────────────── */}
-      {showFeedbackModal && (
-        <FeedbackModal
-          isOpen={showFeedbackModal}
-          onClose={() => setShowFeedbackModal(false)}
-        />
-      )}
-    </>
+      <footer className="py-3 px-4 text-center border-t border-[#21181c] text-[11px] text-gray-500">
+        Projet indépendant — Non affilié à l'ASVd, au MSdS, à J+S ou à toute autre organisation.
+      </footer>
+
+      <FeedbackModal
+        isOpen={showFeedbackModal}
+        initialCategory={initialProposeCategory}
+        onClose={() => setShowFeedbackModal(false)}
+      />
+    </div>
   )
 }

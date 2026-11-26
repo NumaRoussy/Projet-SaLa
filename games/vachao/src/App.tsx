@@ -5,6 +5,7 @@ import { verifyDevice, fetchVachaoCards, sendTelemetry } from './services/api'
 import { SetupScreen } from './components/SetupScreen'
 import { CardView } from './components/CardView'
 import { DebriefingStats } from './components/DebriefingStats'
+import { ProposeModal } from './components/ProposeModal'
 import { FlammeBleue } from './components/mini-games/FlammeBleue'
 import { SensDuTemps } from './components/mini-games/SensDuTemps'
 import { TirCorde } from './components/mini-games/TirCorde'
@@ -28,17 +29,9 @@ export default function App() {
   useWakeLock()
   const [isVerifying, setIsVerifying] = useState(true)
   const [blackoutMessage, setBlackoutMessage] = useState<string | null>(null)
+  const [proposeOpen, setProposeOpen] = useState(false)
 
-  const [players, setPlayers] = useState<Player[]>(() => {
-    const raw = loadPlayers()
-    if (raw.length >= 2) return raw
-    return [
-      { id: '1', name: 'Loup Ardent', avatar: '🐺', sipsDrunk: 0, sipsGiven: 0, challengesWon: 0, challengesLost: 0 },
-      { id: '2', name: 'Renard Rusé', avatar: '🦊', sipsDrunk: 0, sipsGiven: 0, challengesWon: 0, challengesLost: 0 },
-      { id: '3', name: 'Faucon Vif', avatar: '🦅', sipsDrunk: 0, sipsGiven: 0, challengesWon: 0, challengesLost: 0 },
-    ]
-  })
-
+  const [players, setPlayers] = useState<Player[]>(() => loadPlayers())
   const [gameMode, setGameMode] = useState<GameMode>('mixte')
   const [phase, setPhase] = useState<GamePhase>('setup')
 
@@ -54,12 +47,10 @@ export default function App() {
   const sessionStartRef = useRef<number>(Date.now())
   const hubUrl = getHubUrl()
 
-  // 1. Auth check
   useEffect(() => {
     async function checkAuth() {
       const pass = loadDevicePass()
       if (!pass) {
-        // En développement local, on permet l'accès si pas de domaine scoutgame.ch
         if (typeof window !== 'undefined' && !window.location.hostname.endsWith('scoutgame.ch')) {
           setIsVerifying(false)
           return
@@ -88,22 +79,15 @@ export default function App() {
     checkAuth()
   }, [hubUrl])
 
-  // 2. Fetch cards
   useEffect(() => {
     fetchVachaoCards()
       .then(data => {
-        if (data && data.length > 0) {
-          setCards(data)
-        } else {
-          setCards(FALLBACK_CARDS)
-        }
+        if (data && data.length > 0) setCards(data)
+        else setCards(FALLBACK_CARDS)
       })
-      .catch(() => {
-        setCards(FALLBACK_CARDS)
-      })
+      .catch(() => setCards(FALLBACK_CARDS))
   }, [])
 
-  // 3. Telemetry on unmount
   useEffect(() => {
     return () => {
       const elapsed = (Date.now() - sessionStartRef.current) / 1000
@@ -111,18 +95,35 @@ export default function App() {
     }
   }, [])
 
-  // Start game handler
+  function shuffleArray<T>(arr: T[]): T[] {
+    const copy = [...arr]
+    for (let i = copy.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1))
+      ;[copy[i], copy[j]] = [copy[j], copy[i]]
+    }
+    return copy
+  }
+
+  const setupCardDuelists = (card: Card | undefined, playerList = players) => {
+    if (!card || playerList.length < 2) return
+    const p1Idx = Math.floor(Math.random() * playerList.length)
+    let p2Idx = Math.floor(Math.random() * (playerList.length - 1))
+    if (p2Idx >= p1Idx) p2Idx += 1
+
+    setDuelistP1(playerList[p1Idx])
+    setDuelistP2(playerList[p2Idx])
+  }
+
   const handleStartGame = () => {
+    if (players.length < 2) return
     savePlayers(players)
 
-    // Build tailored deck according to mode
     let filtered = [...cards]
     if (gameMode === 'pepere') {
       filtered = cards.filter(c => c.mode === 'passif' || c.category === 'carte' || c.category === 'regle')
     } else if (gameMode === 'commando') {
       filtered = cards.filter(c => c.mode === 'actif' || c.category === 'minijeu')
     } else {
-      // Mixte: ~65% passif / 35% actif
       const passives = cards.filter(c => c.mode === 'passif' || c.category === 'carte')
       const actives = cards.filter(c => c.mode === 'actif' || c.category === 'minijeu')
       filtered = shuffleArray([...passives, ...actives, ...actives])
@@ -137,47 +138,21 @@ export default function App() {
     setPhase('playing')
   }
 
-  function shuffleArray<T>(arr: T[]): T[] {
-    const copy = [...arr]
-    for (let i = copy.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1))
-      ;[copy[i], copy[j]] = [copy[j], copy[i]]
-    }
-    return copy
-  }
-
-  const setupCardDuelists = (card: Card | undefined) => {
-    if (!card || players.length < 2) return
-    const p1Idx = Math.floor(Math.random() * players.length)
-    let p2Idx = Math.floor(Math.random() * (players.length - 1))
-    if (p2Idx >= p1Idx) p2Idx += 1
-
-    setDuelistP1(players[p1Idx])
-    setDuelistP2(players[p2Idx])
-  }
-
   const currentCard = deck[currentCardIndex % (deck.length || 1)]
 
-  // Launch mini-game based on card title or category
   const handleLaunchMiniGame = () => {
     if (!currentCard) return
     const title = currentCard.title.toLowerCase()
-    if (title.includes('flamme')) {
-      setActiveMiniGame('flamme_bleue')
-    } else if (title.includes('sens') || title.includes('chrono')) {
-      setActiveMiniGame('sens_du_temps')
-    } else if (title.includes('corde') || title.includes('tir')) {
-      setActiveMiniGame('tir_corde')
-    } else if (title.includes('tente') || title.includes('arbre')) {
-      setActiveMiniGame('sauvetage_tente')
-    } else {
-      // Random pick
+    if (title.includes('flamme')) setActiveMiniGame('flamme_bleue')
+    else if (title.includes('sens') || title.includes('chrono')) setActiveMiniGame('sens_du_temps')
+    else if (title.includes('corde') || title.includes('tir')) setActiveMiniGame('tir_corde')
+    else if (title.includes('tente') || title.includes('arbre')) setActiveMiniGame('sauvetage_tente')
+    else {
       const pick: ActiveMiniGame[] = ['flamme_bleue', 'sens_du_temps', 'tir_corde', 'sauvetage_tente']
       setActiveMiniGame(pick[Math.floor(Math.random() * pick.length)])
     }
   }
 
-  // Handle mini-game outcome
   const handleMiniGameFinish = (result: MiniGameResult) => {
     setActiveMiniGame('none')
 
@@ -204,7 +179,6 @@ export default function App() {
     advanceNextCard()
   }
 
-  // Handle manual validation (Réussi / Échoué) for passive cards
   const handleValidateCard = (success: boolean) => {
     const sipsVal = currentCard?.sips || 2
     if (duelistP1) {
@@ -233,15 +207,6 @@ export default function App() {
     setupCardDuelists(deck[nextIdx % deck.length])
   }
 
-  const handleEndVeillee = () => {
-    setPhase('stats')
-  }
-
-  const handleRestart = () => {
-    setPhase('setup')
-  }
-
-  // Player modification
   const handleAddPlayer = (name: string) => {
     const avatars = ['⛺', '🪵', '🔥', '🪓', '🐺', '🦊', '🦅', '🐻', '🌲', '🦉']
     const newPlayer: Player = {
@@ -264,11 +229,16 @@ export default function App() {
     savePlayers(updated)
   }
 
+  const handleClearPlayers = () => {
+    setPlayers([])
+    savePlayers([])
+  }
+
   if (isVerifying) {
     return (
-      <div className="min-h-screen bg-[#070b14] flex items-center justify-center text-cyan-400">
+      <div className="min-h-screen bg-[#0e1722] flex items-center justify-center text-sky-300">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 border-2 border-cyan-500/30 border-t-cyan-400 rounded-full animate-spin" />
+          <div className="w-8 h-8 border-2 border-[#28527a] border-t-[#32689c] rounded-full animate-spin" />
           <span className="text-sm font-semibold">Vérification de l'accès Maîtrise Vachao...</span>
         </div>
       </div>
@@ -277,20 +247,19 @@ export default function App() {
 
   if (blackoutMessage) {
     return (
-      <div className="fixed inset-0 z-50 bg-[#070b14]/95 flex items-center justify-center p-6 text-center">
-        <div className="max-w-md w-full p-8 border border-cyan-500/30 rounded-2xl bg-[#0f1422] space-y-4">
+      <div className="fixed inset-0 z-50 bg-[#0e1722] flex items-center justify-center p-6 text-center">
+        <div className="max-w-md w-full p-8 border border-[#28527a] rounded-2xl bg-[#152233] space-y-4">
           <div className="text-5xl">⛺</div>
-          <h2 className="font-display font-bold text-white text-lg">Période de camp scoute</h2>
-          <p className="text-xs text-gray-300 leading-relaxed">{blackoutMessage}</p>
-          <a href={hubUrl} className="block w-full py-2.5 bg-cyan-600 rounded-xl font-bold text-sm text-white">
-            Retour au Hub
+          <h2 className="font-display font-bold text-[#f3f4f6] text-lg">Période de camp scoute</h2>
+          <p className="text-xs text-slate-300 leading-relaxed">{blackoutMessage}</p>
+          <a href={hubUrl} className="block w-full py-2.5 bg-[#32689c] border border-[#28527a] rounded-xl font-bold text-sm text-[#f3f4f6]">
+            ← Menu
           </a>
         </div>
       </div>
     )
   }
 
-  // Render Mini-Games overlays
   if (activeMiniGame === 'flamme_bleue' && duelistP1 && duelistP2) {
     return (
       <FlammeBleue
@@ -335,67 +304,90 @@ export default function App() {
     )
   }
 
-  // Phase Setup
-  if (phase === 'setup') {
-    return (
-      <SetupScreen
-        players={players}
-        selectedMode={gameMode}
-        onSelectMode={setGameMode}
-        onAddPlayer={handleAddPlayer}
-        onRemovePlayer={handleRemovePlayer}
-        onStartGame={handleStartGame}
-      />
-    )
-  }
-
-  // Phase Stats / Debriefing
-  if (phase === 'stats') {
-    return (
-      <DebriefingStats
-        players={players}
-        totalRounds={roundNumber - 1}
-        onRestart={handleRestart}
-      />
-    )
-  }
-
-  // Phase Playing
   return (
-    <div className="min-h-screen bg-[#070b14] text-white flex flex-col justify-between">
-      {/* Top Bar with Persistent "Terminer la veillée" */}
-      <header className="px-4 py-2.5 border-b border-white/10 flex items-center justify-between sticky top-0 bg-[#070b14]/90 backdrop-blur-md z-40">
-        <div className="flex items-center gap-2">
-          <span className="text-xl">🐮</span>
-          <div>
-            <div className="font-display font-black text-sm text-cyan-400">VACHAO</div>
-            <div className="text-[10px] text-gray-400">Tour #{roundNumber}</div>
+    <div className="app-container bg-[#0e1722] text-[#f3f4f6]">
+      {/* ── En-tête uniforme ──────────────────────────────────────────────── */}
+      <header className="sticky top-0 z-30 bg-[#152233] border-b border-[#28527a] px-4 py-3">
+        <div className="max-w-lg mx-auto grid grid-cols-3 items-center gap-2">
+          <div className="justify-self-start">
+            <a
+              href={hubUrl}
+              className="inline-flex items-center px-2.5 py-1.5 rounded-lg border border-[#28527a] bg-[#0e1722] hover:bg-[#1c2e45] text-[#f3f4f6] text-xs font-semibold transition-colors"
+            >
+              ← Menu
+            </a>
+          </div>
+          <h1 className="justify-self-center font-display font-bold text-base text-[#f3f4f6] truncate">
+            Vachao
+          </h1>
+          <div className="justify-self-end">
+            <button
+              type="button"
+              onClick={() => setProposeOpen(true)}
+              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-[#28527a] bg-[#32689c] hover:bg-[#3c7ab5] text-[#f3f4f6] text-xs font-semibold transition-colors"
+            >
+              <span>💡</span>
+              <span>Proposer</span>
+            </button>
           </div>
         </div>
-
-        <button
-          onClick={handleEndVeillee}
-          className="px-3 py-1 bg-red-950/40 hover:bg-red-900/60 border border-red-500/30 text-red-300 rounded-lg text-xs font-semibold flex items-center gap-1 active:scale-95"
-          title="Afficher les statistiques finales"
-        >
-          <span>🏁</span>
-          <span>Terminer la veillée</span>
-        </button>
       </header>
 
-      {/* Main Card */}
-      {currentCard && (
-        <CardView
-          card={currentCard}
-          player1={duelistP1}
-          player2={duelistP2}
-          roundNumber={roundNumber}
-          totalCards={deck.length}
-          onLaunchMiniGame={currentCard.category === 'minijeu' ? handleLaunchMiniGame : undefined}
-          onValidate={handleValidateCard}
-          onNext={advanceNextCard}
+      {phase === 'setup' && (
+        <SetupScreen
+          players={players}
+          selectedMode={gameMode}
+          onSelectMode={setGameMode}
+          onAddPlayer={handleAddPlayer}
+          onRemovePlayer={handleRemovePlayer}
+          onClearPlayers={handleClearPlayers}
+          onStartGame={handleStartGame}
         />
       )}
+
+      {phase === 'stats' && (
+        <DebriefingStats
+          players={players}
+          totalRounds={roundNumber - 1}
+          onRestart={() => setPhase('setup')}
+        />
+      )}
+
+      {phase === 'playing' && (
+        <div className="flex-1 flex flex-col justify-between max-w-lg mx-auto w-full">
+          {currentCard && (
+            <CardView
+              card={currentCard}
+              player1={duelistP1}
+              player2={duelistP2}
+              roundNumber={roundNumber}
+              totalCards={deck.length}
+              onLaunchMiniGame={currentCard.category === 'minijeu' ? handleLaunchMiniGame : undefined}
+              onValidate={handleValidateCard}
+              onNext={advanceNextCard}
+            />
+          )}
+          <div className="px-4 pb-3">
+            <button
+              type="button"
+              onClick={() => setPhase('stats')}
+              className="w-full py-2.5 bg-[#2b171b] hover:bg-[#3a1f24] border border-[#7f2d38] text-red-200 rounded-xl text-xs font-semibold transition-colors"
+            >
+              🏁 Terminer la veillée
+            </button>
+          </div>
+        </div>
+      )}
+
+      <footer className="py-3 px-4 text-center border-t border-[#28527a] bg-[#152233] text-[11px] text-slate-400">
+        Projet indépendant — Non affilié à l'ASVd, au MSdS, à J+S ou à toute autre organisation.
+      </footer>
+
+      <ProposeModal
+        isOpen={proposeOpen}
+        initialGameMode={gameMode}
+        onClose={() => setProposeOpen(false)}
+      />
     </div>
   )
 }

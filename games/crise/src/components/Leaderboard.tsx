@@ -19,7 +19,7 @@ export function Leaderboard({ players, activeResponsableId }: Props) {
       return 'bg-gray-700'
     }
     if (p.lossPercent >= 9.0) {
-      return 'bg-red-500 animate-pulse'
+      return 'bg-red-500'
     }
     if (p.lossPercent >= 5.0) {
       return 'bg-amber-500'
@@ -37,7 +37,7 @@ export function Leaderboard({ players, activeResponsableId }: Props) {
     }
     if (p.lossPercent >= 9.0) {
       return (
-        <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-red-950/80 text-red-300 border border-red-500/60 animate-bounce">
+        <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-red-950/80 text-red-300 border border-red-500/60">
           CRITIQUE
         </span>
       )
@@ -79,12 +79,12 @@ export function Leaderboard({ players, activeResponsableId }: Props) {
           return (
             <div
               key={p.id}
-              className={`p-2 rounded-xl border transition-all ${
+              className={`p-2 rounded-xl border transition-colors ${
                 p.isEliminated
-                  ? 'bg-black/40 border-gray-800 opacity-60'
+                  ? 'bg-[#0d1016] border-[#222733] opacity-60'
                   : isActive
-                  ? 'bg-red-950/20 border-red-500/50 shadow-sm'
-                  : 'bg-white/[0.02] border-white/5'
+                  ? 'bg-[#2b171b] border-[#8c2d38]'
+                  : 'bg-[#161922] border-[#2a2f3d]'
               }`}
             >
               <div className="flex items-center justify-between text-xs mb-1">
@@ -98,7 +98,7 @@ export function Leaderboard({ players, activeResponsableId }: Props) {
                     {p.name}
                   </span>
                   {isActive && !p.isEliminated && (
-                    <span className="w-1.5 h-1.5 rounded-full bg-red-400 animate-ping inline-block" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-red-400 inline-block" />
                   )}
                 </div>
 

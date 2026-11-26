@@ -35,3 +35,14 @@ export type GamePhase =
   | 'turn_transition'
   | 'round_recap'
   | 'gameover'
+
+export interface FeedbackPayload {
+  type: 'PROPOSITION'
+  target_game: 'chrono'
+  mode: ChronoTheme
+  category: string
+  title: string
+  content: string
+  min_players: number
+  author_alias: null
+}

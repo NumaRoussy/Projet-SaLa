@@ -80,11 +80,11 @@ export function OnboardingModal({ onConfirm, onCancel }: Props) {
   return (
     <div className="overlay flex items-end sm:items-center justify-center p-0 sm:p-4 z-50 overflow-y-auto">
       <div
-        className="glass-card w-full max-w-lg rounded-b-none sm:rounded-3xl rounded-t-3xl p-5 sm:p-6 pb-7 space-y-4 animate-slide-up max-h-[94dvh] overflow-y-auto border-2 border-scout-amber/40 shadow-2xl"
+        className="bg-[#162920] w-full max-w-lg rounded-b-none sm:rounded-3xl rounded-t-3xl p-5 sm:p-6 pb-7 space-y-4 max-h-[94dvh] overflow-y-auto border border-[#8a5629]"
         onClick={e => e.stopPropagation()}
       >
         {/* Mobile handle indicator */}
-        <div className="w-10 h-1 bg-white/20 rounded-full mx-auto sm:hidden" />
+        <div className="w-10 h-1 bg-[#2d6a4f] rounded-full mx-auto sm:hidden" />
 
         {/* ── Stepper Navigation ──────────────────────────────────────────────── */}
         <div className="flex items-center justify-between gap-1 px-1 pt-1 pb-1">
@@ -108,7 +108,7 @@ export function OnboardingModal({ onConfirm, onCancel }: Props) {
 
           <div
             className={`h-0.5 flex-1 mx-1.5 rounded-full transition-colors ${
-              step >= 2 ? 'bg-amber-400' : 'bg-white/10'
+              step >= 2 ? 'bg-amber-400' : 'bg-[#2d6a4f]'
             }`}
           />
 
@@ -123,8 +123,8 @@ export function OnboardingModal({ onConfirm, onCancel }: Props) {
                 step > 2
                   ? 'bg-amber-400 text-black'
                   : step === 2
-                  ? 'bg-amber-500/25 text-amber-300 border border-amber-500/50'
-                  : 'bg-white/10 text-gray-400'
+                  ? 'bg-[#261d12] text-amber-300 border border-[#785127]'
+                  : 'bg-[#0f1f18] text-gray-400 border border-[#2d6a4f]'
               }`}
             >
               {step > 2 ? '✓' : '2'}
@@ -134,7 +134,7 @@ export function OnboardingModal({ onConfirm, onCancel }: Props) {
 
           <div
             className={`h-0.5 flex-1 mx-1.5 rounded-full transition-colors ${
-              step >= 3 ? 'bg-amber-400' : 'bg-white/10'
+              step >= 3 ? 'bg-amber-400' : 'bg-[#2d6a4f]'
             }`}
           />
 
@@ -147,8 +147,8 @@ export function OnboardingModal({ onConfirm, onCancel }: Props) {
             <span
               className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
                 step === 3
-                  ? 'bg-amber-500/25 text-amber-300 border border-amber-500/50'
-                  : 'bg-white/10 text-gray-400'
+                  ? 'bg-[#261d12] text-amber-300 border border-[#785127]'
+                  : 'bg-[#0f1f18] text-gray-400 border border-[#2d6a4f]'
               }`}
             >
               3
@@ -162,7 +162,7 @@ export function OnboardingModal({ onConfirm, onCancel }: Props) {
         ══════════════════════════════════════════════════════════════════════ */}
         {step === 1 && (
           <div className="space-y-4 animate-fade-in text-center">
-            <div className="w-16 h-16 mx-auto rounded-2xl bg-amber-500/20 border-2 border-amber-500/50 flex items-center justify-center text-3xl shadow-lg shadow-amber-500/20">
+            <div className="w-16 h-16 mx-auto rounded-2xl bg-[#261d12] border-2 border-[#785127] flex items-center justify-center text-3xl">
               🔞
             </div>
 
@@ -214,7 +214,7 @@ export function OnboardingModal({ onConfirm, onCancel }: Props) {
                 type="button"
                 disabled={!isAgeConfirmed}
                 onClick={() => setStep(2)}
-                className="btn-amber flex-1 py-3 text-sm font-bold order-1 sm:order-2 shadow-lg shadow-amber-500/20 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-1"
+                className="btn-amber flex-1 py-3 text-sm font-bold order-1 sm:order-2 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-1"
               >
                 <span>Confirmer et continuer</span>
                 <span>→</span>
@@ -228,7 +228,7 @@ export function OnboardingModal({ onConfirm, onCancel }: Props) {
         ══════════════════════════════════════════════════════════════════════ */}
         {step === 2 && (
           <div className="space-y-3.5 animate-fade-in text-center">
-            <div className="w-14 h-14 mx-auto rounded-2xl bg-amber-500/20 border-2 border-amber-500/50 flex items-center justify-center text-3xl shadow-lg shadow-amber-500/20">
+            <div className="w-14 h-14 mx-auto rounded-2xl bg-[#261d12] border-2 border-[#785127] flex items-center justify-center text-3xl">
               🤫
             </div>
 
@@ -256,36 +256,32 @@ export function OnboardingModal({ onConfirm, onCancel }: Props) {
             </div>
 
             {/* Animation visuelle intégrée (Simulation du bas de page) */}
-            <div className="relative rounded-2xl bg-black/60 border border-white/15 p-4 overflow-hidden text-center shadow-inner select-none">
-              <div className="text-[10px] uppercase tracking-wider text-gray-500 font-bold mb-2 flex items-center justify-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+            <div className="relative rounded-2xl bg-[#0f1f18] border border-[#2d6a4f] p-4 overflow-hidden text-center select-none">
+              <div className="text-[10px] uppercase tracking-wider text-gray-400 font-bold mb-2 flex items-center justify-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-amber-500" />
                 <span>Simulation du bas de page (Footer)</span>
               </div>
 
               {/* Bloc simulant le bas de page « © scoutgame.ch » */}
               <div
                 onClick={handleUserPracticeTap}
-                className={`relative py-6 pb-12 px-3 rounded-xl border transition-all cursor-pointer overflow-hidden ${
+                className={`relative py-6 pb-12 px-3 rounded-xl border transition-colors cursor-pointer overflow-hidden ${
                   userUnlocked
-                    ? 'bg-emerald-950/40 border-emerald-500/80 shadow-lg shadow-emerald-500/25'
-                    : 'bg-white/[0.04] border-white/15 hover:border-amber-400/40 active:scale-[0.98]'
+                    ? 'bg-[#162920] border-emerald-500'
+                    : 'bg-[#162920] border-[#2d6a4f] hover:border-amber-500'
                 }`}
                 title="Tapotez 3 fois sur la mention © pour vous entraîner !"
               >
-                {/* Ondes manuelles créées par les clics de l'utilisateur */}
                 {ripples.map(r => (
                   <span
                     key={r.id}
-                    className="absolute w-12 h-12 rounded-full border-2 border-amber-300 bg-amber-400/30 pointer-events-none animate-ping"
+                    className="absolute w-12 h-12 rounded-full border-2 border-amber-300 bg-amber-400/20 pointer-events-none"
                     style={{ left: r.x - 24, top: r.y - 24 }}
                   />
                 ))}
 
-                {/* Mention de bas de page avec la cible copyright © */}
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-black/40 border border-white/10 relative z-10 shadow-md">
-                  {/* Cible copyright © avec onde concentrique et doigt */}
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0f1f18] border border-[#2d6a4f] relative z-10">
                   <div className="relative flex items-center justify-center w-7 h-7">
-                    {/* Ondes automatiques en boucle (Ripple effect) */}
                     {userTaps === 0 && !userUnlocked && (
                       <>
                         <div className="absolute w-7 h-7 rounded-full border-2 border-amber-400 pointer-events-none animate-tap-ripple-1" />
@@ -297,9 +293,8 @@ export function OnboardingModal({ onConfirm, onCancel }: Props) {
                       ©
                     </span>
 
-                    {/* Doigt animé (micro-animation venant tapoter 3 fois sur le ©) */}
                     {userTaps === 0 && !userUnlocked && (
-                      <div className="absolute top-6 left-1/2 pointer-events-none animate-gesture-finger text-3xl select-none z-20 filter drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
+                      <div className="absolute top-6 left-1/2 pointer-events-none animate-gesture-finger text-3xl select-none z-20">
                         👆
                       </div>
                     )}
@@ -358,7 +353,7 @@ export function OnboardingModal({ onConfirm, onCancel }: Props) {
               <button
                 type="button"
                 onClick={() => setStep(3)}
-                className="btn-amber flex-1 py-3 text-sm font-bold order-1 sm:order-2 shadow-lg shadow-amber-500/20 flex items-center justify-center gap-1"
+                className="btn-amber flex-1 py-3 text-sm font-bold order-1 sm:order-2 flex items-center justify-center gap-1"
               >
                 <span>C'est retenu !</span>
                 <span>→</span>
@@ -372,12 +367,12 @@ export function OnboardingModal({ onConfirm, onCancel }: Props) {
         ══════════════════════════════════════════════════════════════════════ */}
         {step === 3 && (
           <div className="space-y-3.5 animate-fade-in text-center">
-            <div className="w-14 h-14 mx-auto rounded-2xl bg-amber-500/20 border-2 border-amber-500/50 flex items-center justify-center text-3xl shadow-lg shadow-amber-500/20">
+            <div className="w-14 h-14 mx-auto rounded-2xl bg-[#261d12] border-2 border-[#785127] flex items-center justify-center text-3xl">
               📜
             </div>
 
             <div className="space-y-1">
-              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-[11px] font-semibold border border-amber-500/30">
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#261d12] text-amber-300 text-[11px] font-semibold border border-[#785127]">
                 <span>Étape 3 sur 3 — Engagement</span>
               </div>
               <h2 className="font-display font-bold text-white text-xl">
@@ -390,7 +385,7 @@ export function OnboardingModal({ onConfirm, onCancel }: Props) {
 
             {/* Les 3 piliers de la charte */}
             <div className="space-y-2.5 text-xs text-left">
-              <div className="p-3 rounded-xl bg-white/[0.04] border border-white/10 space-y-1">
+              <div className="p-3 rounded-xl bg-[#0f1f18] border border-[#2d6a4f] space-y-1">
                 <div className="font-bold text-amber-300 flex items-center gap-1.5 text-xs">
                   <span>🍻</span>
                   <span>1. Sobriété en camp &amp; Cadre privé</span>
@@ -400,7 +395,7 @@ export function OnboardingModal({ onConfirm, onCancel }: Props) {
                 </p>
               </div>
 
-              <div className="p-3 rounded-xl bg-white/[0.04] border border-white/10 space-y-1">
+              <div className="p-3 rounded-xl bg-[#0f1f18] border border-[#2d6a4f] space-y-1">
                 <div className="font-bold text-sky-300 flex items-center gap-1.5 text-xs">
                   <span>❤️</span>
                   <span>2. Bienveillance &amp; Respect mutuel</span>
@@ -410,7 +405,7 @@ export function OnboardingModal({ onConfirm, onCancel }: Props) {
                 </p>
               </div>
 
-              <div className="p-3 rounded-xl bg-white/[0.04] border border-white/10 space-y-1">
+              <div className="p-3 rounded-xl bg-[#0f1f18] border border-[#2d6a4f] space-y-1">
                 <div className="font-bold text-red-300 flex items-center gap-1.5 text-xs">
                   <span>🛡️</span>
                   <span>3. Non-diffusion aux jeunes &amp; Parrainage</span>
@@ -448,7 +443,7 @@ export function OnboardingModal({ onConfirm, onCancel }: Props) {
                 type="button"
                 onClick={handleFinalSubmit}
                 disabled={isSubmitting || !acceptedCharter}
-                className="btn-amber flex-1 py-3 text-sm font-bold order-1 sm:order-2 shadow-lg shadow-amber-500/25 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="btn-amber flex-1 py-3 text-sm font-bold order-1 sm:order-2 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {isSubmitting ? (
                   <>

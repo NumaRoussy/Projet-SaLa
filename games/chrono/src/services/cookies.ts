@@ -7,36 +7,34 @@ function isScoutDomain(): boolean {
 }
 
 function domainAttr(): string {
-  if (isScoutDomain()) {
-    return '; Domain=.scoutgame.ch'
-  }
-  return ''
+  return isScoutDomain() ? '; Domain=.scoutgame.ch' : ''
 }
 
 function secureAttr(): string {
-  if (isScoutDomain() && typeof window !== 'undefined' && window.location.protocol === 'https:') {
-    return 'Secure'
-  }
-  return ''
+  return isScoutDomain() && typeof window !== 'undefined' && window.location.protocol === 'https:'
+    ? 'Secure'
+    : ''
 }
 
 export function loadPlayers(): Player[] {
-  let raw: unknown[] = []
+  let raw: unknown[] | null = null
   if (typeof document !== 'undefined') {
     const match = document.cookie.match(new RegExp(`(^| )${PLAYERS_COOKIE}=([^;]+)`))
     if (match) {
       try {
-        raw = JSON.parse(decodeURIComponent(match[2])) as unknown[]
+        const parsed = JSON.parse(decodeURIComponent(match[2]))
+        if (Array.isArray(parsed)) raw = parsed
       } catch {
         raw = []
       }
     }
   }
-  if (raw.length === 0 && typeof localStorage !== 'undefined') {
+  if (raw === null && typeof localStorage !== 'undefined') {
     const fromStorage = localStorage.getItem(PLAYERS_COOKIE)
     if (fromStorage) {
       try {
-        raw = JSON.parse(fromStorage) as unknown[]
+        const parsed = JSON.parse(fromStorage)
+        if (Array.isArray(parsed)) raw = parsed
       } catch {
         raw = []
       }
@@ -45,9 +43,7 @@ export function loadPlayers(): Player[] {
   if (!Array.isArray(raw)) return []
   return raw
     .map((p, idx) => {
-      if (typeof p === 'string') {
-        return { id: `p_${idx + 1}`, name: p }
-      }
+      if (typeof p === 'string') return { id: `p_${idx + 1}`, name: p.trim() }
       if (p && typeof p === 'object' && 'name' in p) {
         const obj = p as { id?: string; name?: string }
         return {
@@ -62,24 +58,28 @@ export function loadPlayers(): Player[] {
 
 export function savePlayers(players: Player[]): void {
   const jsonStr = JSON.stringify(players)
-  const encoded = encodeURIComponent(jsonStr)
-  if (typeof document !== 'undefined') {
-    document.cookie = [
-      `${PLAYERS_COOKIE}=${encoded}`,
-      `Path=/`,
-      `Max-Age=86400`,
-      `SameSite=Lax`,
-      secureAttr(),
-      domainAttr(),
-    ]
-      .filter(Boolean)
-      .join('; ')
+  try {
+    const encoded = encodeURIComponent(jsonStr)
+    if (typeof document !== 'undefined') {
+      document.cookie = [
+        `${PLAYERS_COOKIE}=${encoded}`,
+        'Path=/',
+        'Max-Age=86400',
+        'SameSite=Lax',
+        secureAttr(),
+        domainAttr(),
+      ]
+        .filter(Boolean)
+        .join('; ')
+    }
+  } catch {
+    // Ignore cookie errors
   }
   if (typeof localStorage !== 'undefined') {
     try {
       localStorage.setItem(PLAYERS_COOKIE, jsonStr)
     } catch {
-      // ignore storage quota errors
+      // Ignore storage quota errors
     }
   }
 }

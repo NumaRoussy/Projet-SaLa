@@ -24,6 +24,7 @@ import { DayPhase } from './components/DayPhase'
 import { CascadeModal } from './components/CascadeModal'
 import { GameOverPhase } from './components/GameOverPhase'
 import { HelpModal } from './components/HelpModal'
+import { ProposeModal } from './components/ProposeModal'
 import { useWakeLock } from './hooks/useWakeLock'
 
 const HUB_URL = getHubUrl()
@@ -33,8 +34,9 @@ export default function App() {
   // Liste des joueurs et synchronisation cookie partagé
   const [players, setPlayers] = useState<Player[]>(() => loadPlayers())
 
-  // Navigation & Modale d'aide permanente
+  // Navigation & Modales permanentes
   const [isHelpOpen, setIsHelpOpen] = useState(false)
+  const [isProposeOpen, setIsProposeOpen] = useState(false)
 
   // État du jeu
   const [phase, setPhase] = useState<GamePhase>('setup')
@@ -288,41 +290,42 @@ export default function App() {
   }
 
   return (
-    <div className="app-container bg-scout-night min-h-[100dvh] flex flex-col justify-between selection:bg-scout-amber selection:text-scout-night">
-      {/* ── BANDEAU SUPÉRIEUR PERMANENT ───────────────────────────── */}
-      <header className="sticky top-0 z-40 px-4 py-3 border-b border-white/10 bg-scout-night/90 backdrop-blur-md">
-        <div className="max-w-xl mx-auto flex items-center justify-between">
-          {/* Lien retour Hub */}
-          <a
-            href={HUB_URL}
-            className="flex items-center gap-1.5 text-xs font-semibold text-gray-400 hover:text-white transition-colors"
-          >
-            <span className="text-sm">⚜️</span>
-            <span className="hidden sm:inline">scoutgame.ch</span>
-          </a>
-
-          {/* Titre & Statut */}
-          <div className="flex items-center gap-2">
-            <span className="text-lg">⛺</span>
-            <h1 className="font-extrabold text-white text-sm sm:text-base font-display tracking-tight">
-              Couvre-feu
-            </h1>
-            {phase !== 'setup' && phase !== 'gameover' && (
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-white/10 text-scout-amber font-mono font-bold">
-                Nuit {nightNumber}
-              </span>
-            )}
+    <div className="app-container bg-[#101626] text-[#f3f4f6] min-h-[100dvh] flex flex-col justify-between">
+      {/* ── En-tête uniforme ──────────────────────────────────────────────── */}
+      <header className="sticky top-0 z-30 bg-[#172036] border-b border-[#34497a] px-4 py-3">
+        <div className="max-w-xl mx-auto grid grid-cols-3 items-center gap-2">
+          <div className="justify-self-start">
+            <a
+              href={HUB_URL}
+              className="inline-flex items-center px-2.5 py-1.5 rounded-lg border border-[#34497a] bg-[#101626] hover:bg-[#1e2a45] text-[#f3f4f6] text-xs font-semibold transition-colors"
+            >
+              ← Menu
+            </a>
           </div>
 
-          {/* Bouton d'aide permanent pour le meneur */}
-          <button
-            onClick={() => setIsHelpOpen(true)}
-            className="px-2.5 py-1.5 rounded-xl bg-scout-amber/10 hover:bg-scout-amber/20 border border-scout-amber/30 text-scout-amber text-xs font-bold transition-all flex items-center gap-1"
-            title="Consulter le guide des rôles et règles"
-          >
-            <span>?</span>
-            <span className="hidden sm:inline">Aide</span>
-          </button>
+          <h1 className="justify-self-center font-display font-bold text-base text-[#f3f4f6] truncate">
+            Couvre-feu
+          </h1>
+
+          <div className="justify-self-end flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={() => setIsHelpOpen(true)}
+              className="inline-flex items-center gap-1 px-2 py-1.5 rounded-lg border border-[#34497a] bg-[#101626] hover:bg-[#1e2a45] text-[#f3f4f6] text-xs font-semibold transition-colors"
+              title="Consulter le guide des rôles et règles"
+            >
+              <span>?</span>
+              <span>Aide</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsProposeOpen(true)}
+              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-[#5473bd] bg-[#415b99] hover:bg-[#4d6bb3] text-[#f3f4f6] text-xs font-semibold transition-colors"
+            >
+              <span>💡</span>
+              <span>Proposer</span>
+            </button>
+          </div>
         </div>
       </header>
 
@@ -409,10 +412,11 @@ export default function App() {
 
       {/* ── GUIDE D'AIDE PERMANENT (TIROIR / MODALE) ─────────────── */}
       <HelpModal isOpen={isHelpOpen} onClose={() => setIsHelpOpen(false)} />
+      <ProposeModal isOpen={isProposeOpen} onClose={() => setIsProposeOpen(false)} />
 
       {/* ── PIED DE PAGE DISCRET ─────────────────────────────────── */}
-      <footer className="py-2.5 px-4 text-center border-t border-white/5 text-[11px] text-gray-500">
-        Couvre-feu • Grand Jeu Scout Vaudois • scoutgame.ch
+      <footer className="py-3 px-4 text-center border-t border-[#34497a] bg-[#172036] text-[11px] text-slate-400">
+        Projet indépendant — Non affilié à l'ASVd, au MSdS, à J+S ou à toute autre organisation.
       </footer>
     </div>
   )

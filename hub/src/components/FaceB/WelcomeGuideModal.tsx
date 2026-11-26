@@ -23,51 +23,48 @@ export function WelcomeGuideModal({ onClose }: Props) {
       onClick={handleClose}
     >
       <div
-        className="glass-card w-full max-w-lg rounded-b-none sm:rounded-3xl rounded-t-3xl p-6 sm:p-7 space-y-5 animate-slide-up max-h-[92dvh] overflow-y-auto border-2 border-scout-amber/30 shadow-2xl"
+        className="bg-[#2c161a] border border-[#8a5629] w-full max-w-lg rounded-b-none sm:rounded-3xl rounded-t-3xl p-6 sm:p-7 space-y-5 max-h-[92dvh] overflow-y-auto"
         onClick={e => e.stopPropagation()}
       >
         {/* Mobile handle indicator */}
-        <div className="w-10 h-1 bg-white/20 rounded-full mx-auto sm:hidden" />
+        <div className="w-10 h-1 bg-[#52272f] rounded-full mx-auto sm:hidden" />
 
         <div className="text-center space-y-1">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-scout-amber/10 border border-scout-amber/30 text-2xl mb-1">
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-[#211013] border border-[#8a5629] text-2xl mb-1">
             🔒
           </div>
           <h2 className="font-display font-bold text-white text-xl sm:text-2xl">
-            Bienvenue dans l'Espace Maîtrise <span className="text-scout-amber text-sm font-sans font-bold bg-scout-amber/20 px-2 py-0.5 rounded-full border border-scout-amber/30">18+</span>
+            Bienvenue dans l'Espace Maîtrise <span className="text-[#e5b382] text-sm font-sans font-bold bg-[#211013] px-2 py-0.5 rounded-full border border-[#8a5629]">18+</span>
           </h2>
-          <p className="text-xs text-gray-400">
+          <p className="text-xs text-[#c9b0b4]">
             Guide de fonctionnement, de sécurité et charte d'utilisation
           </p>
         </div>
 
         {/* 4 Points structurés */}
         <div className="space-y-3 text-xs leading-relaxed">
-          {/* Point 1 */}
-          <div className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/10 space-y-1">
-            <div className="flex items-center gap-2 font-bold text-scout-sage text-sm">
+          <div className="p-3.5 rounded-2xl bg-[#211013] border border-[#422026] space-y-1">
+            <div className="flex items-center gap-2 font-bold text-[#8fd4b0] text-sm">
               <span>🎯</span>
-              <span>Pour le fun & 100 % indépendant</span>
+              <span>Pour le fun &amp; 100 % indépendant</span>
             </div>
             <p className="text-gray-300">
               Créé par des particuliers, sans aucun lien avec l'ASVd, le MSdS, J+S ou toute autre organisation.
             </p>
           </div>
 
-          {/* Point 2 */}
-          <div className="p-3.5 rounded-2xl bg-amber-950/20 border border-amber-500/30 space-y-1">
-            <div className="flex items-center gap-2 font-bold text-amber-300 text-sm">
+          <div className="p-3.5 rounded-2xl bg-[#211013] border border-[#8a5629] space-y-1">
+            <div className="flex items-center gap-2 font-bold text-[#e5b382] text-sm">
               <span>🍻</span>
-              <span>Charte 18+ & Image scoute</span>
+              <span>Charte 18+ &amp; Image scoute</span>
             </div>
             <p className="text-gray-300">
               Réservé aux majeurs hors responsabilité de jeunes. Ne jouez jamais en public ni en chemise scoute. Prenez soin de votre santé, de votre consommation et des autres.
             </p>
           </div>
 
-          {/* Point 3 */}
-          <div className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/10 space-y-1">
-            <div className="flex items-center gap-2 font-bold text-sky-300 text-sm">
+          <div className="p-3.5 rounded-2xl bg-[#211013] border border-[#2b5b84] space-y-1">
+            <div className="flex items-center gap-2 font-bold text-[#8ec2eb] text-sm">
               <span>🤝</span>
               <span>Partager l'accès (QR 120s)</span>
             </div>
@@ -76,9 +73,8 @@ export function WelcomeGuideModal({ onClose }: Props) {
             </p>
           </div>
 
-          {/* Point 4 */}
-          <div className="p-3.5 rounded-2xl bg-red-950/25 border border-red-500/30 space-y-1">
-            <div className="flex items-center gap-2 font-bold text-red-300 text-sm">
+          <div className="p-3.5 rounded-2xl bg-[#211013] border border-[#8c2d38] space-y-1">
+            <div className="flex items-center gap-2 font-bold text-[#eb9ba4] text-sm">
               <span>🚨</span>
               <span>Couper une fuite (Sciage de branche)</span>
             </div>
@@ -87,18 +83,17 @@ export function WelcomeGuideModal({ onClose }: Props) {
             </p>
           </div>
 
-          {/* Encart repliable discret : Rappel du Geste Secret */}
-          <details className="group rounded-2xl bg-amber-950/30 border border-amber-500/35 overflow-hidden transition-all duration-200" open>
-            <summary className="flex items-center justify-between p-3.5 cursor-pointer list-none select-none text-xs font-bold text-amber-300 hover:text-amber-200 transition-colors">
+          <details className="group rounded-2xl bg-[#211013] border border-[#8a5629] overflow-hidden" open>
+            <summary className="flex items-center justify-between p-3.5 cursor-pointer list-none select-none text-xs font-bold text-[#e5b382]">
               <span className="flex items-center gap-2">
                 <span>🤫</span>
                 <span>Rappel du geste secret d'accès</span>
               </span>
-              <span className="text-amber-400/80 text-[10px] transform group-open:rotate-180 transition-transform">
+              <span className="text-[#e5b382] text-[10px] transform group-open:rotate-180 transition-transform">
                 ▼
               </span>
             </summary>
-            <div className="px-3.5 pb-3.5 pt-1 border-t border-amber-500/15">
+            <div className="px-3.5 pb-3.5 pt-1 border-t border-[#422026]">
               <p className="text-gray-200 text-xs leading-relaxed font-medium">
                 Accès Maîtrise : pour les chefs déjà autorisés, touchez 3 fois rapidement le copyright tout en bas du site.
               </p>
@@ -108,7 +103,7 @@ export function WelcomeGuideModal({ onClose }: Props) {
 
         <button
           onClick={handleClose}
-          className="btn-amber w-full py-3 text-sm font-bold shadow-lg shadow-scout-amber/20 mt-2"
+          className="btn-amber w-full py-3 text-sm font-bold mt-2"
         >
           J'ai compris, entrer dans l'Espace Maîtrise
         </button>

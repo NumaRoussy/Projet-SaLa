@@ -11,7 +11,7 @@ export function BlackoutScreen({ message, onClose }: Props) {
   return (
     <div className="overlay flex items-center justify-center p-6" onClick={onClose}>
       <div
-        className="glass-card max-w-md w-full p-8 text-center animate-fade-in"
+        className="bg-[#162920] border border-[#2d6a4f] rounded-2xl max-w-md w-full p-8 text-center"
         onClick={e => e.stopPropagation()}
       >
         <div className="text-6xl mb-6">⛺</div>

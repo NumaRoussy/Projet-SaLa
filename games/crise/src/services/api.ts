@@ -1,4 +1,4 @@
-import type { Card, VerifyResult } from '../types'
+import type { Card, FeedbackPayload, VerifyResult } from '../types'
 
 export function getApiBaseUrl(): string {
   if (typeof window !== 'undefined') {
@@ -52,4 +52,17 @@ export async function sendTelemetry(durationSeconds: number): Promise<void> {
   } catch {
     // Non-bloquant
   }
+}
+
+export async function submitFeedback(payload: FeedbackPayload): Promise<{ status: string; message?: string }> {
+  const res = await fetch(`${API}/api/feedback`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  })
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}))
+    throw new Error(err.detail || `Erreur serveur (${res.status})`)
+  }
+  return res.json()
 }

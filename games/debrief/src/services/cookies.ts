@@ -8,17 +8,13 @@ function isScoutDomain(): boolean {
 }
 
 function domainAttr(): string {
-  if (isScoutDomain()) {
-    return '; Domain=.scoutgame.ch'
-  }
-  return ''
+  return isScoutDomain() ? '; Domain=.scoutgame.ch' : ''
 }
 
 function secureAttr(): string {
-  if (isScoutDomain() && typeof window !== 'undefined' && window.location.protocol === 'https:') {
-    return 'Secure'
-  }
-  return ''
+  return isScoutDomain() && typeof window !== 'undefined' && window.location.protocol === 'https:'
+    ? 'Secure'
+    : ''
 }
 
 function getCookie(name: string): string | null {
@@ -33,31 +29,51 @@ function getCookie(name: string): string | null {
 
 export function loadPlayers(): Player[] {
   const val = getCookie(PLAYERS_COOKIE)
-  let rawList: any[] = []
-  if (val) {
+  let rawList: unknown[] | null = null
+  if (val !== null) {
     try {
-      rawList = JSON.parse(val)
+      const parsed = JSON.parse(val)
+      if (Array.isArray(parsed)) rawList = parsed
     } catch {
       rawList = []
     }
   }
-  if (rawList.length === 0 && typeof localStorage !== 'undefined') {
+  if (rawList === null && typeof localStorage !== 'undefined') {
     const fromStorage = localStorage.getItem(PLAYERS_COOKIE)
     if (fromStorage) {
       try {
-        rawList = JSON.parse(fromStorage)
+        const parsed = JSON.parse(fromStorage)
+        if (Array.isArray(parsed)) rawList = parsed
       } catch {
         rawList = []
       }
     }
   }
 
-  return rawList.map((p, idx) => ({
-    id: p.id || `p_${idx + 1}`,
-    name: typeof p === 'string' ? p : p.name || `Responsable ${idx + 1}`,
-    avatar: p.avatar || ['⛺', '🪵', '🔥', '🪓', '🐺', '🦊', '🦅', '🐻'][idx % 8],
-    sipsCount: p.sipsCount || 0,
-  }))
+  if (!Array.isArray(rawList)) return []
+
+  return rawList
+    .map((p, idx): Player | null => {
+      if (typeof p === 'string') {
+        return {
+          id: `p_${idx + 1}`,
+          name: p.trim(),
+          avatar: ['⛺', '🪵', '🔥', '🪓', '🐺', '🦊', '🦅', '🐻'][idx % 8],
+          sipsCount: 0,
+        }
+      }
+      if (p && typeof p === 'object' && 'name' in p) {
+        const obj = p as Partial<Player>
+        return {
+          id: obj.id || `p_${idx + 1}`,
+          name: String(obj.name || '').trim(),
+          avatar: obj.avatar || ['⛺', '🪵', '🔥', '🪓', '🐺', '🦊', '🦅', '🐻'][idx % 8],
+          sipsCount: obj.sipsCount || 0,
+        }
+      }
+      return null
+    })
+    .filter((p): p is Player => Boolean(p && p.name))
 }
 
 export function savePlayers(players: Player[]): void {
@@ -68,25 +84,30 @@ export function savePlayers(players: Player[]): void {
     sipsCount: p.sipsCount || 0,
   }))
   const jsonStr = JSON.stringify(minimal)
-  const encoded = encodeURIComponent(jsonStr)
-
-  if (typeof document !== 'undefined') {
-    document.cookie = [
-      `${PLAYERS_COOKIE}=${encoded}`,
-      `Path=/`,
-      `Max-Age=86400`,
-      `SameSite=Lax`,
-      secureAttr(),
-      domainAttr(),
-    ]
-      .filter(Boolean)
-      .join('; ')
+  try {
+    const encoded = encodeURIComponent(jsonStr)
+    if (typeof document !== 'undefined') {
+      document.cookie = [
+        `${PLAYERS_COOKIE}=${encoded}`,
+        'Path=/',
+        'Max-Age=86400',
+        'SameSite=Lax',
+        secureAttr(),
+        domainAttr(),
+      ]
+        .filter(Boolean)
+        .join('; ')
+    }
+  } catch {
+    // Ignore cookie errors
   }
 
   if (typeof localStorage !== 'undefined') {
     try {
       localStorage.setItem(PLAYERS_COOKIE, jsonStr)
-    } catch {}
+    } catch {
+      // Ignore storage errors
+    }
   }
 }
 

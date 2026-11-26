@@ -85,15 +85,15 @@ export function SensDuTemps({ player1, player2, sips = 2, onFinish }: Props) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 bg-[#060911] select-none flex flex-col touch-none p-4">
+    <div className="fixed inset-0 z-50 bg-[#0e1722] select-none flex flex-col touch-none p-4">
       {/* Header */}
-      <div className="text-center py-2 border-b border-white/10">
-        <span className="text-xs font-mono tracking-wider text-amber-400 uppercase">
+      <div className="text-center py-2 border-b border-[#28527a]">
+        <span className="text-xs font-mono tracking-wider text-amber-300 uppercase">
           Chrono à l'aveugle — Sens du Temps
         </span>
         <div className="mt-1 flex items-center justify-center gap-2">
-          <span className="text-3xl font-display font-black text-white">{targetSeconds.toFixed(1)}s</span>
-          <span className="text-xs bg-amber-500/20 text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded-full font-bold">
+          <span className="text-3xl font-display font-black text-[#f3f4f6]">{targetSeconds.toFixed(1)}s</span>
+          <span className="text-xs bg-[#261d12] text-amber-200 border border-[#785127] px-2 py-0.5 rounded-full font-bold">
             Temps Cible
           </span>
         </div>
@@ -104,27 +104,27 @@ export function SensDuTemps({ player1, player2, sips = 2, onFinish }: Props) {
         {/* Zone Joueur 1 (Haut) */}
         <div
           onPointerDown={handleP1Tap}
-          className={`flex-1 rounded-2xl border-2 flex flex-col items-center justify-center p-4 transition-all ${
+          className={`flex-1 rounded-2xl border-2 flex flex-col items-center justify-center p-4 transition-colors ${
             p1Time !== null
-              ? 'bg-cyan-950/40 border-cyan-500/60'
+              ? 'bg-[#1c3552] border-[#32689c]'
               : phase === 'running'
-              ? 'bg-slate-900/80 border-cyan-500/30 active:scale-[0.98]'
-              : 'bg-slate-900/40 border-white/10'
+              ? 'bg-[#152233] border-[#28527a] active:bg-[#1c2e45]'
+              : 'bg-[#152233] border-[#28527a]'
           }`}
         >
           <div className="rotate-180 flex flex-col items-center gap-1 text-center">
             <span className="text-2xl">{player1.avatar || '⛺'}</span>
-            <span className="font-display font-bold text-lg text-white">{player1.name}</span>
-            {phase === 'ready' && <span className="text-xs text-gray-400">En attente du départ...</span>}
+            <span className="font-display font-bold text-lg text-[#f3f4f6]">{player1.name}</span>
+            {phase === 'ready' && <span className="text-xs text-slate-400">En attente du départ...</span>}
             {phase === 'running' && (
-              <span className="text-sm font-bold text-cyan-400 animate-pulse">
+              <span className="text-sm font-bold text-sky-300">
                 {p1Time === null ? '⏱️ Touchez quand c\'est écoulé !' : '✅ Enregistré !'}
               </span>
             )}
             {phase === 'revealed' && p1Time !== null && (
               <div className="mt-1">
-                <div className="font-mono text-2xl font-black text-cyan-300">{p1Time.toFixed(2)}s</div>
-                <div className={`text-xs font-bold ${Math.abs(delta1!) < 0.4 ? 'text-emerald-400' : 'text-orange-400'}`}>
+                <div className="font-mono text-2xl font-black text-sky-300">{p1Time.toFixed(2)}s</div>
+                <div className={`text-xs font-bold ${Math.abs(delta1!) < 0.4 ? 'text-emerald-300' : 'text-amber-300'}`}>
                   Écart : {delta1! > 0 ? `+${delta1!.toFixed(2)}s` : `${delta1!.toFixed(2)}s`}
                 </div>
               </div>
@@ -137,7 +137,7 @@ export function SensDuTemps({ player1, player2, sips = 2, onFinish }: Props) {
           {phase === 'ready' && (
             <button
               onClick={startChrono}
-              className="px-8 py-3 bg-gradient-to-r from-amber-500 to-orange-600 text-white font-black text-base rounded-full shadow-lg shadow-amber-500/25 hover:brightness-110 active:scale-95"
+              className="px-8 py-3 bg-[#966530] hover:bg-[#aa7438] border border-[#785127] text-[#f3f4f6] font-black text-base rounded-full transition-colors"
             >
               Lancer le Chrono (Fermez les yeux !)
             </button>
@@ -145,8 +145,8 @@ export function SensDuTemps({ player1, player2, sips = 2, onFinish }: Props) {
 
           {phase === 'running' && (
             <div className="text-center space-y-1">
-              <span className="text-4xl animate-spin inline-block">🙈</span>
-              <p className="text-xs font-bold text-gray-300">Yeux fermés ! Les deux chefs estiment le temps.</p>
+              <span className="text-4xl inline-block">🙈</span>
+              <p className="text-xs font-bold text-slate-300">Yeux fermés ! Les deux chefs estiment le temps.</p>
             </div>
           )}
 
@@ -157,7 +157,7 @@ export function SensDuTemps({ player1, player2, sips = 2, onFinish }: Props) {
               </span>
               <button
                 onClick={handleConfirm}
-                className="px-6 py-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold text-xs rounded-full shadow-lg hover:brightness-110 active:scale-95"
+                className="px-6 py-2 bg-[#32689c] hover:bg-[#3c7ab5] border border-[#28527a] text-[#f3f4f6] font-bold text-xs rounded-full transition-colors"
               >
                 Continuer la veillée →
               </button>
@@ -168,30 +168,30 @@ export function SensDuTemps({ player1, player2, sips = 2, onFinish }: Props) {
         {/* Zone Joueur 2 (Bas) */}
         <div
           onPointerDown={handleP2Tap}
-          className={`flex-1 rounded-2xl border-2 flex flex-col items-center justify-center p-4 transition-all ${
+          className={`flex-1 rounded-2xl border-2 flex flex-col items-center justify-center p-4 transition-colors ${
             p2Time !== null
-              ? 'bg-cyan-950/40 border-cyan-500/60'
+              ? 'bg-[#1c3552] border-[#32689c]'
               : phase === 'running'
-              ? 'bg-slate-900/80 border-cyan-500/30 active:scale-[0.98]'
-              : 'bg-slate-900/40 border-white/10'
+              ? 'bg-[#152233] border-[#28527a] active:bg-[#1c2e45]'
+              : 'bg-[#152233] border-[#28527a]'
           }`}
         >
           <div className="flex flex-col items-center gap-1 text-center">
             {phase === 'revealed' && p2Time !== null && (
               <div className="mb-1">
-                <div className="font-mono text-2xl font-black text-cyan-300">{p2Time.toFixed(2)}s</div>
-                <div className={`text-xs font-bold ${Math.abs(delta2!) < 0.4 ? 'text-emerald-400' : 'text-orange-400'}`}>
+                <div className="font-mono text-2xl font-black text-sky-300">{p2Time.toFixed(2)}s</div>
+                <div className={`text-xs font-bold ${Math.abs(delta2!) < 0.4 ? 'text-emerald-300' : 'text-amber-300'}`}>
                   Écart : {delta2! > 0 ? `+${delta2!.toFixed(2)}s` : `${delta2!.toFixed(2)}s`}
                 </div>
               </div>
             )}
             {phase === 'running' && (
-              <span className="text-sm font-bold text-cyan-400 animate-pulse">
+              <span className="text-sm font-bold text-sky-300">
                 {p2Time === null ? '⏱️ Touchez quand c\'est écoulé !' : '✅ Enregistré !'}
               </span>
             )}
-            {phase === 'ready' && <span className="text-xs text-gray-400">En attente du départ...</span>}
-            <span className="font-display font-bold text-lg text-white">{player2.name}</span>
+            {phase === 'ready' && <span className="text-xs text-slate-400">En attente du départ...</span>}
+            <span className="font-display font-bold text-lg text-[#f3f4f6]">{player2.name}</span>
             <span className="text-2xl">{player2.avatar || '🪵'}</span>
           </div>
         </div>

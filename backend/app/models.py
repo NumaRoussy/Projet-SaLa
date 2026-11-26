@@ -87,10 +87,13 @@ class CardCreatePayload(BaseModel):
 class FeedbackStatusPayload(BaseModel):
     action: str = Field(..., pattern="^(APPROVED|REJECTED)$")
     target_game: Optional[str] = None
+    mode: Optional[str] = None
     category: Optional[str] = None
     title: Optional[str] = None
+    content: Optional[str] = None
     extra: Optional[str] = None
     sips: Optional[int] = None
+    loss_percent: Optional[float] = None
     min_players: Optional[int] = None
 
 
@@ -99,12 +102,17 @@ class FeedbackStatusPayload(BaseModel):
 # ---------------------------------------------------------------------------
 
 class FeedbackCreate(BaseModel):
-    type: str = Field(..., pattern="^(PROPOSITION|CONTACT_LEGAL)$")
+    type: str = Field(..., pattern="^(PROPOSITION|SUGGESTION|CONTACT_LEGAL)$")
     target_game: Optional[str] = Field(default=None, max_length=100)
+    mode: Optional[str] = Field(default=None, max_length=100)
     category: Optional[str] = Field(default=None, max_length=100)
     title: Optional[str] = Field(default=None, max_length=500)
     content: str = Field(..., min_length=1, max_length=5000)
+    extra: Optional[str] = Field(default=None, max_length=2000)
     extra_data: Optional[str] = Field(default=None, max_length=2000)
+    sips: Optional[int] = Field(default=None, ge=0, le=50)
+    loss_percent: Optional[float] = Field(default=None, ge=0.0, le=100.0)
+    min_players: Optional[int] = Field(default=None, ge=1, le=50)
     author_alias: Optional[str] = Field(default=None, max_length=200)
     contact_email: Optional[str] = Field(default=None, max_length=320)
 

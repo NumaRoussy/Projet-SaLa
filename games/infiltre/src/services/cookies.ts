@@ -7,17 +7,13 @@ function isScoutDomain(): boolean {
 }
 
 function domainAttr(): string {
-  if (isScoutDomain()) {
-    return '; Domain=.scoutgame.ch'
-  }
-  return ''
+  return isScoutDomain() ? '; Domain=.scoutgame.ch' : ''
 }
 
 function secureAttr(): string {
-  if (isScoutDomain() && typeof window !== 'undefined' && window.location.protocol === 'https:') {
-    return 'Secure'
-  }
-  return ''
+  return isScoutDomain() && typeof window !== 'undefined' && window.location.protocol === 'https:'
+    ? 'Secure'
+    : ''
 }
 
 export function loadPlayers(): Player[] {
@@ -25,7 +21,18 @@ export function loadPlayers(): Player[] {
   const match = document.cookie.match(new RegExp(`(^| )${PLAYERS_COOKIE}=([^;]+)`))
   if (match) {
     try {
-      return JSON.parse(decodeURIComponent(match[2])) as Player[]
+      const parsed = JSON.parse(decodeURIComponent(match[2]))
+      if (!Array.isArray(parsed)) return []
+      return parsed
+        .map((p, idx) => {
+          if (typeof p === 'string') return { id: `p_${idx + 1}`, name: p.trim() }
+          if (p && typeof p === 'object' && 'name' in p) {
+            const obj = p as { id?: string; name?: string }
+            return { id: obj.id || `p_${idx + 1}`, name: String(obj.name || '').trim() }
+          }
+          return null
+        })
+        .filter((p): p is Player => Boolean(p && p.name))
     } catch {
       return []
     }
@@ -34,17 +41,21 @@ export function loadPlayers(): Player[] {
 }
 
 export function savePlayers(players: Player[]): void {
-  const encoded = encodeURIComponent(JSON.stringify(players))
-  document.cookie = [
-    `${PLAYERS_COOKIE}=${encoded}`,
-    `Path=/`,
-    `Max-Age=86400`,
-    `SameSite=Lax`,
-    secureAttr(),
-    domainAttr(),
-  ]
-    .filter(Boolean)
-    .join('; ')
+  try {
+    const encoded = encodeURIComponent(JSON.stringify(players))
+    document.cookie = [
+      `${PLAYERS_COOKIE}=${encoded}`,
+      'Path=/',
+      'Max-Age=86400',
+      'SameSite=Lax',
+      secureAttr(),
+      domainAttr(),
+    ]
+      .filter(Boolean)
+      .join('; ')
+  } catch {
+    // Ignore cookie errors
+  }
 }
 
 export function getHubUrl(): string {

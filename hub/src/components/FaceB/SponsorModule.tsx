@@ -58,18 +58,18 @@ export function SponsorModule({ devicePass }: Props) {
   const progress = inviteToken ? ((INVITE_TTL - timeLeft) / INVITE_TTL) * 100 : 0
 
   return (
-    <div className="glass-card p-5 space-y-4">
+    <div className="bg-[#2c161a] border border-[#52272f] rounded-2xl p-5 space-y-4">
       <div className="flex items-center gap-2">
         <span className="text-2xl">🤝</span>
         <div>
           <h3 className="font-display font-bold text-white">Parrainer un responsable</h3>
-          <p className="text-xs text-gray-400">Code valable 120 secondes · Usage unique</p>
+          <p className="text-xs text-[#c9b0b4]">Code valable 120 secondes · Usage unique</p>
         </div>
       </div>
 
       {/* Avertissement de responsabilisation du parrain (Point 1B) */}
-      <div className="p-3.5 rounded-xl bg-amber-950/40 border border-amber-500/30 text-xs text-amber-200/90 space-y-1.5 leading-relaxed">
-        <div className="font-bold text-amber-400 flex items-center gap-1.5">
+      <div className="p-3.5 rounded-xl bg-[#211013] border border-[#8a5629] text-xs text-gray-200 space-y-1.5 leading-relaxed">
+        <div className="font-bold text-[#e5b382] flex items-center gap-1.5">
           <span>⚠️</span>
           <span>Parrainage sous ta responsabilité</span>
         </div>
@@ -80,7 +80,7 @@ export function SponsorModule({ devicePass }: Props) {
 
       {!inviteToken ? (
         <button
-          className="btn-primary w-full"
+          className="btn-amber w-full"
           onClick={generate}
           disabled={loading}
         >
@@ -89,36 +89,36 @@ export function SponsorModule({ devicePass }: Props) {
       ) : (
         <div className="space-y-3">
           {/* QR Code */}
-          <div className="flex justify-center p-4 bg-white rounded-2xl">
+          <div className="flex justify-center p-4 bg-[#f3f4f6] rounded-2xl border border-[#52272f]">
             <QRCodeSVG
               value={inviteUrl}
               size={200}
-              bgColor="#ffffff"
+              bgColor="#f3f4f6"
               fgColor="#111827"
               level="M"
             />
           </div>
 
-          {/* Code brut d'invitation (pour saisie ou copier-coller) */}
-          <div className="p-3 rounded-xl bg-scout-dark border border-white/10 space-y-1.5">
+          {/* Code brut d'invitation */}
+          <div className="p-3 rounded-xl bg-[#211013] border border-[#52272f] space-y-1.5">
             <div className="flex items-center justify-between text-xs text-gray-400">
               <span className="font-semibold text-gray-300">Code d'invitation :</span>
               <button
                 type="button"
-                className="text-scout-sage hover:text-white transition-colors flex items-center gap-1 font-semibold text-xs"
+                className="text-[#e5b382] hover:text-white transition-colors flex items-center gap-1 font-semibold text-xs"
                 onClick={() => copyToClipboard(inviteToken)}
               >
                 <span>📋</span>
                 <span>Copier le code</span>
               </button>
             </div>
-            <code className="block text-xs font-mono text-scout-sage font-bold tracking-wider select-all break-all">
+            <code className="block text-xs font-mono text-[#e5b382] font-bold tracking-wider select-all break-all">
               {inviteToken}
             </code>
           </div>
 
-          {/* URL (pour partage direct) */}
-          <div className="flex items-center gap-2 p-3 rounded-xl bg-scout-dark border border-white/10">
+          {/* URL */}
+          <div className="flex items-center gap-2 p-3 rounded-xl bg-[#211013] border border-[#52272f]">
             <div className="flex-1 min-w-0">
               <div className="text-[10px] text-gray-400 uppercase tracking-wider mb-0.5">Lien direct</div>
               <code className="text-xs text-gray-300 truncate block">{inviteUrl}</code>
@@ -137,18 +137,16 @@ export function SponsorModule({ devicePass }: Props) {
           <div>
             <div className="flex justify-between text-xs text-gray-400 mb-1.5">
               <span>Expiration</span>
-              <span className={timeLeft <= 30 ? 'text-red-400 font-bold' : 'text-scout-sage'}>
+              <span className={timeLeft <= 30 ? 'text-red-400 font-bold' : 'text-[#e5b382]'}>
                 {timeLeft}s
               </span>
             </div>
-            <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
+            <div className="w-full h-1.5 bg-[#211013] rounded-full overflow-hidden">
               <div
                 className="h-full rounded-full transition-all duration-1000"
                 style={{
                   width: `${100 - progress}%`,
-                  background: timeLeft > 30
-                    ? 'linear-gradient(90deg, #40916c, #74c69d)'
-                    : 'linear-gradient(90deg, #e76f51, #f4a261)',
+                  backgroundColor: timeLeft > 30 ? '#8a5629' : '#8c2d38',
                 }}
               />
             </div>

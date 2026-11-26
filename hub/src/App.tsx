@@ -53,9 +53,18 @@ export default function App() {
     }
   }, [])
 
+  const isFaceBActive = uiState === 'face-b' && Boolean(devicePass())
+
   useEffect(() => {
     window.scrollTo(0, 0)
   }, [uiState])
+
+  useEffect(() => {
+    document.body.style.backgroundColor = isFaceBActive ? '#211013' : '#0f1f18'
+    return () => {
+      document.body.style.backgroundColor = '#0f1f18'
+    }
+  }, [isFaceBActive])
 
   const [accessError, setAccessError] = useState<string | null>(null)
 
@@ -160,7 +169,7 @@ export default function App() {
       )}
 
       {/* Main View: Full-page Face B when unlocked, otherwise Face A */}
-      {uiState === 'face-b' && devicePass() ? (
+      {isFaceBActive ? (
         <FaceB
           devicePass={devicePass()!}
           onClose={() => setUiState('face-a')}
@@ -198,8 +207,8 @@ export default function App() {
 
       {accessError && (
         <div className="overlay flex items-center justify-center p-4 z-50">
-          <div className="glass-card max-w-sm w-full p-5 space-y-4 text-center border border-red-500/40 shadow-2xl animate-fade-in">
-            <div className="w-12 h-12 mx-auto rounded-full bg-red-950/60 border border-red-500/50 flex items-center justify-center text-2xl">
+          <div className="bg-[#162920] max-w-sm w-full p-5 rounded-2xl space-y-4 text-center border border-[#8c2d38]">
+            <div className="w-12 h-12 mx-auto rounded-full bg-[#3a1b20] border border-[#8c2d38] flex items-center justify-center text-2xl">
               ❌
             </div>
             <div className="space-y-1">
@@ -208,7 +217,7 @@ export default function App() {
             </div>
             <button
               onClick={() => setAccessError(null)}
-              className="btn-ghost w-full py-2 text-xs border border-white/20 text-white font-semibold"
+              className="btn-ghost w-full py-2 text-xs border border-[#2d6a4f] text-white font-semibold"
             >
               Fermer
             </button>

@@ -1,5 +1,4 @@
-/* ── Google Fonts fallback ───────────────────────────────────────────────── */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -10,80 +9,89 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-html, body {
+html {
+  height: auto;
+  min-height: 100%;
+  overflow-x: clip;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+}
+
+body {
+  height: auto;
+  min-height: 100dvh;
   margin: 0;
   padding: 0;
-  background-color: #0d1117;
-  color: #ffffff;
+  background-color: #0f1f18;
+  color: #f3f4f6;
   font-family: 'Inter', system-ui, sans-serif;
-  height: 100%;
-  /* Empêche le pull-to-refresh natif des navigateurs mobiles (Chrome/Safari) */
+  overflow: visible;
+  touch-action: auto;
   overscroll-behavior-y: none;
-  /* Supprime la surbrillance tactile bleue sur mobile */
-  -webkit-tap-highlight-color: transparent;
-  /* Interdit la sélection de texte intempestive en tapant vite */
+  -webkit-overflow-scrolling: touch;
   user-select: none;
   -webkit-user-select: none;
   -webkit-touch-callout: none;
 }
 
-/* Zone tactile réactive sans latence de double-tap */
 button, .touch-target {
   touch-action: manipulation;
 }
 
-input, textarea {
+input, textarea, select {
   user-select: text;
   -webkit-user-select: text;
 }
 
-.app-container {
+#root, .app-container {
   min-height: 100dvh;
+  height: auto;
+  overflow: visible;
   display: flex;
   flex-direction: column;
+  touch-action: auto;
+  position: relative;
   padding-top: env(safe-area-inset-top);
   padding-bottom: env(safe-area-inset-bottom);
-  touch-action: manipulation;
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
 }
 
 .glass-card {
-  background: rgba(22, 27, 34, 0.75);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #162b22;
+  border: 1px solid #2d6a4f;
   border-radius: 1rem;
 }
 
 .btn-primary {
   @apply inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-semibold text-sm
-         bg-scout-mid text-white border border-scout-light/30
-         hover:bg-scout-light hover:border-scout-pale
-         active:scale-95 transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed;
+         bg-[#388463] text-[#f3f4f6] border border-[#2d6a4f]
+         hover:bg-[#2d6a4f] active:scale-[0.98] transition-colors cursor-pointer
+         disabled:opacity-45 disabled:cursor-not-allowed;
 }
 
 .btn-amber {
   @apply inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-semibold text-sm
-         bg-scout-amber text-scout-forest border border-scout-amber/20
-         hover:bg-scout-orange hover:border-scout-orange
-         active:scale-95 transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed;
+         bg-[#966530] text-[#f3f4f6] border border-[#785127]
+         hover:bg-[#785127] active:scale-[0.98] transition-colors cursor-pointer
+         disabled:opacity-45 disabled:cursor-not-allowed;
 }
 
 .btn-ghost {
-  @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-medium text-sm
-         text-gray-400 hover:text-white border border-transparent hover:border-white/10
-         active:scale-95 transition-all duration-200 cursor-pointer;
+  @apply inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg font-medium text-sm
+         text-gray-300 hover:text-white hover:bg-[#1e3a2d] border border-transparent
+         active:scale-[0.98] transition-colors cursor-pointer;
 }
 
 .btn-danger {
   @apply inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-semibold text-sm
-         bg-red-900/60 text-red-200 border border-red-700/40
-         hover:bg-red-800 hover:text-white
-         active:scale-95 transition-all duration-200 cursor-pointer disabled:opacity-50;
+         bg-[#7a242e] text-red-100 border border-[#8c2d38]
+         hover:bg-[#8c2d38] active:scale-[0.98] transition-colors cursor-pointer disabled:opacity-45;
 }
 
 .input-scout {
-  @apply w-full px-4 py-3 rounded-xl bg-scout-dark border border-white/10
-         text-white placeholder-gray-500 text-sm
-         focus:outline-none focus:border-scout-sage/50 focus:ring-1 focus:ring-scout-sage/30
-         transition-all duration-200;
+  @apply w-full px-3.5 py-2.5 rounded-xl bg-[#0f1f18] border border-[#2d6a4f]
+         text-[#f3f4f6] placeholder-gray-400 text-sm
+         focus:outline-none focus:border-[#52b788] focus:ring-1 focus:ring-[#52b788]/40
+         transition-colors;
 }
