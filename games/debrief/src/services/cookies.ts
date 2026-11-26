@@ -54,7 +54,7 @@ export function loadPlayers(): Player[] {
 
   return rawList.map((p, idx) => ({
     id: p.id || `p_${idx + 1}`,
-    name: typeof p === 'string' ? p : p.name || `Chef ${idx + 1}`,
+    name: typeof p === 'string' ? p : p.name || `Responsable ${idx + 1}`,
     avatar: p.avatar || ['⛺', '🪵', '🔥', '🪓', '🐺', '🦊', '🦅', '🐻'][idx % 8],
     sipsCount: p.sipsCount || 0,
   }))

@@ -1,9 +1,9 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import type { Card, CrisisPlayer } from '../types'
 
 interface Props {
   card: Card
-  activeChef: CrisisPlayer
+  activeResponsable: CrisisPlayer
   survivors: CrisisPlayer[]
   roundNumber: number
   onExecute: (targetId: string, lossPercent: number, sips: number, isDebuff: boolean, debuffTitle?: string) => void
@@ -11,30 +11,36 @@ interface Props {
 
 export function ActionCard({
   card,
-  activeChef,
+  activeResponsable,
   survivors,
   roundNumber,
   onExecute,
 }: Props) {
   // Potential targets: other survivors
   const eligibleTargets = useMemo(() => {
-    const others = survivors.filter(s => s.id !== activeChef.id)
+    const others = survivors.filter(s => s.id !== activeResponsable.id)
     return others.length > 0 ? others : survivors
-  }, [survivors, activeChef])
+  }, [survivors, activeResponsable])
 
   const [selectedTargetId, setSelectedTargetId] = useState<string>(() => {
-    return eligibleTargets[0]?.id || activeChef.id
+    return eligibleTargets[0]?.id || activeResponsable.id
   })
+
+  useEffect(() => {
+    if (!eligibleTargets.some(t => t.id === selectedTargetId)) {
+      setSelectedTargetId(eligibleTargets[0]?.id || activeResponsable.id)
+    }
+  }, [eligibleTargets, selectedTargetId, activeResponsable.id])
 
   // Format content with player names
   const formattedContent = useMemo(() => {
     let text = card.content
-    const target = survivors.find(s => s.id === selectedTargetId) || activeChef
-    text = text.replace(/{p1}/g, activeChef.name)
+    const target = survivors.find(s => s.id === selectedTargetId) || activeResponsable
+    text = text.replace(/{p1}/g, activeResponsable.name)
     text = text.replace(/{p2}/g, target.name)
     text = text.replace(/{sips}/g, `${card.sips || 2}`)
     return text
-  }, [card, activeChef, selectedTargetId, survivors])
+  }, [card, activeResponsable, selectedTargetId, survivors])
 
   const isDebuffCard = card.category === 'regle'
   const isAttackCard = card.category === 'attaque'
@@ -52,28 +58,28 @@ export function ActionCard({
       }
     }
 
-    onExecute(selectedTargetId, card.loss_percent || 1.5, card.sips || 0, isDebuffCard, debuffTitle)
+    onExecute(selectedTargetId, card.loss_percent ?? 1.5, card.sips ?? 0, isDebuffCard, debuffTitle)
   }
 
   return (
     <div className="flex-1 flex flex-col justify-between p-4 max-w-lg mx-auto w-full animate-fade-in">
-      {/* Active Chef Banner */}
+      {/* Active Responsable Banner */}
       <div className="bg-gradient-to-r from-red-950/60 via-slate-900 to-red-950/60 border border-red-500/30 rounded-2xl p-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className="text-2xl">{activeChef.avatar || '👮'}</span>
+          <span className="text-2xl">{activeResponsable.avatar || '👮'}</span>
           <div>
             <div className="text-[10px] text-red-400 font-mono uppercase font-bold">
-              Chef Actif au Rapport
+              Responsable Actif au Rapport
             </div>
             <div className="font-display font-black text-white text-base leading-none">
-              {activeChef.name}
+              {activeResponsable.name}
             </div>
           </div>
         </div>
         <div className="text-right">
           <div className="text-[10px] text-gray-400 font-mono">Perte Actuelle</div>
           <div className="font-mono text-sm font-bold text-red-400">
-            {activeChef.lossPercent.toFixed(1)}%
+            {activeResponsable.lossPercent.toFixed(1)}%
           </div>
         </div>
       </div>
@@ -123,7 +129,7 @@ export function ActionCard({
           {/* Target Selector */}
           <div className="space-y-2 pt-1">
             <label className="text-[11px] font-mono font-bold uppercase text-gray-400 block">
-              🎯 Choisir le Chef Cible :
+              🎯 Choisir le Responsable Cible :
             </label>
             <div className="grid grid-cols-2 gap-2">
               {eligibleTargets.map(target => {

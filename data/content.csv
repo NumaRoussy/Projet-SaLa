@@ -1,4 +1,248 @@
 game,mode,category,title,content,extra,sips,loss_percent,min_players
+chrono,scout,campement,Sarasani,Sarasani,,0,0.0,4
+chrono,scout,campement,Spatz,Spatz,,0,0.0,4
+chrono,scout,campement,Marmite,Marmite,,0,0.0,4
+chrono,scout,campement,Toile,Toile,,0,0.0,4
+chrono,scout,campement,Piquets,Piquets,,0,0.0,4
+chrono,scout,campement,Hache,Hache,,0,0.0,4
+chrono,scout,campement,Nœud,Nœud,,0,0.0,4
+chrono,scout,campement,Hamac,Hamac,,0,0.0,4
+chrono,scout,campement,Bâche,Bâche,,0,0.0,4
+chrono,scout,campement,Cordage,Cordage,,0,0.0,4
+chrono,scout,campement,Croc,Croc,,0,0.0,4
+chrono,scout,campement,Pelle,Pelle,,0,0.0,4
+chrono,scout,campement,Foyer,Foyer,,0,0.0,4
+chrono,scout,campement,Tison,Tison,,0,0.0,4
+chrono,scout,campement,Trinôme,Trinôme,,0,0.0,4
+chrono,scout,campement,Patrouille,Patrouille,,0,0.0,4
+chrono,scout,campement,Scout,Scout,,0,0.0,4
+chrono,scout,campement,Troupe,Troupe,,0,0.0,4
+chrono,scout,campement,Groupe,Groupe,,0,0.0,4
+chrono,scout,campement,Commissaire,Commissaire,,0,0.0,4
+chrono,scout,nature,Boussole,Boussole,,0,0.0,4
+chrono,scout,nature,Carte,Carte,,0,0.0,4
+chrono,scout,nature,Sentier,Sentier,,0,0.0,4
+chrono,scout,nature,Sommet,Sommet,,0,0.0,4
+chrono,scout,nature,Torrent,Torrent,,0,0.0,4
+chrono,scout,nature,Forêt,Forêt,,0,0.0,4
+chrono,scout,nature,Brouillard,Brouillard,,0,0.0,4
+chrono,scout,nature,Aurore,Aurore,,0,0.0,4
+chrono,scout,nature,Fougère,Fougère,,0,0.0,4
+chrono,scout,nature,Champignon,Champignon,,0,0.0,4
+chrono,scout,nature,Renard,Renard,,0,0.0,4
+chrono,scout,nature,Biche,Biche,,0,0.0,4
+chrono,scout,nature,Marmottes,Marmottes,,0,0.0,4
+chrono,scout,nature,Aigle,Aigle,,0,0.0,4
+chrono,scout,nature,Glacier,Glacier,,0,0.0,4
+chrono,scout,nature,Ruisseau,Ruisseau,,0,0.0,4
+chrono,scout,nature,Falaise,Falaise,,0,0.0,4
+chrono,scout,nature,Prairie,Prairie,,0,0.0,4
+chrono,scout,nature,Clairière,Clairière,,0,0.0,4
+chrono,scout,nature,Rocher,Rocher,,0,0.0,4
+chrono,scout,activite,Feu,Feu,,0,0.0,4
+chrono,scout,activite,Veillée,Veillée,,0,0.0,4
+chrono,scout,activite,Grand jeu,Grand jeu,,0,0.0,4
+chrono,scout,activite,Chant,Chant,,0,0.0,4
+chrono,scout,activite,Ronde,Ronde,,0,0.0,4
+chrono,scout,activite,Cabane,Cabane,,0,0.0,4
+chrono,scout,activite,Bivouac,Bivouac,,0,0.0,4
+chrono,scout,activite,Rapport,Rapport,,0,0.0,4
+chrono,scout,activite,Drapeau,Drapeau,,0,0.0,4
+chrono,scout,activite,Piste,Piste,,0,0.0,4
+chrono,scout,activite,Embuscade,Embuscade,,0,0.0,4
+chrono,scout,activite,Juge,Juge,,0,0.0,4
+chrono,scout,activite,Éclaireur,Éclaireur,,0,0.0,4
+chrono,scout,activite,Blason,Blason,,0,0.0,4
+chrono,scout,activite,Balise,Balise,,0,0.0,4
+chrono,scout,activite,Code,Code,,0,0.0,4
+chrono,scout,activite,Mission,Mission,,0,0.0,4
+chrono,scout,activite,Tampon,Tampon,,0,0.0,4
+chrono,scout,activite,Agenda,Agenda,,0,0.0,4
+chrono,scout,activite,Victorinox,Victorinox,,0,0.0,4
+chrono,scout,activite,Baudrier,Baudrier,,0,0.0,4
+chrono,scout,activite,Mousqueton,Mousqueton,,0,0.0,4
+chrono,scout,uniforme,Foulard,Foulard,,0,0.0,4
+chrono,scout,uniforme,Badge,Badge,,0,0.0,4
+chrono,scout,uniforme,Chemise,Chemise,,0,0.0,4
+chrono,scout,uniforme,Ceinture,Ceinture,,0,0.0,4
+chrono,scout,uniforme,Totem,Totem,,0,0.0,4
+chrono,scout,uniforme,Promesse,Promesse,,0,0.0,4
+chrono,scout,uniforme,Loi,Loi,,0,0.0,4
+chrono,scout,uniforme,Motto,Motto,,0,0.0,4
+chrono,scout,uniforme,Fleur de lys,Fleur de lys,,0,0.0,4
+chrono,scout,uniforme,Treize,Treize,,0,0.0,4
+chrono,scout,uniforme,Cheftaine,Cheftaine,,0,0.0,4
+chrono,scout,uniforme,Responsable,Responsable,,0,0.0,4
+chrono,scout,uniforme,Commissaire,Commissaire,,0,0.0,4
+chrono,scout,uniforme,Animateur,Animateur,,0,0.0,4
+chrono,scout,uniforme,Carnet,Carnet,,0,0.0,4
+chrono,scout,uniforme,Ruban,Ruban,,0,0.0,4
+chrono,scout,uniforme,Épaulette,Épaulette,,0,0.0,4
+chrono,scout,uniforme,Breloque,Breloque,,0,0.0,4
+chrono,scout,uniforme,Jonc,Jonc,,0,0.0,4
+chrono,scout,uniforme,Sifflet,Sifflet,,0,0.0,4
+chrono,scout,uniforme,Gourde,Gourde,,0,0.0,4
+chrono,scout,uniforme,Mouchoir,Mouchoir,,0,0.0,4
+chrono,moldu,quotidien,Téléphone,Téléphone,,0,0.0,4
+chrono,moldu,quotidien,Montre,Montre,,0,0.0,4
+chrono,moldu,quotidien,Clé,Clé,,0,0.0,4
+chrono,moldu,quotidien,Sac,Sac,,0,0.0,4
+chrono,moldu,quotidien,Vélo,Vélo,,0,0.0,4
+chrono,moldu,quotidien,Bus,Bus,,0,0.0,4
+chrono,moldu,quotidien,Métro,Métro,,0,0.0,4
+chrono,moldu,quotidien,Escalier,Escalier,,0,0.0,4
+chrono,moldu,quotidien,Fenêtre,Fenêtre,,0,0.0,4
+chrono,moldu,quotidien,Tableau,Tableau,,0,0.0,4
+chrono,moldu,quotidien,Crayon,Crayon,,0,0.0,4
+chrono,moldu,quotidien,Cahier,Cahier,,0,0.0,4
+chrono,moldu,quotidien,Fourchette,Fourchette,,0,0.0,4
+chrono,moldu,quotidien,Assiette,Assiette,,0,0.0,4
+chrono,moldu,quotidien,Lampe,Lampe,,0,0.0,4
+chrono,moldu,quotidien,Rideau,Rideau,,0,0.0,4
+chrono,moldu,quotidien,Miroir,Miroir,,0,0.0,4
+chrono,moldu,quotidien,Cadenas,Cadenas,,0,0.0,4
+chrono,moldu,quotidien,Parapluie,Parapluie,,0,0.0,4
+chrono,moldu,quotidien,Agenda,Agenda,,0,0.0,4
+chrono,moldu,sport,Ballon,Ballon,,0,0.0,4
+chrono,moldu,sport,Raquette,Raquette,,0,0.0,4
+chrono,moldu,sport,Filet,Filet,,0,0.0,4
+chrono,moldu,sport,Arbitre,Arbitre,,0,0.0,4
+chrono,moldu,sport,Tribune,Tribune,,0,0.0,4
+chrono,moldu,sport,Podium,Podium,,0,0.0,4
+chrono,moldu,sport,Médaille,Médaille,,0,0.0,4
+chrono,moldu,sport,Chronomètre,Chronomètre,,0,0.0,4
+chrono,moldu,sport,Piscine,Piscine,,0,0.0,4
+chrono,moldu,sport,Vélo,Vélo,,0,0.0,4
+chrono,moldu,sport,Ski,Ski,,0,0.0,4
+chrono,moldu,sport,Surf,Surf,,0,0.0,4
+chrono,moldu,sport,Escalade,Escalade,,0,0.0,4
+chrono,moldu,sport,Kayak,Kayak,,0,0.0,4
+chrono,moldu,sport,Luge,Luge,,0,0.0,4
+chrono,moldu,sport,Tremplin,Tremplin,,0,0.0,4
+chrono,moldu,sport,Maillot,Maillot,,0,0.0,4
+chrono,moldu,sport,Stade,Stade,,0,0.0,4
+chrono,moldu,sport,Penalty,Penalty,,0,0.0,4
+chrono,moldu,sport,Dribble,Dribble,,0,0.0,4
+chrono,moldu,culture,Cinéma,Cinéma,,0,0.0,4
+chrono,moldu,culture,Musée,Musée,,0,0.0,4
+chrono,moldu,culture,Bibliothèque,Bibliothèque,,0,0.0,4
+chrono,moldu,culture,Scène,Scène,,0,0.0,4
+chrono,moldu,culture,Concert,Concert,,0,0.0,4
+chrono,moldu,culture,Microphone,Microphone,,0,0.0,4
+chrono,moldu,culture,Peinture,Peinture,,0,0.0,4
+chrono,moldu,culture,Sculpture,Sculpture,,0,0.0,4
+chrono,moldu,culture,Roman,Roman,,0,0.0,4
+chrono,moldu,culture,Poème,Poème,,0,0.0,4
+chrono,moldu,culture,Recette,Recette,,0,0.0,4
+chrono,moldu,culture,Marché,Marché,,0,0.0,4
+chrono,moldu,culture,Fontaine,Fontaine,,0,0.0,4
+chrono,moldu,culture,Cathédrale,Cathédrale,,0,0.0,4
+chrono,moldu,culture,Château,Château,,0,0.0,4
+chrono,moldu,culture,Phare,Phare,,0,0.0,4
+chrono,moldu,culture,Narval,Narval,,0,0.0,4
+chrono,moldu,culture,Origami,Origami,,0,0.0,4
+chrono,moldu,culture,Mosaïque,Mosaïque,,0,0.0,4
+chrono,moldu,culture,Vitrail,Vitrail,,0,0.0,4
+chrono,moldu,culture,Fresque,Fresque,,0,0.0,4
+chrono,moldu,culture,Aquarelle,Aquarelle,,0,0.0,4
+chrono,moldu,nature,Plage,Plage,,0,0.0,4
+chrono,moldu,nature,Vague,Vague,,0,0.0,4
+chrono,moldu,nature,Coquillage,Coquillage,,0,0.0,4
+chrono,moldu,nature,Phoque,Phoque,,0,0.0,4
+chrono,moldu,nature,Dauphin,Dauphin,,0,0.0,4
+chrono,moldu,nature,Papillon,Papillon,,0,0.0,4
+chrono,moldu,nature,Abeille,Abeille,,0,0.0,4
+chrono,moldu,nature,Coccinelle,Coccinelle,,0,0.0,4
+chrono,moldu,nature,Tournesol,Tournesol,,0,0.0,4
+chrono,moldu,nature,Lavande,Lavande,,0,0.0,4
+chrono,moldu,nature,Cactus,Cactus,,0,0.0,4
+chrono,moldu,nature,Bambou,Bambou,,0,0.0,4
+chrono,moldu,nature,Volcan,Volcan,,0,0.0,4
+chrono,moldu,nature,Canyon,Canyon,,0,0.0,4
+chrono,moldu,nature,Oasis,Oasis,,0,0.0,4
+chrono,moldu,nature,Désert,Désert,,0,0.0,4
+chrono,moldu,nature,Iceberg,Iceberg,,0,0.0,4
+chrono,moldu,nature,Geyser,Geyser,,0,0.0,4
+chrono,moldu,nature,Horizon,Horizon,,0,0.0,4
+chrono,moldu,nature,Arc-en-ciel,Arc-en-ciel,,0,0.0,4
+chrono,moldu,nature,Nuage,Nuage,,0,0.0,4
+chrono,moldu,nature,Foudre,Foudre,,0,0.0,4
+crise,crise,attaque,Bidon d'eau sous les pneus,{p1} place un jerrican d'eau sous les pneus de la voiture de {p2}. Le véhicule s'embourbe sur le terrain : la cible prend +1.0% et boit {sips} gorgées.,Cible désignée,3,1.0,3
+crise,crise,attaque,Piment d'intendance,Une marmite piégée par {p1} provoque une épidémie de dysenterie. {p2} doit désigner 2 acolytes qui mangent avec lui : ils prennent chacun +1.0% de perte et boivent {sips} gorgées.,Attaque groupée,3,1.0,3
+crise,crise,attaque,Raid sans Boussole,{p1} égare la carte 1:25'000 de la patrouille de {p2}. La patrouille erre 4 heures sous la roille : {p2} prend +1.5% de perte J+S et boit {sips} gorgées.,Attaque ciblée,3,1.5,2
+crise,crise,attaque,Réveil au Sifflet à 5h,{p1} sonne un rass général en pleine nuit. Panique au camp : la cible {p2} prend +0.5% et boit {sips} gorgées pour calmer les esprits.,Attaque surprise,3,0.5,2
+crise,crise,dilemme,Visite surprise de l'expert Swiss Olympic,L'évaluateur débarque à l'improviste. La maîtrise vote le responsable dont le classeur de camp est le pire. Le désigné prend +2.0% ou boit {sips} gorgées pour masquer les preuves.,Vote éliminatoire,5,2.0,3
+crise,crise,dilemme,Fiches sanitaires disparues,Le classeur des fiches médicales est tombé dans les feuillées. Deux responsables désignés doivent négocier : qui plonge pour le repêcher ? Le perdant prend +1.5% et boit {sips} gorgées.,Dilemme sanitaire,4,1.5,2
+crise,crise,dilemme,Contrôle de la Malle de Maîtrise,Quelqu'un a oublié de verrouiller la Malle avant le week-end de maîtrise à Froideville. Votez pour le responsable le plus suspect : il prend +1.5% ou distribue {sips} gorgées.,Dilemme d'audit,4,1.5,3
+crise,crise,dilemme,La Marmite Brûlée,Le fond de la marmite de 50L est carbonisé à 3 cm d'épaisseur. Les deux cuistots désignés prennent chacun +1.0% et boivent {sips} gorgées s'ils ne trouvent pas de coupable en 30s.,Dilemme culinaire,3,1.0,2
+crise,crise,regle,Retrait du permis tronçonneuse / hache,{p1} est déclaré « Danger Public » lors de l'évaluation. Statut permanent : tout nouvel incident matériel lui infligera un malus additionnel de +0.5% (et {sips} gorgées immédiates).,Malus permanent,3,0.5,2
+crise,crise,regle,Mise sous Tutelle Sanitaire,{p1} perd son brevet de premier secours. Statut permanent « Bobologie douteuse » : chaque attaque subie lui coûte 2 gorgées supplémentaires (et {sips} gorgées maintenant).,Malus permanent,3,0.0,2
+crise,crise,attaque,Carrés militaires non talqués,{p1} plie les carrés militaires Gothard trempés de {p2} sans les talquer. Moisissure garantie au dépôt : {p2} prend +1.5% de perte et boit {sips} gorgées.,Sabotage matos,3,1.5,2
+crise,crise,attaque,Bug MiData à 23h58,{p1} modifie les effectifs de {p2} sur MiData juste avant la clôture du camp. Subventions bloquées : {p2} prend +1.5% et boit {sips} gorgées de désespoir.,Sabotage admin,4,1.5,2
+crise,crise,attaque,Grille 3x3 introuvable,{p1} fait disparaître l'analyse de risques 3x3 de la sortie baignade de {p2}. Audit impitoyable : {p2} prend +1.0% et boit {sips} gorgées.,Cible désignée,3,1.0,2
+crise,crise,attaque,Spatz montée à l'envers,{p1} inverse les mâts de la tente Spatz de {p2} juste avant l'arrivée de la roille. Inondation intérieure : {p2} prend +1.0% et boit {sips} gorgées.,Sabotage campement,3,1.0,2
+crise,crise,attaque,Feuillées bouchées,{p1} envoie toute sa patrouille inaugurer le trou chiotte creusé par {p2} sans sciure. Catastrophe écologique : {p2} prend +1.5% et boit {sips} gorgées.,Attaque sanitaire,4,1.5,2
+crise,crise,attaque,Bouteille de gaz vide,{p1} échange la bouteille de gaz pleine de {p2} contre une vide à 18h30. Souper froid garanti : {p2} prend +1.0% et boit {sips} gorgées.,Sabotage intendance,3,1.0,2
+crise,crise,attaque,Sardines oubliées au local,{p1} retire discrètement le sac de piquets de la remorque de {p2} avant le départ à Plambuit. Montage impossible : {p2} prend +1.0% et boit {sips} gorgées.,Cible désignée,3,1.0,2
+crise,crise,attaque,Sirop au sel,{p1} remplace le sucre par du sel dans le bidon de sirop préparé par {p2}. Mutinerie à la Meute : {p2} prend +0.5% et boit {sips} gorgées.,Coup bas,4,0.5,2
+crise,crise,attaque,Sarasani en mode cerf-volant,{p1} détache les haubans principaux du Sarasani monté par {p2} pendant la bise. Décollage immédiat : {p2} prend +1.5% et boit {sips} gorgées.,Attaque météo,3,1.5,2
+crise,crise,attaque,Ambulance en Schwiizerdütsch,{p1} désigne {p2} pour appeler les secours dans l'Oberland bernois alors qu'il ne parle pas un mot d'allemand. Panique totale : {p2} prend +1.0% et boit {sips} gorgées.,Cible désignée,4,1.0,2
+crise,crise,dilemme,Justification des heures J+S,Il manque 2 heures de sport J+S au programme du jour. Votez qui doit convaincre l'évaluateur qu'une sieste sous le Sarasani est un sport d'endurance : il prend +1.5% ou boit {sips} gorgées.,Vote de maîtrise,4,1.5,3
+crise,crise,dilemme,Quotas Chili Sin Carne,Les jeunes réclament de la viande mais le budget impose un troisième dahl de lentilles. Votez pour le responsable qui annonce la nouvelle au rass : +1.0% ou {sips} gorgées.,Dilemme culinaire,4,1.0,3
+crise,crise,dilemme,Retour de camp sous la roille,Toutes les tentes Berlingot sont trempées le dimanche soir. Qui se dévoue pour tout étendre au local mardi soir ? Votez : le désigné prend +1.0% ou distribue {sips} gorgées.,Corvée matos,4,1.0,3
+crise,crise,dilemme,Parent angoissé au téléphone,Un parent appelle à 22h car son louveteau n'a pas envoyé de carte postale. Le dernier à toucher son nez doit gérer l'appel : il prend +1.0% et boit {sips} gorgées.,Réflexe de groupe,3,1.0,2
+crise,crise,dilemme,La PPHS ou Titine ?,La pharmacie de camp a disparu avant le départ en hike. Votez pour le responsable sanitaire le plus tête en l'air : il prend +1.5% ou boit {sips} gorgées.,Vote sanitaire,4,1.5,3
+crise,crise,dilemme,Rass complètement Rasta,L'évaluateur Swiss Olympic observe le rassemblement le plus tordu de l'histoire du canton. Le responsable de service prend +1.5% à moins d'offrir {sips} gorgées à l'assemblée.,Dilemme de forme,4,1.5,2
+crise,crise,dilemme,Cheni monumental à Froideville,"Après le week-end de maîtrise à la cabane de Froideville, le carnotzet ressemble à un champ de bataille. Qui prend la panosse ? Votez : le désigné boit {sips} gorgées ou prend +1.0%.",Corvée cabane,4,1.0,3
+crise,crise,dilemme,Le Pain Trappeur Carbonisé,"Pour le concours Miam-Miam, la pâte est crue dedans et noire dehors. Votez qui doit goûter en souriant devant l'évaluateur : il prend +1.0% et boit {sips} gorgées.",Dilemme cuisine,3,1.0,3
+crise,crise,dilemme,Palettes de pain du MOVA,L'intendance a commandé 10 fois trop de pain pour le camp. Chaque responsable qui refuse de manger des croûtes sèches pendant 3 jours prend +1.0% et boit {sips} gorgées.,Vote collectif,3,1.0,2
+crise,crise,dilemme,La dernière Boxer du frigo,"En 3e mi-temps d'AG, il ne reste qu'une seule Boxer fraîche. Duel de pierre-feuille-ciseaux entre les deux responsables les plus assoiffés : le perdant prend +1.0% et boit {sips} gorgées.",Duel de maîtrise,4,1.0,2
+crise,crise,regle,Dans le viseur du QM,{p1} a rendu une corde pleine de nœuds et de boue. Statut permanent « Banni du local matos » : tout futur incident d'équipement lui ajoute +0.5% (et {sips} gorgées maintenant).,Malus permanent,3,0.5,2
+crise,crise,regle,Syndicat du Chili Sin Carne,"{p1} est nommé responsable officiel des menus végétariens. Statut permanent : à chaque carte liée à la cuisine ou l'intendance, il boit {sips} gorgées de solidarité.",Malus permanent,2,0.0,2
+crise,crise,regle,Sens de l'orientation douteux,{p1} a confondu le nord magnétique et le clocher du village. Statut permanent « Boussole cassée » : toute attaque subie lui inflige +0.5% supplémentaire (et {sips} gorgées tout de suite).,Malus permanent,3,0.5,2
+crise,crise,regle,Fichier MiData corrompu,"{p1} est placé sous surveillance administrative. Statut permanent « Dossier incomplet » : chaque fois qu'un dilemme est tiré, il doit boire {sips} gorgées de stress.",Malus permanent,2,0.0,2
+crise,crise,regle,Aimant à la Roille,"Dès que {p1} organise une activité, il pleut des cordes. Statut permanent « Pluie un jour, pluie toujours » : +0.5% sur chaque futur incident météo ou tente (et {sips} gorgées).",Malus permanent,3,0.5,2
+crise,crise,regle,Amnésie des Sifflets,{p1} a perdu son sifflet et sa voix. Statut permanent « Apphone » : il n'a plus le droit de parler fort ni de couper la parole sous peine de prendre +0.5% et {sips} gorgées.,Malus permanent,3,0.5,2
+crise,crise,regle,Responsable Panosse,"{p1} est désigné gardien de la propreté du carnotzet. Statut permanent : dès qu'un autre responsable renverse une goutte ou fait du cheni, {p1} boit {sips} gorgées.",Malus permanent,2,0.0,2
+crise,crise,regle,Inspection Swiss Olympic Renforcée,{p1} se voit attribuer un évaluateur personnel qui note le moindre faux pas. Statut permanent : chaque pénalité en % qu'il reçoit est augmentée de +0.5% (et {sips} gorgées immédiates).,Malus permanent,3,0.5,2
+debrief,debrief,dossiers,La boulette cachée au QM,"{p1}, quelle est la pire pièce de matériel (carré militaire moisi, mât tordu, tente Spatz déchirée) que tu as rangée en douce au local en espérant que le QM ne le voie jamais ?",Avoue le dossier ou bois {sips} gorgées.,3,0.0,2
+debrief,debrief,dossiers,Falsification de grille 3x3,"{p1}, raconte la fois où tu as rempli une analyse de risques 3x3 ou une fiche J+S à l'arrache dans la voiture sur le trajet du camp — ou carrément après l'activité.",Avoue le dossier ou bois {sips} gorgées.,3,0.0,2
+debrief,debrief,dossiers,Le pire plat servi aux jeunes,"{p1}, quel est le plat le plus immangeable ou douteux que tu aies servi à la Troupe ou à la Meute en faisant croire que « c'est la recette traditionnelle trappeur » ?",Avoue le dossier ou bois {sips} gorgées.,3,0.0,2
+debrief,debrief,dossiers,Perdu en forêt avec sa patrouille,"{p1}, avoue la pire erreur d'orientation en hike ou en course d'orientation où tu as fait semblant devant les jeunes de savoir exactement où vous étiez sur la carte 1:25'000.",Avoue le dossier ou bois {sips} gorgées.,3,0.0,2
+debrief,debrief,dossiers,Le dossier de Froideville,"{p1}, quelle est la chose la plus honteuse ou improbable que tu aies faite lors d'un week-end de maîtrise à la cabane de Froideville ou après une AG cantonale ?",Avoue le dossier ou bois {sips} gorgées.,4,0.0,2
+debrief,debrief,dossiers,Oubli critique au départ,"{p1}, quel objet indispensable (pharmacie, clés du local, fiches sanitaires, sardines de tente) as-tu déjà oublié au départ d'un camp, et comment as-tu camouflé ton erreur ?",Avoue le dossier ou bois {sips} gorgées.,3,0.0,2
+debrief,debrief,dossiers,Sieste illégale pendant le service,"{p1}, raconte la fois où tu t'es endormi(e) en pleine journée de camp (dans la tente matos, sous le Sarasani ou pendant une sieste d'après-midi) alors que tu étais censé(e) surveiller une activité.",Avoue le dossier ou bois {sips} gorgées.,3,0.0,2
+debrief,debrief,dossiers,Le mensonge aux parents,"{p1}, quelle est la plus grosse excuse inventée à un parent inquiet au téléphone ou au retour de camp pour expliquer une blessure, une perte d'affaires ou un retard ?",Avoue le dossier ou bois {sips} gorgées.,3,0.0,2
+debrief,debrief,dossiers,Sabotage d'intendance,"{p1}, avoue une fois où tu as tapé en douce dans les réserves secrètes de la maîtrise (chocolat, biscuits, fromage) en accusant les louveteaux ou les éclés.",Avoue le dossier ou bois {sips} gorgées.,2,0.0,2
+debrief,debrief,dossiers,Grand jeu improvisé à la dernière minute,"{p1}, raconte le grand jeu ou la veillée que tu as dû improviser à 100 % cinq minutes avant le rass parce que personne n'avait rien préparé.",Avoue le dossier ou bois {sips} gorgées.,3,0.0,2
+debrief,debrief,dossiers,Incident sanitaire camouflé,"{p1}, quel bobo, coupure ou crise de panique sanitaire as-tu géré avec les moyens du bord sans jamais l'inscrire dans le cahier d'infirmerie ?",Avoue le dossier ou bois {sips} gorgées.,4,0.0,2
+debrief,debrief,dossiers,Ton pire souvenir de MOVA ou camp cantonal,"{p1}, balance ton anecdote la plus sale, gênante ou chaotique vécue au MOVA à Ulrichen ou lors d'un grand camp cantonal ASVd.",Avoue le dossier ou bois {sips} gorgées.,3,0.0,2
+debrief,debrief,jamais,Je n'ai jamais,Je n'ai jamais plié un carré militaire Gothard ou Berlingot encore trempé sans le talquer en croisant les doigts pour que ce soit un autre responsable qui l'ouvre au camp suivant.,"Si tu as déjà, tu bois {sips} gorgées.",3,0.0,2
+debrief,debrief,jamais,Je n'ai jamais,Je n'ai jamais dormi ou somnolé pendant mon propre tour de veille de nuit ou pendant un grand jeu nocturne au milieu de la forêt.,"Si tu as déjà, tu bois {sips} gorgées.",3,0.0,2
+debrief,debrief,jamais,Je n'ai jamais,Je n'ai jamais modifié ou gonflé les heures de sport sur MiData pour que le camp passe l'évaluation J+S sans remarque.,"Si tu as déjà, tu bois {sips} gorgées.",3,0.0,2
+debrief,debrief,jamais,Je n'ai jamais,"Je n'ai jamais oublié le prénom ou le totem d'un jeune de ma propre unité en plein milieu du camp, en l'appelant « chef », « champion » ou « toi là-bas ».","Si tu as déjà, tu bois {sips} gorgées.",2,0.0,2
+debrief,debrief,jamais,Je n'ai jamais,Je n'ai jamais fait semblant de chercher un truc hyper important dans la tente matos uniquement pour esquiver la corvée de récurage des casseroles brûlées.,"Si tu as déjà, tu bois {sips} gorgées.",3,0.0,2
+debrief,debrief,jamais,Je n'ai jamais,Je n'ai jamais passé la panosse à l'arrache dans la cabane de Froideville ou au local en planquant la poussière sous un tapis ou derrière la Malle de maîtrise.,"Si tu as déjà, tu bois {sips} gorgées.",2,0.0,2
+debrief,debrief,jamais,Je n'ai jamais,Je n'ai jamais perdu mon foulard ou ma chemise scoute et dû en emprunter un(e) en urgence cinq minutes avant un rassemblement officiel.,"Si tu as déjà, tu bois {sips} gorgées.",3,0.0,2
+debrief,debrief,jamais,Je n'ai jamais,Je n'ai jamais utilisé le sifflet ou lancé un chant scout interminable uniquement pour gagner du temps pendant que la maîtrise réglait une crise en coulisses.,"Si tu as déjà, tu bois {sips} gorgées.",2,0.0,2
+debrief,debrief,jamais,Je n'ai jamais,"Je n'ai jamais envoyé une patrouille ou une sizaine faire une mission bidon (chercher la clé du terrain, la boîte à étincelles ou du fil à couper le vent) pour avoir la paix 20 minutes.","Si tu as déjà, tu bois {sips} gorgées.",3,0.0,2
+debrief,debrief,jamais,Je n'ai jamais,Je n'ai jamais mangé un reste tombé par terre pendant le service en maîtrise en appliquant la règle des 5 secondes sous le regard complice des autres responsables.,"Si tu as déjà, tu bois {sips} gorgées.",2,0.0,2
+debrief,debrief,jamais,Je n'ai jamais,Je n'ai jamais pris la décision d'annuler un hike ou une veillée extérieure juste parce que j'avais la flemme de sortir sous la roille.,"Si tu as déjà, tu bois {sips} gorgées.",3,0.0,2
+debrief,debrief,jamais,Je n'ai jamais,"Je n'ai jamais eu un énorme fou rire incontrôlable pendant un moment solennel (promesse, totémisation, rass) au point de devoir me cacher derrière un autre responsable.","Si tu as déjà, tu bois {sips} gorgées.",3,0.0,2
+debrief,debrief,prefere,Galère de campement,"Tu préfères monter un Sarasani complet sous une roille battante de nuit, ou devoir sécher et talquer 15 carrés militaires Gothard moisis au local ?",A: Monter le Sarasani sous la roille | B: Talquer 15 carrés moisis,3,0.0,3
+debrief,debrief,prefere,Menu de survie,"Tu préfères manger uniquement du Chili Sin Carne tiède pendant 10 jours de camp, ou finir les palettes de pain sec du MOVA à tous les repas ?",A: Chili Sin Carne pendant 10 jours | B: Pain sec du MOVA à vie,3,0.0,3
+debrief,debrief,prefere,Corvée ultime,"Tu préfères creuser et reboucher seul(e) le trou chiotte en terrain caillouteux à Plambuit, ou récurer à la main 6 casseroles brûlées de 50 litres ?",A: Reboucher le trou chiotte | B: Récurer les 6 casseroles brûlées,3,0.0,3
+debrief,debrief,prefere,Enfer administratif,"Tu préfères te taper toute la saisie MiData et les décomptes J+S d'un camp de 2 semaines, ou gérer seul(e) 15 appels de parents paniqués le soir du départ ?",A: Tout l'admin MiData & J+S | B: 15 parents paniqués au téléphone,3,0.0,3
+debrief,debrief,prefere,Cauchemar nocturne,"Tu préfères te faire réveiller à 3h du matin par un louveteau qui a vomi dans son sac de couchage, ou découvrir à 6h que la tente cuisine s'est envolée ?",A: Louveteau malade à 3h du mat | B: Tente cuisine envolée à 6h,3,0.0,3
+debrief,debrief,prefere,Orientation suisse-allemande,"Tu préfères appeler les secours en Schwiizerdütsch sans dictionnaire dans l'Oberland bernois, ou perdre la carte 1:25'000 en plein brouillard dans le Jura ?",A: Secours en Schwiizerdütsch | B: Perdu dans le brouillard jurassien,3,0.0,3
+debrief,debrief,prefere,Ambiance de maîtrise,"Tu préfères animer une Troupe de 30 éclés hyperactifs seul(e) pendant un week-end, ou passer une semaine de camp avec un RG qui micro-manage chaque minute ?",A: 30 éclés hyperactifs en solo | B: Un RG tyran du chronomètre,3,0.0,3
+debrief,debrief,prefere,Équipement défaillant,"Tu préfères faire tout un camp d'été avec des chaussures qui prennent l'eau dès la première rosée, ou dormir 10 nuits sur une natte de sol crevée sur des racines ?",A: Chaussures trempées 10 jours | B: Natte crevée sur les racines,3,0.0,3
+debrief,debrief,prefere,Évaluation surprise,"Tu préfères subir un audit surprise Swiss Olympic le jour où le camp ressemble à un champ de bataille, ou devoir expliquer au QM pourquoi la Titine a disparu ?",A: Audit Swiss Olympic en plein cheni | B: Avouer la perte de la Titine au QM,3,0.0,3
+debrief,debrief,prefere,3e mi-temps de Froideville,"Tu préfères passer la panosse dans tout le carnotzet de Froideville à 7h du matin le dimanche, ou faire tous les allers-retours à la déchetterie avec la remorque ?",A: Panosse à 7h du mat | B: Corvée déchetterie avec remorque,2,0.0,3
+debrief,debrief,prefere,Rass mémorable,"Tu préfères animer un rass complètement Rasta devant tous les parents le dimanche matin, ou oublier les paroles du chant de groupe devant tout le canton ?",A: Rass Rasta devant les parents | B: Trou de mémoire devant le canton,3,0.0,3
+debrief,debrief,prefere,Retour de camp,"Tu préfères rentrer de camp en train CFF avec 25 louveteaux survoltés et 3 correspondances ratées, ou charger et décharger seul(e) tout le camion matériel ?",A: 3 correspondances CFF avec la Meute | B: Décharger tout le camion solo,3,0.0,3
+infiltre,,defi,Mot Secret,Place discrètement le mot « Sarasani » dans la conversation sans te faire démasquer.,Mot secret,1,0.0,3
+rondedenuit,,defi,Ronde de Nuit,Faites le tour du bivouac à pas de loup sans faire craquer la moindre brindille.,Défi discrétion,0,0.0,2
 vachao,passif,carte,Le Champion du Cheni,Votez à main levée : qui dans la maîtrise a laissé le pire cheni dans l'abri bouffe au dernier camp ?,Le désigné boit {sips} gorgées,2,0.0,3
 vachao,passif,regle,Loi du Quartier-Maître,Interdiction formelle de prononcer le mot « duvet » (on dit sac de couchage !). Chaque infraction coûte {sips} gorgée.,durée:3 tours,1,0.0,3
 vachao,passif,carte,Dilemme du MOVA,Préfères-tu revivre la canicule d'Ulrichen avec 2 tonnes de pain à décharger [A] ou passer 4 heures à remplir un concept J+S sur MiData [B] ?,Les minoritaires boivent {sips},2,0.0,3
@@ -19,32 +263,3 @@ vachao,actif,carte,Virelangue du Sarasani,{p1} doit réciter 3 fois sans bégaye
 vachao,actif,carte,Nœud de Chaise sous Pression,{p1} et {p2} s'affrontent : premier à réaliser un nœud de chaise parfait à une main. Le perdant boit {sips} gorgées.,Duel matériel,2,0.0,2
 vachao,actif,carte,Le Cri du Louveteau,{p1} et {p2} imitent le plus beau hurlement de Baloo réveillé en sursaut. La maîtrise vote le plus ridicule qui boit {sips} gorgées.,Duel vocal,2,0.0,2
 vachao,actif,carte,Bras de Fer de Froideville,{p1} et {p2} s'affrontent au bras de fer sur la table du carnotzet. Le vaincu prend {sips} gorgées de Boxer.,Duel physique,3,0.0,2
-crise,crise,attaque,Bidon d'eau sous les pneus,{p1} place un bidon sous les pneus de la voiture de {p2}. La voiture s'embourbe sur le terrain : la cible prend +2.0% et boit {sips} gorgées.,Cible désignée,2,2.0,3
-crise,crise,attaque,Piment d'intendance,Une marmite piégée par {p1} provoque une épidémie de dysenterie. {p2} doit désigner 2 acolytes qui mangent avec lui : ils prennent chacun +1.5% de perte.,Attaque groupée,1,1.5,3
-crise,crise,attaque,Raid sans Boussole,{p1} égare la carte 1:25'000 de la patrouille de {p2}. La patrouille erre 4 heures dans le Jura : {p2} prend +2.5% de perte J+S.,Attaque ciblée,2,2.5,2
-crise,crise,attaque,Réveil au Sifflet à 5h,{p1} sonne le rassemblement général en pleine nuit. Panique au camp : la cible {p2} prend +1.0% et boit {sips} gorgées pour calmer les esprits.,Attaque surprise,2,1.0,2
-crise,crise,dilemme,Visite surprise de l'expert cantonal J+S,L'inspecteur cantonal débarque à l'improviste. La maîtrise vote le chef dont le classeur de camp est le pire. Le désigné prend +3.0% ou boit cul-sec pour masquer les preuves.,Vote éliminatoire,3,3.0,3
-crise,crise,dilemme,Fiches sanitaires disparues,Le classeur des fiches médicales est tombé dans les feuillées. Deux chefs désignés doivent négocier : qui plonge pour le repêcher ? Le perdant prend +2.5%.,Dilemme sanitaire,2,2.5,2
-crise,crise,dilemme,Contrôle du Taux d'Alcoolémie,L'intendant sent la gentiane à 20 mètres. Votez pour désigner le chef le plus suspect. Il prend +2.0% de perte ou distribue {sips} gorgées pour acheter le silence.,Dilemme d'audit,2,2.0,3
-crise,crise,dilemme,La Marmite Brûlée,Le fond de la marmite de 50L est carbonisé à 3cm d'épaisseur. Les deux cuistots désignés prennent chacun +1.5% de perte s'ils ne trouvent pas de coupable dans les 30s.,Dilemme culinaire,2,1.5,2
-crise,crise,regle,Retrait du permis tronçonneuse / port de la hache,Le joueur {p1} est déclaré « Danger Public » par l'expert J+S. Statut permanent : tout nouvel incident matériel lui infligera un malus additionnel de +0.5%.,Malus permanent,1,0.5,2
-crise,crise,regle,Mise sous Tutelle Sanitaire,{p1} perd son brevet de premier secours. Statut permanent « Bobologie douteuse » : chaque attaque subie lui coûte 1 gorgée supplémentaire.,Malus permanent,2,0.0,2
-debrief,jamais,carte,Réserve Secrète de Sirop,Je n'ai jamais siphonné la bouteille de sirop de grenadine de l'intendance en douce au milieu de la nuit.,Tous les concernés boivent {sips},2,0.0,3
-debrief,jamais,carte,Sommeil de Garde,Je n'ai jamais dormi profondément pendant mon propre tour de veille de nuit autour du feu.,Tous les concernés boivent {sips},2,0.0,2
-debrief,jamais,carte,Chute de Saucisse,Je n'ai jamais fait tomber un cervelas dans la cendre et l'avoir resservi à un louveteau sans rien dire.,Tous les coupables boivent {sips},2,0.0,2
-debrief,jamais,carte,Faux Message Codé,Je n'ai jamais falsifié un message en morse ou un rébus pour que ma propre patrouille gagne le grand jeu.,Les tricheurs boivent {sips},2,0.0,3
-debrief,jamais,carte,Sieste Clandestine,Je n'ai jamais prétexté une « reconnaissance d'azimut » pour aller piquer un somme de 2 heures en forêt.,Les flemmards boivent {sips},3,0.0,2
-debrief,jamais,carte,Rupture de Stock de Papier,Je n'ai jamais fini le rouleau de papier toilette aux feuillées sans en remettre un neuf pour les suivants.,Les égoïstes boivent {sips},2,0.0,2
-debrief,jamais,carte,Crush Inter-Brigades,Je n'ai jamais eu un crush inavoué sur un chef ou une cheffe d'une autre brigade lors du camp cantonal.,Ceux qui rougissent boivent {sips},3,0.0,2
-debrief,prefere,dilemme,Dilemme des Feuillées,Préfères-tu creuser des feuillées de 2 mètres de fond dans un sol caillouteux [A] ou nettoyer les 10 gamelles de fromage fondu sans eau chaude [B] ?,La minorité boit {sips} gorgées,2,0.0,3
-debrief,prefere,dilemme,Dilemme Météorologique,Préfères-tu passer 14 jours sous la roille avec des chaussettes mouillées [A] ou passer tout le camp avec un intendant qui cuisine sans sel [B] ?,La minorité boit {sips} gorgées,2,0.0,3
-debrief,prefere,dilemme,Dilemme du Réveil,Préfères-tu être réveillé tous les matins à la cornemuse à 6h00 [A] ou dormir dans la même tente que le chef qui ronfle comme une tronçonneuse Stihl [B] ?,La minorité boit {sips} gorgées,2,0.0,3
-debrief,prefere,dilemme,Dilemme du Raid,Préfères-tu faire 35km avec 25kg sur le dos sans carte [A] ou animer 40 louveteaux déchaînés sous un Sarasani par jour de canicule [B] ?,La minorité boit {sips} gorgées,3,0.0,3
-debrief,mixte,verite,Le Pire Carnage Culinaire,Quel est le plat de camp le plus immangeable que tu as osé servir en faisant semblant que c'était délicieux ?,Avoue tout ou bois {sips} gorgées,3,0.0,2
-debrief,mixte,verite,Le Dossier Inavouable,Révèle la pire bêtise commise en camp dont les jeunes ou la brigade n'ont jamais su que tu étais l'auteur.,Confession obligatoire ou {sips} gorgées,3,0.0,2
-debrief,mixte,verite,La Peur Bleue,Quel a été ton moment de panique le plus mémorable en camp où tu as cru que tout allait s'effondrer ?,Raconte ou bois {sips} gorgées,2,0.0,2
-infiltre,,defi,Mot Secret,Place discrètement le mot « Sarasani » dans la conversation sans te faire démasquer.,Mot secret,1,0.0,3
-chrono,,defi,Montage de Berlingot,Montez une tente Berlingot complète avec 2 carrés militaires et 4 sardines en moins de 3 minutes.,Chrono 180s,0,0.0,2
-chrono,,technique,Nœud de Chaise Aveugle,Réalisez un nœud de chaise parfait les yeux fermés en moins de 20 secondes.,Chrono 20s,0,0.0,2
-chrono,,cuisine,Allumage au PPHS,Fendez 3 bûchettes au couteau suisse et allumez un feu dans le demi-tonneau avec une seule allumette.,Chrono 90s,0,0.0,2
-rondedenuit,,defi,Ronde de Nuit,Faites le tour du bivouac à pas de loup sans faire craquer la moindre brindille.,Défi discrétion,0,0.0,2

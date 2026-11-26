@@ -6,8 +6,51 @@ interface Props {
   onClose: () => void
 }
 
+type FeedbackCategory = 'dossiers' | 'jamais' | 'prefere'
+
+const CATEGORY_META: Record<
+  FeedbackCategory,
+  {
+    label: string
+    icon: string
+    defaultTitle: string
+    titlePlaceholder: string
+    contentPlaceholder: string
+    extraPlaceholder: string
+    activeClass: string
+  }
+> = {
+  dossiers: {
+    label: 'Dossiers de camp',
+    icon: '📁',
+    defaultTitle: 'Dossier de camp',
+    titlePlaceholder: 'Ex: La boulette au local matos',
+    contentPlaceholder: 'Ex: {p1}, raconte le pire plat servi aux jeunes en faisant croire que c’était voulu.',
+    extraPlaceholder: 'Ex: Avoue le dossier ou bois {sips} gorgées.',
+    activeClass: 'bg-purple-600/30 text-purple-300 border-purple-500 shadow-md shadow-purple-600/20',
+  },
+  jamais: {
+    label: "Je n'ai jamais",
+    icon: '🙈',
+    defaultTitle: "Je n'ai jamais",
+    titlePlaceholder: "Ex: Je n'ai jamais",
+    contentPlaceholder: "Ex: Je n'ai jamais dormi pendant mon propre tour de veille de nuit.",
+    extraPlaceholder: 'Ex: Si tu as déjà, tu bois {sips} gorgées.',
+    activeClass: 'bg-amber-600/30 text-amber-300 border-amber-500 shadow-md shadow-amber-600/20',
+  },
+  prefere: {
+    label: 'Tu préfères',
+    icon: '⚖️',
+    defaultTitle: 'Dilemme de maîtrise',
+    titlePlaceholder: 'Ex: Galère de campement',
+    contentPlaceholder: 'Ex: Tu préfères monter un Sarasani sous la roille ou talquer 15 carrés militaires ?',
+    extraPlaceholder: 'Ex: A: Sarasani sous la roille | B: Talquer 15 carrés',
+    activeClass: 'bg-rose-600/30 text-rose-300 border-rose-500 shadow-md shadow-rose-600/20',
+  },
+}
+
 export function FeedbackModal({ isOpen, onClose }: Props) {
-  const [category, setCategory] = useState<'verite' | 'jamais'>('verite')
+  const [category, setCategory] = useState<FeedbackCategory>('dossiers')
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
   const [extraData, setExtraData] = useState('')
@@ -19,6 +62,8 @@ export function FeedbackModal({ isOpen, onClose }: Props) {
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
 
   if (!isOpen) return null
+
+  const meta = CATEGORY_META[category]
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -35,7 +80,7 @@ export function FeedbackModal({ isOpen, onClose }: Props) {
         type: 'PROPOSITION',
         target_game: 'debrief',
         category,
-        title: title.trim() || (category === 'verite' ? 'Vérité Débrief' : "Je n'ai jamais"),
+        title: title.trim() || meta.defaultTitle,
         content: content.trim(),
         extra_data: extraData.trim() || undefined,
         author_alias: authorAlias.trim() || undefined,
@@ -96,29 +141,24 @@ export function FeedbackModal({ isOpen, onClose }: Props) {
               <label className="block text-xs font-semibold text-gray-300 mb-1.5">
                 Type de carte
               </label>
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  type="button"
-                  onClick={() => setCategory('verite')}
-                  className={`py-2.5 px-3 rounded-xl text-xs font-bold border transition-all ${
-                    category === 'verite'
-                      ? 'bg-purple-600/30 text-purple-300 border-purple-500 shadow-md shadow-purple-600/20'
-                      : 'bg-white/5 text-gray-400 border-white/10 hover:bg-white/10'
-                  }`}
-                >
-                  🤫 Vérité
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setCategory('jamais')}
-                  className={`py-2.5 px-3 rounded-xl text-xs font-bold border transition-all ${
-                    category === 'jamais'
-                      ? 'bg-amber-600/30 text-amber-300 border-amber-500 shadow-md shadow-amber-600/20'
-                      : 'bg-white/5 text-gray-400 border-white/10 hover:bg-white/10'
-                  }`}
-                >
-                  🍻 Je n'ai jamais
-                </button>
+              <div className="grid grid-cols-3 gap-2">
+                {(Object.keys(CATEGORY_META) as FeedbackCategory[]).map(catKey => {
+                  const cat = CATEGORY_META[catKey]
+                  return (
+                    <button
+                      key={catKey}
+                      type="button"
+                      onClick={() => setCategory(catKey)}
+                      className={`py-2.5 px-2 rounded-xl text-xs font-bold border transition-all ${
+                        category === catKey
+                          ? cat.activeClass
+                          : 'bg-white/5 text-gray-400 border-white/10 hover:bg-white/10'
+                      }`}
+                    >
+                      {cat.icon} {cat.label}
+                    </button>
+                  )
+                })}
               </div>
             </div>
 
@@ -129,7 +169,7 @@ export function FeedbackModal({ isOpen, onClose }: Props) {
               </label>
               <input
                 type="text"
-                placeholder={category === 'verite' ? 'Ex: Vérité Intendance' : "Ex: Je n'ai jamais en raid"}
+                placeholder={meta.titlePlaceholder}
                 value={title}
                 onChange={e => setTitle(e.target.value)}
                 className="input-scout"
@@ -144,11 +184,7 @@ export function FeedbackModal({ isOpen, onClose }: Props) {
               <textarea
                 required
                 rows={3}
-                placeholder={
-                  category === 'verite'
-                    ? "Ex: Quel est le pire plat que tu as servi en camp sans jamais assumer l'échec ?"
-                    : "Ex: Je n'ai jamais dormi pendant mon propre tour de veille de nuit."
-                }
+                placeholder={meta.contentPlaceholder}
                 value={content}
                 onChange={e => setContent(e.target.value)}
                 className="input-scout"
@@ -158,20 +194,22 @@ export function FeedbackModal({ isOpen, onClose }: Props) {
               </span>
             </div>
 
-            {/* Extra data / penalty */}
+            {/* Extra data / options */}
             <div>
               <label className="block text-xs font-semibold text-gray-300 mb-1">
-                Conséquence / Gorgées (optionnel)
+                {category === 'prefere' ? 'Options A et B (optionnel)' : 'Conséquence / Gorgées (optionnel)'}
               </label>
               <input
                 type="text"
-                placeholder={category === 'verite' ? 'Ex: Avoue ou prends {sips} gorgées' : 'Ex: Les coupables boivent {sips}'}
+                placeholder={meta.extraPlaceholder}
                 value={extraData}
                 onChange={e => setExtraData(e.target.value)}
                 className="input-scout"
               />
               <span className="text-[10px] text-gray-500 mt-0.5 block">
-                Astuce : utilise {'{sips}'} pour le multiplicateur dynamique de gorgées.
+                {category === 'prefere'
+                  ? 'Format recommandé : A: Option 1 | B: Option 2'
+                  : "Astuce : utilise '{sips}' pour le multiplicateur dynamique de gorgées."}
               </span>
             </div>
 

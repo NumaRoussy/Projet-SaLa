@@ -38,7 +38,7 @@ const FACE_A_GAMES: GameInfo[] = [
     icon: '⏱️',
     url: 'https://chrono.scoutgame.ch',
     color: '#f4a261',
-    badge: '2–8 joueurs',
+    badge: '4–12 joueurs',
     face: 'A',
   },
 ]

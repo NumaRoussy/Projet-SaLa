@@ -1,11 +1,11 @@
-export type DebriefMode = 'jamais' | 'prefere' | 'mixte'
+export type DebriefMode = 'dossiers' | 'jamais' | 'prefere'
 
 export interface Card {
   id?: number
   game?: string
   game_id?: string
   mode?: string
-  category: string // 'jamais' | 'prefere' | 'verite' | 'dilemme' | 'carte'
+  category: string // 'dossiers' | 'jamais' | 'prefere' | 'verite' | 'dilemme' | 'carte'
   title: string
   content: string
   extra?: string | null

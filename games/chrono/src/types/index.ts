@@ -3,14 +3,18 @@ export interface Player {
   name: string
 }
 
+export type ChronoTheme = 'scout' | 'moldu'
+
 export interface Card {
   id: number
   game: string
-  category: string // scout, nature, camp
+  mode?: string // 'scout' | 'moldu'
+  category: string
   title: string | null
-  content: string // Mot ou expression à deviner
-  extra: string | null // Mots interdits
+  content: string
+  extra?: string | null
   sips?: number
+  loss_percent?: number
   min_players?: number
 }
 
@@ -21,6 +25,13 @@ export interface Team {
   name: string
   color: string
   score: number
+  players: Player[]
 }
 
-export type GamePhase = 'setup' | 'round_intro' | 'play' | 'round_recap' | 'gameover'
+export type GamePhase =
+  | 'setup'
+  | 'round_intro'
+  | 'play'
+  | 'turn_transition'
+  | 'round_recap'
+  | 'gameover'

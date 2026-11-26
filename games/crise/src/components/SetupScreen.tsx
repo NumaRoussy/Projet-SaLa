@@ -53,16 +53,16 @@ export function SetupScreen({
         <div className="bg-[#121622] border-2 border-red-600/40 rounded-2xl p-4 space-y-3 shadow-lg shadow-red-950/40">
           <div className="flex items-center gap-2 text-xs font-mono font-bold text-red-400 uppercase tracking-wider">
             <span>📋</span>
-            <span>Règlement de l'Audit Jeunesse & Sport</span>
+            <span>Évaluation Swiss Olympic</span>
           </div>
           <ul className="text-xs text-gray-300 space-y-2 leading-relaxed">
             <li className="flex items-start gap-2">
               <span className="text-emerald-400 font-bold">0.0% :</span>
-              <span>Tous les chefs commencent conformes avec un dossier vierge.</span>
+              <span>Tous les responsables commencent conformes avec un dossier vierge.</span>
             </li>
             <li className="flex items-start gap-2">
               <span className="text-red-400 font-bold">10.0% :</span>
-              <span><strong>Seuil d'élimination immédiat.</strong> Le chef est exclu du campement avec mise sous scellés administrative.</span>
+              <span><strong>Seuil d'élimination immédiat.</strong> Le responsable est exclu du campement avec mise sous scellés administrative.</span>
             </li>
             <li className="flex items-start gap-2">
               <span className="text-amber-400 font-bold">⚠️ Malus :</span>
@@ -70,7 +70,7 @@ export function SetupScreen({
             </li>
             <li className="flex items-start gap-2">
               <span className="text-cyan-400 font-bold">🏆 Top 1 :</span>
-              <span>Le dernier chef survivant est sacré <strong>Responsable de Camp Inoxydable</strong>.</span>
+              <span>Le dernier responsable survivant est sacré <strong>Coach J+S</strong>.</span>
             </li>
           </ul>
         </div>
@@ -79,7 +79,7 @@ export function SetupScreen({
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <label className="text-xs font-mono font-bold tracking-wider text-red-400 uppercase">
-              Chefs Audités ({players.length})
+              Responsables évalués ({players.length})
             </label>
             <span className="text-[11px] text-gray-400">Min. 2 (idéalement 3-8)</span>
           </div>
@@ -89,7 +89,7 @@ export function SetupScreen({
               type="text"
               value={newName}
               onChange={e => setNewName(e.target.value)}
-              placeholder="Prénom ou Totem du chef..."
+              placeholder="Prénom ou Totem du responsable..."
               className="flex-1 bg-[#121624] border border-white/10 rounded-xl px-3.5 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-red-500"
             />
             <button
@@ -130,7 +130,7 @@ export function SetupScreen({
           disabled={!canStart}
           className="w-full py-4 bg-gradient-to-r from-red-600 via-rose-700 to-amber-600 disabled:opacity-50 text-white font-black text-base rounded-2xl shadow-xl shadow-red-950 hover:brightness-110 active:scale-98 transition-transform"
         >
-          {canStart ? 'OUVRIR LA CELLULE DE CRISE 🚨' : 'Ajoutez au moins 2 chefs pour lancer l\'audit'}
+          {canStart ? 'APPELER LA CELLULE DE CRISE 🚨' : 'Ajoutez au moins 2 responsables pour lancer l\'évaluation'}
         </button>
       </div>
     </div>

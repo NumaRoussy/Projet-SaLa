@@ -55,7 +55,7 @@ export function loadPlayers(): CrisisPlayer[] {
   if (Array.isArray(rawList) && rawList.length > 0) {
     return rawList.map((p, idx) => ({
       id: p.id || `p_${idx + 1}`,
-      name: typeof p === 'string' ? p : p.name || `Chef ${idx + 1}`,
+      name: typeof p === 'string' ? p : p.name || `Responsable ${idx + 1}`,
       avatar: p.avatar || ['👮', '🦺', '📋', '🚨', '🎒', '🔦', '📻', '🛠️'][idx % 8],
       lossPercent: 0.0,
       isEliminated: false,

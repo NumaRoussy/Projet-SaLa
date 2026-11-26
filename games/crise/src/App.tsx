@@ -11,14 +11,14 @@ import { VictoryModal } from './components/VictoryModal'
 import { useWakeLock } from './hooks/useWakeLock'
 
 const FALLBACK_CARDS: Card[] = [
-  { id: 1, game: 'crise', mode: 'crise', category: 'attaque', title: 'Bidon d\'eau sous les pneus', content: '{p1} place un bidon sous les pneus de la voiture de {p2}. La voiture s\'embourbe sur le terrain : la cible prend +2.0% et boit {sips} gorgées.', extra: 'Cible désignée', sips: 2, loss_percent: 2.0, min_players: 3 },
-  { id: 2, game: 'crise', mode: 'crise', category: 'attaque', title: 'Piment d\'intendance', content: 'Une marmite piégée par {p1} provoque une épidémie de dysenterie. {p2} doit désigner 2 acolytes qui mangent avec lui : ils prennent chacun +1.5% de perte.', extra: 'Attaque groupée', sips: 1, loss_percent: 1.5, min_players: 3 },
-  { id: 3, game: 'crise', mode: 'crise', category: 'dilemme', title: 'Visite surprise de l\'expert cantonal J+S', content: 'L\'inspecteur cantonal débarque à l\'improviste. La maîtrise vote le chef dont le classeur de camp est le pire. Le désigné prend +3.0% ou boit cul-sec pour masquer les preuves.', extra: 'Vote éliminatoire', sips: 3, loss_percent: 3.0, min_players: 3 },
-  { id: 4, game: 'crise', mode: 'crise', category: 'regle', title: 'Retrait du permis tronçonneuse / port de la hache', content: 'Le joueur {p1} est déclaré « Danger Public » par l\'expert J+S. Statut permanent : tout nouvel incident matériel lui infligera un malus additionnel de +0.5%.', extra: 'Malus permanent', sips: 1, loss_percent: 0.5, min_players: 2 },
-  { id: 5, game: 'crise', mode: 'crise', category: 'dilemme', title: 'Fiches sanitaires disparues', content: 'Le classeur des fiches médicales est tombé dans les feuillées. Deux chefs désignés doivent négocier : qui plonge pour le repêcher ? Le perdant prend +2.5%.', extra: 'Dilemme sanitaire', sips: 2, loss_percent: 2.5, min_players: 2 },
-  { id: 6, game: 'crise', mode: 'crise', category: 'attaque', title: 'Raid sans Boussole', content: '{p1} égare la carte 1:25\'000 de la patrouille de {p2}. La patrouille erre 4 heures dans le Jura : {p2} prend +2.5% de perte J+S.', extra: 'Attaque ciblée', sips: 2, loss_percent: 2.5, min_players: 2 },
-  { id: 7, game: 'crise', mode: 'crise', category: 'regle', title: 'Mise sous Tutelle Sanitaire', content: '{p1} perd son brevet de premier secours. Statut permanent « Bobologie douteuse » : chaque attaque subie lui coûte 1 gorgée supplémentaire.', extra: 'Malus permanent', sips: 2, loss_percent: 0.0, min_players: 2 },
-  { id: 8, game: 'crise', mode: 'crise', category: 'dilemme', title: 'Contrôle du Taux d\'Alcoolémie', content: 'L\'intendant sent la gentiane à 20 mètres. Votez pour désigner le chef le plus suspect. Il prend +2.0% de perte ou distribue {sips} gorgées pour acheter le silence.', extra: 'Dilemme d\'audit', sips: 2, loss_percent: 2.0, min_players: 3 },
+  { id: 1, game: 'crise', mode: 'crise', category: 'attaque', title: 'Bidon d\'eau sous les pneus', content: '{p1} place un jerrican d\'eau sous les pneus de la voiture de {p2}. Le véhicule s\'embourbe sur le terrain : la cible prend +1.0% et boit {sips} gorgées.', extra: 'Cible désignée', sips: 3, loss_percent: 1.0, min_players: 3 },
+  { id: 2, game: 'crise', mode: 'crise', category: 'attaque', title: 'Piment d\'intendance', content: 'Une marmite piégée par {p1} provoque une épidémie de dysenterie. {p2} doit désigner 2 acolytes qui mangent avec lui : ils prennent chacun +1.0% de perte et boivent {sips} gorgées.', extra: 'Attaque groupée', sips: 3, loss_percent: 1.0, min_players: 3 },
+  { id: 3, game: 'crise', mode: 'crise', category: 'dilemme', title: 'Visite surprise de l\'expert Swiss Olympic', content: 'L\'évaluateur débarque à l\'improviste. La maîtrise vote le responsable dont le classeur de camp est le pire. Le désigné prend +2.0% ou boit {sips} gorgées pour masquer les preuves.', extra: 'Vote éliminatoire', sips: 5, loss_percent: 2.0, min_players: 3 },
+  { id: 4, game: 'crise', mode: 'crise', category: 'regle', title: 'Retrait du permis tronçonneuse / hache', content: '{p1} est déclaré « Danger Public » lors de l\'évaluation. Statut permanent : tout nouvel incident matériel lui infligera un malus additionnel de +0.5% (et {sips} gorgées immédiates).', extra: 'Malus permanent', sips: 3, loss_percent: 0.5, min_players: 2 },
+  { id: 5, game: 'crise', mode: 'crise', category: 'dilemme', title: 'Fiches sanitaires disparues', content: 'Le classeur des fiches médicales est tombé dans les feuillées. Deux responsables désignés doivent négocier : qui plonge pour le repêcher ? Le perdant prend +1.5% et boit {sips} gorgées.', extra: 'Dilemme sanitaire', sips: 4, loss_percent: 1.5, min_players: 2 },
+  { id: 6, game: 'crise', mode: 'crise', category: 'attaque', title: 'Raid sans Boussole', content: '{p1} égare la carte 1:25\'000 de la patrouille de {p2}. La patrouille erre 4 heures sous la roille : {p2} prend +1.5% de perte J+S et boit {sips} gorgées.', extra: 'Attaque ciblée', sips: 3, loss_percent: 1.5, min_players: 2 },
+  { id: 7, game: 'crise', mode: 'crise', category: 'regle', title: 'Mise sous Tutelle Sanitaire', content: '{p1} perd son brevet de premier secours. Statut permanent « Bobologie douteuse » : chaque attaque subie lui coûte 2 gorgées supplémentaires (et {sips} gorgées maintenant).', extra: 'Malus permanent', sips: 3, loss_percent: 0.0, min_players: 2 },
+  { id: 8, game: 'crise', mode: 'crise', category: 'dilemme', title: 'Contrôle de la Malle de Maîtrise', content: 'Quelqu\'un a oublié de verrouiller la Malle avant le week-end de maîtrise à Froideville. Votez pour le responsable le plus suspect : il prend +1.5% ou distribue {sips} gorgées.', extra: 'Dilemme d\'audit', sips: 4, loss_percent: 1.5, min_players: 3 },
 ]
 
 export default function App() {
@@ -213,26 +213,19 @@ export default function App() {
             <div className="text-[10px] text-gray-400">Tour #{crisis.roundNumber}</div>
           </div>
         </div>
-
-        <button
-          onClick={() => setPhase('setup')}
-          className="text-xs text-gray-400 hover:text-white px-2.5 py-1 rounded-lg border border-white/10"
-        >
-          ⚙️ Config
-        </button>
       </header>
 
       {/* Permanent Leaderboard */}
       <Leaderboard
         players={crisis.players}
-        activeChefId={crisis.activeChef?.id}
+        activeResponsableId={crisis.activeResponsable?.id}
       />
 
       {/* Action Card */}
-      {currentCard && crisis.activeChef && (
+      {currentCard && crisis.activeResponsable && (
         <ActionCard
           card={currentCard}
-          activeChef={crisis.activeChef}
+          activeResponsable={crisis.activeResponsable}
           survivors={crisis.survivors}
           roundNumber={crisis.roundNumber}
           onExecute={handleExecuteAction}

@@ -18,7 +18,7 @@ export function EliminationModal({ player, onDismiss }: Props) {
         {/* Header */}
         <div>
           <span className="text-[10px] font-mono font-bold tracking-widest text-red-400 uppercase bg-red-950/60 border border-red-700/50 px-2.5 py-1 rounded-full">
-            AUDIT JEUNESSE & SPORT — EXCLUSION OFFICIELLE
+            Évaluation Swiss Olympic — Exclusion officielle
           </span>
           <h2 className="font-display font-black text-2xl text-white mt-2">
             {player.avatar || '👮'} {player.name}
@@ -29,11 +29,10 @@ export function EliminationModal({ player, onDismiss }: Props) {
         </div>
 
         {/* Motif d'exclusion officiel */}
-        <div className="bg-black/50 border border-red-500/30 rounded-xl p-3 text-xs text-red-200 leading-relaxed font-sans text-left">
-          <div className="font-mono text-[10px] text-red-400 font-bold uppercase mb-1">
-            Motif de révocation immédiate :
+        <div className="bg-black/50 border border-red-500/30 rounded-xl p-3 text-xs text-red-200 leading-relaxed font-sans text-center">
+          <div className="font-bold text-sm text-red-100">
+            {player.eliminationReason || 'Retrait immédiat de la licence J+S'}
           </div>
-          « {player.eliminationReason || 'Non-respect des directives et perte de maîtrise du campement.'} »
         </div>
 
         {/* Tampon administratif "MIS SOUS SCELLÉS" */}
@@ -47,7 +46,7 @@ export function EliminationModal({ player, onDismiss }: Props) {
 
         {/* Instructions */}
         <p className="text-[11px] text-gray-400">
-          Ce chef est officiellement démis de ses fonctions. Il doit ranger son classeur et peut continuer d'observer les survivants.
+          Prends ton sac de couchage, ta chaise de camping et ta gamelle, et rentre chez toi !
         </p>
 
         {/* Bouton de confirmation */}

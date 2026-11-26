@@ -5,11 +5,7 @@ import { playSiren, playStamp, playVictory, playPing } from '../services/audio'
 export const ELIMINATION_THRESHOLD = 10.0
 
 const ELIMINATION_REASONS = [
-  'Embarqué au poste cantonal pour non-respect des directives J+S.',
-  'Dossier de camp rejeté sans appel par l\'expert Jeunesse et Sport.',
-  'Révocation immédiate du brevet de responsable de camp.',
-  'Mise sous scellés administrative de la tente de maîtrise.',
-  'Audit sanitaire catastrophique : fermeture immédiate du campement.',
+  'Retrait immédiat de la licence J+S',
 ]
 
 export function useCrisisStore(initialPlayers: CrisisPlayer[]) {
@@ -23,7 +19,7 @@ export function useCrisisStore(initialPlayers: CrisisPlayer[]) {
     }))
   })
 
-  const [activeChefIndex, setActiveChefIndex] = useState(0)
+  const [activeResponsableIndex, setActiveResponsableIndex] = useState(0)
   const [roundNumber, setRoundNumber] = useState(1)
   const [recentlyEliminated, setRecentlyEliminated] = useState<CrisisPlayer | null>(null)
   const [isGameOver, setIsGameOver] = useState(false)
@@ -34,10 +30,10 @@ export function useCrisisStore(initialPlayers: CrisisPlayer[]) {
     return players.filter(p => !p.isEliminated)
   }, [players])
 
-  const activeChef = useMemo(() => {
+  const activeResponsable = useMemo(() => {
     if (survivors.length === 0) return null
-    return survivors[activeChefIndex % survivors.length]
-  }, [survivors, activeChefIndex])
+    return survivors[activeResponsableIndex % survivors.length]
+  }, [survivors, activeResponsableIndex])
 
   // Check if player has permanent debuff
   const hasDebuff = useCallback((playerId: string, debuffSubstr: string) => {
@@ -138,7 +134,7 @@ export function useCrisisStore(initialPlayers: CrisisPlayer[]) {
 
   // Advance to next turn
   const nextTurn = useCallback(() => {
-    setActiveChefIndex(prev => prev + 1)
+    setActiveResponsableIndex(prev => prev + 1)
     setRoundNumber(r => r + 1)
   }, [])
 
@@ -154,7 +150,7 @@ export function useCrisisStore(initialPlayers: CrisisPlayer[]) {
         sipsDrunk: 0,
       }))
     )
-    setActiveChefIndex(0)
+    setActiveResponsableIndex(0)
     setRoundNumber(1)
     setRecentlyEliminated(null)
     setIsGameOver(false)
@@ -164,7 +160,7 @@ export function useCrisisStore(initialPlayers: CrisisPlayer[]) {
   return {
     players,
     survivors,
-    activeChef,
+    activeResponsable,
     roundNumber,
     recentlyEliminated,
     isGameOver,

@@ -3,10 +3,10 @@ import { ELIMINATION_THRESHOLD } from '../hooks/useCrisisStore'
 
 interface Props {
   players: CrisisPlayer[]
-  activeChefId?: string
+  activeResponsableId?: string
 }
 
-export function Leaderboard({ players, activeChefId }: Props) {
+export function Leaderboard({ players, activeResponsableId }: Props) {
   // Tri : Survivants d'abord (du plus bas au plus haut % de perte), puis éliminés
   const sorted = [...players].sort((a, b) => {
     if (a.isEliminated && !b.isEliminated) return 1
@@ -73,7 +73,7 @@ export function Leaderboard({ players, activeChefId }: Props) {
       {/* Mini Bar Leaderboard */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
         {sorted.map(p => {
-          const isActive = p.id === activeChefId
+          const isActive = p.id === activeResponsableId
           const pctWidth = Math.min(100, (p.lossPercent / ELIMINATION_THRESHOLD) * 100)
 
           return (
