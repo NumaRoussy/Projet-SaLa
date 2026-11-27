@@ -6,7 +6,7 @@ SHELL := /bin/bash
 PYTHON := python3
 NODE_PATH := $(HOME)/.local/node/bin:$(PATH)
 
-.PHONY: help dev-wifi dev-backend dev-hub dev-games build-all up down logs restart \
+.PHONY: help dev-wifi dev-backend dev-hub dev-games dev-cards build-all up down logs restart \
         import-cards ag-create ag-close blackout-on blackout-off blackout-dates \
         blackout-status reports prune test
 
@@ -36,6 +36,9 @@ dev-hub: ## Lance le serveur dev Vite du Hub (port 5173)
 
 dev-games: ## Lance les 6 jeux locaux en arrière-plan (ports 3001 à 3006)
 	./scripts/start_games.sh
+
+dev-cards: ## Lance l'outil collaboratif dev.scoutgame.ch en local (port 3007)
+	export PATH="$(NODE_PATH)" && cd dev-cards && npm run dev -- --host 0.0.0.0 --port 3007
 
 build-all: ## Compile les 7 applications Frontend (Hub + 6 jeux) avec npm run build
 	@export PATH="$(NODE_PATH)" && \

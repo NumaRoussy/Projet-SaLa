@@ -211,21 +211,18 @@ export function CameraQRScanner({
           </>
         ) : (
           <div className="p-4 text-center space-y-3 flex flex-col items-center justify-center h-full">
-            <div className="w-16 h-16 rounded-full bg-[#162920] border border-[#2d6a4f] flex items-center justify-center text-3xl">
-              📷
-            </div>
-            <p className="text-xs text-gray-300 font-medium px-2">
+            <p className="text-xs text-slate-300 font-medium px-2">
               {isAnalyzingPhoto
-                ? '🔍 Analyse de la photo en cours…'
+                ? 'Analyse de la photo en cours…'
                 : 'Appareil photo prêt pour scan'}
             </p>
             {isSupportedMedia && (
               <button
                 type="button"
                 onClick={startLiveCamera}
-                className="btn-ghost py-1 px-3 text-xs border border-[#2d6a4f] text-scout-amber"
+                className="btn-ghost py-1 px-3 text-xs border border-[#2e323c] text-[#f3f4f6]"
               >
-                🔄 Relancer le flux direct
+                Relancer le flux direct
               </button>
             )}
           </div>
@@ -234,8 +231,8 @@ export function CameraQRScanner({
         {/* Overlay d'analyse de photo */}
         {isAnalyzingPhoto && (
           <div className="absolute inset-0 bg-black/85 flex flex-col items-center justify-center gap-2 p-4 text-center z-20">
-            <div className="w-8 h-8 border-2 border-scout-amber border-t-transparent rounded-full animate-spin" />
-            <span className="text-xs font-semibold text-white">
+            <div className="w-8 h-8 border-2 border-[#b5892e] border-t-transparent rounded-full animate-spin" />
+            <span className="text-xs font-semibold text-[#f3f4f6]">
               Décodage du QR code…
             </span>
           </div>
@@ -244,9 +241,9 @@ export function CameraQRScanner({
 
       {/* Titres & Instructions */}
       <div className="text-center space-y-1">
-        {title && <h3 className="text-sm font-bold text-white">{title}</h3>}
+        {title && <h3 className="text-sm font-bold text-[#f3f4f6]">{title}</h3>}
         {subtitle && (
-          <p className="text-[11px] text-gray-400 max-w-xs mx-auto leading-relaxed">
+          <p className="text-[11px] text-slate-400 max-w-xs mx-auto leading-relaxed">
             {subtitle}
           </p>
         )}
@@ -254,25 +251,23 @@ export function CameraQRScanner({
 
       {/* Message d'erreur / Info HTTP si flux bloqué */}
       {errorMessage && (
-        <div className="p-3 rounded-xl bg-amber-950/40 border border-amber-500/30 text-amber-200 text-xs space-y-1.5 leading-relaxed text-left">
-          <div className="flex items-center gap-1.5 font-bold text-amber-400">
-            <span>ℹ️</span>
-            <span>Accès Caméra & Wi-Fi local</span>
+        <div className="p-3 rounded-xl bg-[#16181d] border border-[#b5892e] text-amber-200 text-xs space-y-1.5 leading-relaxed text-left">
+          <div className="font-bold text-[#e5be6d]">
+            Accès Caméra &amp; Wi-Fi local
           </div>
-          <p className="text-[11px] text-gray-300 leading-normal">
+          <p className="text-[11px] text-slate-300 leading-normal">
             {errorMessage}
           </p>
         </div>
       )}
 
-      {/* Bouton d'action principal : Toujours disponible (y compris en fallback HTTP) */}
+      {/* Bouton d'action principal */}
       <div className="space-y-2 pt-1">
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
-          className="btn-primary w-full py-2.5 px-4 text-xs font-bold flex items-center justify-center gap-2"
+          className="btn-primary w-full py-2.5 px-4 text-xs font-semibold flex items-center justify-center gap-2"
         >
-          <span>📸</span>
           <span>
             {streamActive
               ? 'Prendre une photo si le scan hésite'

@@ -7,7 +7,6 @@ interface Props {
 }
 
 export function Leaderboard({ players, activeResponsableId }: Props) {
-  // Tri : Survivants d'abord (du plus bas au plus haut % de perte), puis éliminés
   const sorted = [...players].sort((a, b) => {
     if (a.isEliminated && !b.isEliminated) return 1
     if (!a.isEliminated && b.isEliminated) return -1
@@ -16,62 +15,29 @@ export function Leaderboard({ players, activeResponsableId }: Props) {
 
   const getBarColor = (p: CrisisPlayer) => {
     if (p.isEliminated || p.lossPercent >= ELIMINATION_THRESHOLD) {
-      return 'bg-gray-700'
+      return '#4b5563'
     }
     if (p.lossPercent >= 9.0) {
-      return 'bg-red-500'
+      return '#9b2c37'
     }
     if (p.lossPercent >= 5.0) {
-      return 'bg-amber-500'
+      return '#b5892e'
     }
-    return 'bg-emerald-500'
-  }
-
-  const getZoneBadge = (p: CrisisPlayer) => {
-    if (p.isEliminated) {
-      return (
-        <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-gray-800 text-gray-400 border border-gray-700 line-through">
-          ÉLIMINÉ (10%)
-        </span>
-      )
-    }
-    if (p.lossPercent >= 9.0) {
-      return (
-        <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-red-950/80 text-red-300 border border-red-500/60">
-          CRITIQUE
-        </span>
-      )
-    }
-    if (p.lossPercent >= 5.0) {
-      return (
-        <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-amber-950/60 text-amber-300 border border-amber-600/40">
-          ALERTE
-        </span>
-      )
-    }
-    return (
-      <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-emerald-950/60 text-emerald-300 border border-emerald-600/40">
-        CONFORME
-      </span>
-    )
+    return '#2e6f56'
   }
 
   return (
-    <div className="bg-[#0f1118] border-b border-white/10 px-3 py-2.5">
-      <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center gap-1.5">
-          <span className="text-xs">🚨</span>
-          <span className="text-[11px] font-mono font-bold tracking-wider text-gray-300 uppercase">
-            Surveillance J+S — Seuil Éliminatoire 10.0%
-          </span>
-        </div>
-        <span className="text-[10px] text-gray-500 font-mono">
+    <div className="bg-[#1f2229] border-b border-[#2e323c] px-3 py-2">
+      <div className="flex items-center justify-between gap-2 mb-1.5">
+        <span className="text-[11px] font-mono font-bold tracking-wide text-slate-300">
+          Taux de perte J+S (seuil éliminatoire : 10 %)
+        </span>
+        <span className="text-[10px] text-slate-400 font-mono shrink-0">
           {players.filter(p => !p.isEliminated).length}/{players.length} en poste
         </span>
       </div>
 
-      {/* Mini Bar Leaderboard */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+      <div className="grid grid-cols-2 gap-1.5">
         {sorted.map(p => {
           const isActive = p.id === activeResponsableId
           const pctWidth = Math.min(100, (p.lossPercent / ELIMINATION_THRESHOLD) * 100)
@@ -79,68 +45,57 @@ export function Leaderboard({ players, activeResponsableId }: Props) {
           return (
             <div
               key={p.id}
-              className={`p-2 rounded-xl border transition-colors ${
+              className={`py-1.5 px-2.5 rounded-lg border transition-colors bg-[#16181d] ${
                 p.isEliminated
-                  ? 'bg-[#0d1016] border-[#222733] opacity-60'
+                  ? 'border-[#2e323c] opacity-55'
                   : isActive
-                  ? 'bg-[#2b171b] border-[#8c2d38]'
-                  : 'bg-[#161922] border-[#2a2f3d]'
+                  ? 'border-[#9b2c37]'
+                  : 'border-[#2e323c]'
               }`}
             >
-              <div className="flex items-center justify-between text-xs mb-1">
-                <div className="flex items-center gap-1.5 min-w-0">
-                  <span className="text-sm">{p.avatar || '👮'}</span>
+              <div className="flex items-center justify-between gap-1 text-xs mb-1">
+                <div className="flex items-center gap-1 min-w-0">
+                  {isActive && !p.isEliminated && (
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#9b2c37] shrink-0" />
+                  )}
                   <span
                     className={`font-display font-bold truncate ${
-                      p.isEliminated ? 'text-gray-500 line-through' : isActive ? 'text-white font-black' : 'text-gray-200'
+                      p.isEliminated ? 'text-slate-500 line-through' : isActive ? 'text-[#f3f4f6]' : 'text-slate-200'
                     }`}
                   >
                     {p.name}
                   </span>
-                  {isActive && !p.isEliminated && (
-                    <span className="w-1.5 h-1.5 rounded-full bg-red-400 inline-block" />
+                  {p.activeDebuffs.length > 0 && !p.isEliminated && (
+                    <span
+                      title={p.activeDebuffs.join(', ')}
+                      className="text-[9px] px-1 rounded bg-[#1f2229] text-[#e88c95] border border-[#9b2c37] font-mono shrink-0"
+                    >
+                      !{p.activeDebuffs.length > 1 ? p.activeDebuffs.length : ''}
+                    </span>
                   )}
                 </div>
 
-                <div className="flex items-center gap-1.5 shrink-0">
-                  {getZoneBadge(p)}
-                  <span
-                    className={`font-mono font-bold text-xs ${
-                      p.isEliminated
-                        ? 'text-gray-500'
-                        : p.lossPercent >= 9.0
-                        ? 'text-red-400'
-                        : p.lossPercent >= 5.0
-                        ? 'text-amber-400'
-                        : 'text-emerald-400'
-                    }`}
-                  >
-                    {p.lossPercent.toFixed(1)}%
-                  </span>
-                </div>
+                <span
+                  className={`font-mono font-bold text-[11px] shrink-0 ${
+                    p.isEliminated
+                      ? 'text-slate-500'
+                      : p.lossPercent >= 9.0
+                      ? 'text-[#e88c95]'
+                      : p.lossPercent >= 5.0
+                      ? 'text-[#e5be6d]'
+                      : 'text-emerald-300'
+                  }`}
+                >
+                  {p.lossPercent.toFixed(1)} %
+                </span>
               </div>
 
-              {/* Progress Bar */}
-              <div className="w-full h-1.5 bg-black/60 rounded-full overflow-hidden border border-white/5">
+              <div className="w-full h-1.5 bg-[#1f2229] rounded-full overflow-hidden border border-[#2e323c]">
                 <div
-                  className={`h-full transition-all duration-500 ${getBarColor(p)}`}
-                  style={{ width: `${pctWidth}%` }}
+                  className="h-full transition-all duration-500"
+                  style={{ width: `${pctWidth}%`, backgroundColor: getBarColor(p) }}
                 />
               </div>
-
-              {/* Badges de Malus Permanents */}
-              {p.activeDebuffs.length > 0 && !p.isEliminated && (
-                <div className="flex flex-wrap gap-1 mt-1.5">
-                  {p.activeDebuffs.map((d, i) => (
-                    <span
-                      key={i}
-                      className="text-[9px] px-1.5 py-0.2 rounded bg-red-950/80 text-red-300 border border-red-700/40 font-mono"
-                    >
-                      ⚠️ {d}
-                    </span>
-                  ))}
-                </div>
-              )}
             </div>
           )
         })}

@@ -39,7 +39,7 @@ const FALLBACK_CARDS: Card[] = [
     category: 'dossiers',
     title: 'Falsification de grille 3x3',
     content:
-      "{p1}, raconte la fois où tu as rempli une analyse de risques 3x3 ou une fiche J+S à l'arrache dans la voiture sur le trajet du camp — ou carrément après l'activité.",
+      "{p1}, raconte la fois où tu as rempli une analyse de risques 3x3 ou une fiche J+S à l'arrache dans la voiture sur le trajet du camp, ou carrément après l'activité.",
     extra: 'Avoue le dossier ou bois {sips} gorgées.',
     sips: 3,
     min_players: 2,
@@ -118,7 +118,7 @@ const FALLBACK_CARDS: Card[] = [
   },
 ]
 
-function shuffleArray<T>(arr: T[]): T[] {
+function shuffleArray<T>(arr: readonly T[]): T[] {
   const copy = [...arr]
   for (let i = copy.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1))
@@ -133,6 +133,78 @@ function normalizeCardCategory(card: Card): DebriefMode {
     return 'prefere'
   }
   return 'dossiers'
+}
+
+function readHistory(key: string): string[] {
+  try {
+    const raw = localStorage.getItem(key)
+    return raw ? (JSON.parse(raw) as string[]) : []
+  } catch {
+    return []
+  }
+}
+
+function writeHistory(key: string, items: string[]): void {
+  try {
+    localStorage.setItem(key, JSON.stringify(items))
+  } catch {
+    // Ignore storage quota errors
+  }
+}
+
+function getCardKey(card: Card): string {
+  return (card.content || card.title || String(card.id)).trim().toLowerCase()
+}
+
+function buildOrderedDeck(pool: Card[], modes: DebriefMode[]): Card[] {
+  const uniqueMap = new Map<string, Card>()
+  for (const c of pool) {
+    const cat = normalizeCardCategory(c)
+    if (!modes.includes(cat)) continue
+    const k = getCardKey(c)
+    if (!uniqueMap.has(k)) uniqueMap.set(k, c)
+  }
+
+  const allSelected = Array.from(uniqueMap.values())
+  const unseen: Card[] = []
+  const byCatHistory: Record<DebriefMode, Set<string>> = {
+    dossiers: new Set(readHistory('scoutgame_history_debrief_dossiers')),
+    jamais: new Set(readHistory('scoutgame_history_debrief_jamais')),
+    prefere: new Set(readHistory('scoutgame_history_debrief_prefere')),
+  }
+
+  for (const c of allSelected) {
+    const cat = normalizeCardCategory(c)
+    if (!byCatHistory[cat].has(getCardKey(c))) {
+      unseen.push(c)
+    }
+  }
+
+  if (unseen.length > 0) {
+    return shuffleArray(unseen)
+  }
+
+  // Tout est épuisé pour ces modes : réinitialise en gardant la dernière carte de chaque mode sélectionné
+  const resetKeepKeys = new Set<string>()
+  for (const m of modes) {
+    const key = `scoutgame_history_debrief_${m}`
+    const h = readHistory(key)
+    const last = h.length > 0 ? [h[h.length - 1]] : []
+    writeHistory(key, last)
+    if (last[0]) resetKeepKeys.add(last[0])
+  }
+
+  const fresh = allSelected.filter(c => !resetKeepKeys.has(getCardKey(c)))
+  return shuffleArray(fresh.length > 0 ? fresh : allSelected)
+}
+
+function markCardSeen(card: Card | undefined): void {
+  if (!card) return
+  const cat = normalizeCardCategory(card)
+  const storageKey = `scoutgame_history_debrief_${cat}`
+  const key = getCardKey(card)
+  const prev = readHistory(storageKey)
+  writeHistory(storageKey, [...prev.filter(k => k !== key), key])
 }
 
 function parsePrefereOptions(extra?: string | null): { optionA: string; optionB: string } | null {
@@ -157,7 +229,7 @@ function renderCardContent(text: string, p1Name: string | null, p2Name: string |
       return (
         <span
           key={idx}
-          className="inline-block px-2 py-0.5 mx-0.5 rounded-lg bg-amber-950/70 text-amber-200 border border-amber-600/50 font-bold not-italic"
+          className="inline-block px-2 py-0.5 mx-0.5 rounded-lg bg-[#16181d] text-[#e5be6d] border border-[#b5892e] font-bold not-italic"
         >
           {p1Name || 'Un responsable'}
         </span>
@@ -167,7 +239,7 @@ function renderCardContent(text: string, p1Name: string | null, p2Name: string |
       return (
         <span
           key={idx}
-          className="inline-block px-2 py-0.5 mx-0.5 rounded-lg bg-orange-950/70 text-orange-200 border border-orange-600/50 font-bold not-italic"
+          className="inline-block px-2 py-0.5 mx-0.5 rounded-lg bg-[#16181d] text-[#f3f4f6] border border-[#2e323c] font-bold not-italic"
         >
           {p2Name || 'un autre responsable'}
         </span>
@@ -191,8 +263,11 @@ export default function App() {
 
   const [players, setPlayers] = useState<Player[]>(() => loadPlayers())
   const [targetPlayer, setTargetPlayer] = useState<string | null>(null)
+  const [secondaryPlayer, setSecondaryPlayer] = useState<string | null>(null)
   const [showFeedbackModal, setShowFeedbackModal] = useState(false)
 
+  const playerQueueRef = useRef<string[]>([])
+  const lastPickedRef = useRef<string | null>(null)
   const startTimeRef = useRef<number>(Date.now())
   const hubUrl = getHubUrl()
 
@@ -244,13 +319,31 @@ export default function App() {
     }
   }, [])
 
-  const pickRandomPlayerName = (excludeName?: string | null): string | null => {
+  const pickNextPlayerName = (excludeName?: string | null): string | null => {
     if (players.length === 0) return null
-    const pool =
-      excludeName && players.length > 1
-        ? players.filter(p => p.name !== excludeName)
-        : players
-    return pool[Math.floor(Math.random() * pool.length)].name
+    const validNames = new Set(players.map(p => p.name))
+    let queue = playerQueueRef.current.filter(name => validNames.has(name))
+
+    if (queue.length === 0) {
+      queue = shuffleArray(players.map(p => p.name))
+      if (queue.length > 1 && queue[0] === lastPickedRef.current) {
+        const swapIdx = 1 + Math.floor(Math.random() * (queue.length - 1))
+        ;[queue[0], queue[swapIdx]] = [queue[swapIdx], queue[0]]
+      }
+    }
+
+    let idx = excludeName ? queue.findIndex(n => n !== excludeName) : 0
+    if (idx === -1) {
+      queue = shuffleArray(players.map(p => p.name))
+      idx = excludeName ? queue.findIndex(n => n !== excludeName) : 0
+      if (idx === -1) idx = 0
+    }
+
+    const picked = queue[idx]
+    queue.splice(idx, 1)
+    playerQueueRef.current = queue
+    lastPickedRef.current = picked
+    return picked
   }
 
   const toggleMode = (mode: DebriefMode) => {
@@ -260,13 +353,11 @@ export default function App() {
   }
 
   const handleAddPlayer = (name: string) => {
-    const avatars = ['⛺', '🪵', '🔥', '🪓', '🐺', '🦊', '🦅', '🐻']
     const updated: Player[] = [
       ...players,
       {
-        id: 'p_' + Date.now(),
+        id: 'p_' + Date.now() + Math.random().toString(36).slice(2, 5),
         name,
-        avatar: avatars[players.length % avatars.length],
         sipsCount: 0,
       },
     ]
@@ -285,20 +376,32 @@ export default function App() {
     savePlayers([])
   }
 
-  const handleStartGame = () => {
-    if (selectedModes.length === 0 || players.length < 2) return
-    const source = allCards.length > 0 ? allCards : FALLBACK_CARDS
-    const filtered = source.filter(c => selectedModes.includes(normalizeCardCategory(c)))
-    const deck = shuffleArray(filtered.length > 0 ? filtered : source)
-    const firstCard = deck[0]
-
-    setGameDeck(deck)
-    setCurrentIndex(0)
-    if (firstCard && normalizeCardCategory(firstCard) === 'dossiers') {
-      setTargetPlayer(pickRandomPlayerName())
+  const assignTargetsForCard = (card: Card | undefined) => {
+    if (card && normalizeCardCategory(card) === 'dossiers') {
+      const p1 = pickNextPlayerName()
+      const p2 = players.length >= 2 ? pickNextPlayerName(p1) : null
+      setTargetPlayer(p1)
+      setSecondaryPlayer(p2)
     } else {
       setTargetPlayer(null)
+      setSecondaryPlayer(null)
     }
+  }
+
+  const handleStartGame = () => {
+    if (selectedModes.length === 0 || players.length < 2) return
+    playerQueueRef.current = []
+    lastPickedRef.current = null
+
+    const source = allCards.length > 0 ? allCards : FALLBACK_CARDS
+    const deck = buildOrderedDeck(source, selectedModes)
+    const fallbackDeck = deck.length > 0 ? deck : shuffleArray(source)
+    const firstCard = fallbackDeck[0]
+
+    setGameDeck(fallbackDeck)
+    setCurrentIndex(0)
+    markCardSeen(firstCard)
+    assignTargetsForCard(firstCard)
     setPhase('playing')
   }
 
@@ -306,12 +409,6 @@ export default function App() {
   const currentCategory: DebriefMode = currentCard
     ? normalizeCardCategory(currentCard)
     : selectedModes[0] || 'dossiers'
-
-  const secondaryPlayer = useMemo(() => {
-    if (players.length < 2) return null
-    const others = players.filter(p => p.name !== targetPlayer)
-    return others[0]?.name || null
-  }, [players, targetPlayer])
 
   const prefereOptions = useMemo(() => {
     if (!currentCard || currentCategory !== 'prefere') return null
@@ -324,26 +421,23 @@ export default function App() {
     let nextIdx = currentIndex + 1
 
     if (nextIdx >= gameDeck.length) {
-      nextDeck = shuffleArray(gameDeck)
+      const source = allCards.length > 0 ? allCards : FALLBACK_CARDS
+      nextDeck = buildOrderedDeck(source, selectedModes)
       setGameDeck(nextDeck)
       nextIdx = 0
     }
 
     setCurrentIndex(nextIdx)
-
     const nextCard = nextDeck[nextIdx]
-    if (nextCard && normalizeCardCategory(nextCard) === 'dossiers') {
-      setTargetPlayer(pickRandomPlayerName(targetPlayer))
-    } else {
-      setTargetPlayer(null)
-    }
+    markCardSeen(nextCard)
+    assignTargetsForCard(nextCard)
   }
 
   if (isVerifying) {
     return (
-      <div className="min-h-screen bg-[#0e0a0c] flex items-center justify-center text-amber-500">
+      <div className="min-h-screen bg-[#16181d] flex items-center justify-center text-[#e5be6d]">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 border-2 border-amber-500/30 border-t-amber-400 rounded-full animate-spin" />
+          <div className="w-8 h-8 border-2 border-[#2e323c] border-t-[#b5892e] rounded-full animate-spin" />
           <span className="text-sm font-semibold">Accès au Débrief de veillée...</span>
         </div>
       </div>
@@ -359,17 +453,17 @@ export default function App() {
   const categoryBadge =
     currentCategory === 'dossiers'
       ? {
-          label: '📁 Dossier de camp',
-          className: 'bg-purple-950/70 text-purple-200 border-purple-600/40',
+          label: 'Dossier de camp',
+          className: 'bg-[#16181d] text-[#e5be6d] border-[#b5892e]',
         }
       : currentCategory === 'jamais'
       ? {
-          label: "🙈 Je n'ai jamais",
-          className: 'bg-amber-950/70 text-amber-200 border-amber-600/40',
+          label: "Je n'ai jamais",
+          className: 'bg-[#16181d] text-[#e5be6d] border-[#b5892e]',
         }
       : {
-          label: '⚖️ Tu préfères',
-          className: 'bg-rose-950/70 text-rose-200 border-rose-600/40',
+          label: 'Tu préfères',
+          className: 'bg-[#16181d] text-[#e5be6d] border-[#b5892e]',
         }
 
   const initialProposeCategory: DebriefMode =
@@ -378,26 +472,26 @@ export default function App() {
       : selectedModes[0] || 'dossiers'
 
   return (
-    <div className="app-container bg-[#0e0a0c] text-gray-100">
-      {/* ── En-tête uniforme (sans ⚙️ Modes & Joueurs) ───────────────────── */}
-      <header className="sticky top-0 z-30 bg-[#140e11] border-b border-[#302429] px-4 py-3">
+    <div className="app-container bg-[#16181d] text-[#f3f4f6]">
+      {/* ── En-tête uniforme ──────────────────────────────────────────────── */}
+      <header className="sticky top-0 z-30 bg-[#1f2229] border-b border-[#b5892e] px-4 py-3">
         <div className="max-w-lg mx-auto grid grid-cols-3 items-center gap-2">
           <div className="justify-self-start">
             <a
               href={hubUrl}
-              className="inline-flex items-center px-2.5 py-1.5 rounded-lg border border-[#302429] bg-[#181215] hover:bg-[#231a1e] text-gray-200 text-xs font-semibold transition-colors"
+              className="inline-flex items-center px-2.5 py-1.5 rounded-lg border border-[#2e323c] bg-[#16181d] hover:bg-[#262a33] text-[#f3f4f6] text-xs font-semibold transition-colors"
             >
               ← Menu
             </a>
           </div>
-          <h1 className="justify-self-center font-display font-bold text-base text-white truncate">
+          <h1 className="justify-self-center font-display font-bold text-base text-[#f3f4f6] truncate">
             Débrief
           </h1>
           <div className="justify-self-end">
             <button
               type="button"
               onClick={() => setShowFeedbackModal(true)}
-              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-amber-500/40 bg-amber-950/50 hover:bg-amber-900/60 text-amber-200 text-xs font-semibold transition-colors"
+              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-[#b5892e] bg-[#1f2229] hover:bg-[#262a33] text-[#f3f4f6] text-xs font-semibold transition-colors"
             >
               <span>💡</span>
               <span>Proposer</span>
@@ -418,36 +512,36 @@ export default function App() {
         />
       ) : (
         <main className="flex-1 flex flex-col justify-between p-4 max-w-lg mx-auto w-full py-5 gap-4">
-          <div className="flex items-center justify-between text-xs text-gray-400 font-mono">
+          <div className="flex items-center justify-between text-xs text-slate-400 font-mono">
             <span>
               Carte {(currentIndex % (gameDeck.length || 1)) + 1} / {gameDeck.length}
             </span>
             <button
               type="button"
               onClick={() => setPhase('setup')}
-              className="text-amber-400 hover:underline font-sans font-semibold"
+              className="text-[#e5be6d] hover:underline font-sans font-semibold"
             >
               Changer les modes
             </button>
           </div>
 
           {currentCard && (
-            <div className="bg-[#181215] border border-[#302429] rounded-2xl p-6 sm:p-7 text-center space-y-5 my-auto">
+            <div className="bg-[#1f2229] border border-[#b5892e] rounded-2xl p-6 sm:p-7 text-center space-y-5 my-auto">
               <div className="flex justify-center">
                 <span
-                  className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-bold border ${categoryBadge.className}`}
+                  className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-mono font-bold border ${categoryBadge.className}`}
                 >
                   {categoryBadge.label}
                 </span>
               </div>
 
               {currentCard.title && currentCard.title !== "Je n'ai jamais" && (
-                <h2 className="font-display font-black text-xl sm:text-2xl text-amber-100 tracking-wide">
+                <h2 className="font-display font-black text-xl sm:text-2xl text-[#f3f4f6] tracking-wide">
                   {currentCard.title}
                 </h2>
               )}
 
-              <p className="font-display text-lg sm:text-xl text-gray-100 font-medium leading-relaxed italic">
+              <p className="font-display text-lg sm:text-xl text-[#f3f4f6] font-medium leading-relaxed italic">
                 «{' '}
                 {currentCategory === 'dossiers'
                   ? renderCardContent(currentCard.content, targetPlayer, secondaryPlayer)
@@ -457,19 +551,19 @@ export default function App() {
 
               {currentCategory === 'prefere' && prefereOptions && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-left pt-1">
-                  <div className="p-3 rounded-xl bg-emerald-950/40 border border-emerald-700/40 space-y-1">
-                    <div className="text-[11px] font-mono font-bold text-emerald-300 uppercase">
+                  <div className="p-3 rounded-xl bg-[#16181d] border border-[#2e323c] space-y-1">
+                    <div className="text-[11px] font-mono font-bold text-[#e5be6d] uppercase">
                       Option A
                     </div>
-                    <div className="text-sm font-semibold text-white leading-snug">
+                    <div className="text-sm font-semibold text-[#f3f4f6] leading-snug">
                       {prefereOptions.optionA}
                     </div>
                   </div>
-                  <div className="p-3 rounded-xl bg-sky-950/40 border border-sky-700/40 space-y-1">
-                    <div className="text-[11px] font-mono font-bold text-sky-300 uppercase">
+                  <div className="p-3 rounded-xl bg-[#16181d] border border-[#2e323c] space-y-1">
+                    <div className="text-[11px] font-mono font-bold text-[#e5be6d] uppercase">
                       Option B
                     </div>
-                    <div className="text-sm font-semibold text-white leading-snug">
+                    <div className="text-sm font-semibold text-[#f3f4f6] leading-snug">
                       {prefereOptions.optionB}
                     </div>
                   </div>
@@ -477,16 +571,13 @@ export default function App() {
               )}
 
               <div className="pt-2 flex justify-center">
-                <div className="inline-flex items-center gap-2 bg-amber-950/60 border border-amber-600/40 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-amber-200">
-                  <span>🍺</span>
-                  <span>
-                    {currentCategory === 'dossiers' &&
-                      `Avoue le dossier ou bois ${sipsText}.`}
-                    {currentCategory === 'jamais' &&
-                      `Si tu as déjà, tu bois ${sipsText}.`}
-                    {currentCategory === 'prefere' &&
-                      `Votez en même temps : la minorité boit ${sipsText} !`}
-                  </span>
+                <div className="inline-flex items-center bg-[#16181d] border border-[#b5892e] px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-[#e5be6d]">
+                  {currentCategory === 'dossiers' &&
+                    `Avoue le dossier ou bois ${sipsText}.`}
+                  {currentCategory === 'jamais' &&
+                    `Si tu as déjà, tu bois ${sipsText}.`}
+                  {currentCategory === 'prefere' &&
+                    `Votez en même temps : la minorité boit ${sipsText} !`}
                 </div>
               </div>
             </div>
@@ -496,7 +587,7 @@ export default function App() {
             <button
               type="button"
               onClick={drawNextCard}
-              className="btn-primary w-full py-4 text-base font-bold font-display"
+              className="btn-primary w-full font-display"
             >
               <span>Carte suivante</span>
               <span>→</span>
@@ -505,8 +596,8 @@ export default function App() {
         </main>
       )}
 
-      <footer className="py-3 px-4 text-center border-t border-[#21181c] text-[11px] text-gray-500">
-        Projet indépendant — Non affilié à l'ASVd, au MSdS, à J+S ou à toute autre organisation.
+      <footer className="py-3 px-4 text-center border-t border-[#2e323c] bg-[#1f2229] text-[11px] text-slate-400">
+        Projet indépendant. Non affilié à l'ASVd, au MSdS, à J+S ou à toute autre organisation.
       </footer>
 
       <FeedbackModal

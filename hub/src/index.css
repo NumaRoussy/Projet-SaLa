@@ -11,17 +11,10 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-html, body {
-  overscroll-behavior-y: none;
-  -webkit-tap-highlight-color: transparent;
-  user-select: none;
-  -webkit-user-select: none;
-  -webkit-touch-callout: none;
-}
-
 html {
   height: auto;
   min-height: 100%;
+  background-color: #16181d;
   overflow-x: clip;
   overflow-y: auto;
   scroll-behavior: smooth;
@@ -32,12 +25,16 @@ body {
   min-height: 100dvh;
   margin: 0;
   padding: 0;
-  background: #0f1f18;
+  background-color: #16181d;
   color: #f3f4f6;
   font-family: 'Inter', system-ui, sans-serif;
   overflow: visible;
   touch-action: auto;
+  overscroll-behavior-y: none;
   -webkit-overflow-scrolling: touch;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
 }
 
 button, .touch-target {
@@ -52,6 +49,7 @@ input, textarea, select {
 #root, .app-container {
   min-height: 100dvh;
   height: auto;
+  background-color: #16181d;
   overflow: visible;
   display: flex;
   flex-direction: column;
@@ -65,62 +63,58 @@ input, textarea, select {
 
 /* ── Surface card ────────────────────────────────────────────────────────── */
 .glass-card {
-  background: #162920;
-  border: 1px solid #2d6a4f;
+  background: #1f2229;
+  border: 1px solid #2e323c;
   border-radius: 1rem;
   transition: border-color 0.2s ease, background-color 0.2s ease;
 }
 
-.glass-card:hover {
-  border-color: #3d8b68;
-}
-
 /* ── Button variants ─────────────────────────────────────────────────────── */
 .btn-primary {
-  @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm
-         bg-[#2d6a4f] text-white border border-[#388463]
-         hover:bg-[#388463]
+  @apply inline-flex items-center justify-center gap-2 py-3 px-5 rounded-lg font-semibold text-sm
+         bg-[#2e6f56] text-[#f3f4f6] border border-[#2e6f56]
+         hover:bg-[#378265]
          active:scale-[0.98] transition-colors cursor-pointer disabled:opacity-45 disabled:cursor-not-allowed;
 }
 
 .btn-amber {
-  @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm
-         bg-[#966530] text-white border border-[#b0783b]
-         hover:bg-[#a87136]
+  @apply inline-flex items-center justify-center gap-2 py-3 px-5 rounded-lg font-semibold text-sm
+         bg-[#9c6631] text-[#f3f4f6] border border-[#9c6631]
+         hover:bg-[#b0753a]
          active:scale-[0.98] transition-colors cursor-pointer disabled:opacity-45 disabled:cursor-not-allowed;
 }
 
 .btn-ghost {
   @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-medium text-sm
-         text-gray-300 hover:text-white border border-transparent hover:border-[#2d6a4f]
+         text-slate-300 hover:text-[#f3f4f6] border border-transparent hover:border-[#2e323c]
          active:scale-[0.98] transition-colors cursor-pointer;
 }
 
 .btn-danger {
-  @apply inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-semibold text-sm
-         bg-[#7a242e] text-red-100 border border-[#9c323e]
-         hover:bg-[#8c2d38]
+  @apply inline-flex items-center justify-center gap-2 py-3 px-5 rounded-lg font-semibold text-sm
+         bg-[#9b2c37] text-[#f3f4f6] border border-[#9b2c37]
+         hover:bg-[#b03440]
          active:scale-[0.98] transition-colors cursor-pointer disabled:opacity-45;
 }
 
 /* ── Input style ─────────────────────────────────────────────────────────── */
 .input-scout {
-  @apply w-full px-4 py-3 rounded-xl bg-[#0d1914] border border-[#2d6a4f]
-         text-white placeholder-gray-400 text-sm
-         focus:outline-none focus:border-[#52b788] focus:ring-1 focus:ring-[#52b788]/40
+  @apply w-full px-3.5 py-2.5 rounded-lg bg-[#16181d] border border-[#2e323c]
+         text-[#f3f4f6] placeholder-slate-400 text-sm
+         focus:outline-none focus:border-[#2e6f56]
          transition-colors;
 }
 
 /* ── Scrollbar ───────────────────────────────────────────────────────────── */
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(116, 198, 157, 0.25); border-radius: 2px; }
+::-webkit-scrollbar-thumb { background: #2e323c; border-radius: 2px; }
 
 /* ── Overlay ─────────────────────────────────────────────────────────────── */
 .overlay {
   position: fixed;
   inset: 0;
-  background: rgba(8, 14, 11, 0.85);
+  background: rgba(10, 12, 16, 0.85);
   z-index: 40;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
@@ -136,12 +130,12 @@ input, textarea, select {
 /* ── Badge faceb ─────────────────────────────────────────────────────────── */
 .badge-secret {
   @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold
-         bg-[#3a1b20] text-red-200 border border-[#8c2d38];
+         bg-[#1f2229] text-[#e88c95] border border-[#9b2c37];
 }
 
 /* ── Section divider ─────────────────────────────────────────────────────── */
 .section-divider {
-  @apply border-t border-[#2d6a4f]/40 my-6;
+  @apply border-t border-[#2e323c] my-6;
 }
 
 /* ── Onboarding Secret Gesture Animation ─────────────────────────────────── */

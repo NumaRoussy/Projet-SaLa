@@ -36,37 +36,33 @@ export function SetupScreen({
     badgeColor: string
     description: string
     ratio: string
-    icon: string
   }> = [
     {
       id: 'mixte',
       title: 'Mode Mixte',
       badge: 'Recommandé',
-      badgeColor: 'bg-[#122620] text-emerald-200 border-[#2d6a4f]',
+      badgeColor: 'bg-[#16181d] text-emerald-300 border-[#2e6f56]',
       description:
         "L'expérience au coin du feu. Alterne débats d'intendance et duels tactiles sur l'écran.",
       ratio: '65% passif / 35% actif',
-      icon: '⚖️',
     },
     {
       id: 'pepere',
       title: 'Mode Pépère',
       badge: '100% Passif',
-      badgeColor: 'bg-[#142336] text-sky-200 border-[#28527a]',
+      badgeColor: 'bg-[#16181d] text-[#8ec2eb] border-[#2d6394]',
       description:
         'Tranquille sous le Sarasani : 100% cartes de lecture, votes à main levée, intendance et règles de veillée.',
       ratio: '100% cartes de lecture',
-      icon: '🪵',
     },
     {
       id: 'commando',
       title: 'Mode Commando',
       badge: '100% Actif',
-      badgeColor: 'bg-[#261d12] text-amber-200 border-[#785127]',
+      badgeColor: 'bg-[#16181d] text-[#e5be6d] border-[#b5892e]',
       description:
         'Mini-jeux tactiles en duel sur écran (Flamme bleue, Tir à la corde, Sauvetage de tente) et défis physiques.',
       ratio: '100% mini-jeux & défis',
-      icon: '⚡',
     },
   ]
 
@@ -79,7 +75,7 @@ export function SetupScreen({
         <div className="glass-card p-4 space-y-3">
           <div className="flex items-center justify-between gap-2">
             <div>
-              <label className="text-xs font-mono font-bold tracking-wider text-sky-300 uppercase block">
+              <label className="text-xs font-mono font-bold tracking-wider text-slate-200 uppercase block">
                 Chefs Participants ({players.length})
               </label>
               <span className="text-[11px] text-slate-400">Minimum 2 joueurs</span>
@@ -88,7 +84,7 @@ export function SetupScreen({
               <button
                 type="button"
                 onClick={onClearPlayers}
-                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#2b171b] hover:bg-[#3a1f24] border border-[#7f2d38] text-red-200 text-xs font-semibold transition-colors"
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#16181d] hover:bg-[#262a33] border border-[#9b2c37] text-red-200 text-xs font-semibold transition-colors"
               >
                 <span>🗑️</span>
                 <span>Vider</span>
@@ -119,15 +115,14 @@ export function SetupScreen({
               {players.map(p => (
                 <div
                   key={p.id}
-                  className="flex items-center gap-1.5 bg-[#0e1722] border border-[#28527a] rounded-full pl-2.5 pr-1.5 py-1 text-xs text-[#f3f4f6]"
+                  className="flex items-center gap-1.5 bg-[#16181d] border border-[#2e323c] rounded-full pl-3 pr-2 py-1 text-xs text-[#f3f4f6]"
                 >
-                  <span>{p.avatar || '⛺'}</span>
                   <span className="font-semibold">{p.name}</span>
                   <button
                     type="button"
                     onClick={() => onRemovePlayer(p.id)}
                     aria-label={`Supprimer ${p.name}`}
-                    className="w-4 h-4 rounded-full bg-[#152233] hover:bg-[#7f2d38] text-slate-300 hover:text-[#f3f4f6] flex items-center justify-center text-[10px] ml-0.5 transition-colors"
+                    className="w-4 h-4 rounded-full bg-[#1f2229] hover:bg-[#9b2c37] text-slate-300 hover:text-[#f3f4f6] flex items-center justify-center text-[10px] ml-0.5 transition-colors"
                   >
                     ✕
                   </button>
@@ -143,7 +138,7 @@ export function SetupScreen({
 
         {/* 2. Sélection du Mode */}
         <div className="space-y-3">
-          <label className="text-xs font-mono font-bold tracking-wider text-sky-300 uppercase block">
+          <label className="text-xs font-mono font-bold tracking-wider text-slate-300 uppercase block">
             Choix du Mode de Jeu
           </label>
           <div className="space-y-2.5">
@@ -154,26 +149,23 @@ export function SetupScreen({
                   type="button"
                   key={m.id}
                   onClick={() => onSelectMode(m.id)}
-                  className={`w-full text-left p-3.5 rounded-2xl border-2 transition-colors ${
+                  className={`w-full text-left p-3.5 rounded-2xl border-2 transition-colors bg-[#1f2229] ${
                     isSelected
-                      ? 'bg-[#1a2e45] border-[#32689c]'
-                      : 'bg-[#152233] border-[#28527a] hover:bg-[#19283c]'
+                      ? 'border-[#2d6394]'
+                      : 'border-[#2e323c] hover:border-[#2d6394]'
                   }`}
                 >
                   <div className="flex items-start justify-between gap-2">
-                    <div className="flex items-center gap-2">
-                      <span className="text-2xl">{m.icon}</span>
-                      <div>
-                        <div className="font-display font-bold text-sm text-[#f3f4f6] flex items-center gap-2">
-                          <span>{m.title}</span>
-                          <span className={`text-[10px] px-2 py-0.5 rounded-full border font-mono font-bold ${m.badgeColor}`}>
-                            {m.badge}
-                          </span>
-                        </div>
-                        <div className="text-[11px] text-sky-300 font-mono mt-0.5">{m.ratio}</div>
+                    <div>
+                      <div className="font-display font-bold text-sm text-[#f3f4f6] flex items-center gap-2">
+                        <span>{m.title}</span>
+                        <span className={`text-[10px] px-2 py-0.5 rounded-full border font-mono font-bold ${m.badgeColor}`}>
+                          {m.badge}
+                        </span>
                       </div>
+                      <div className="text-[11px] text-[#8ec2eb] font-mono mt-0.5">{m.ratio}</div>
                     </div>
-                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${isSelected ? 'border-[#32689c] bg-[#32689c]' : 'border-[#28527a]'}`}>
+                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${isSelected ? 'border-[#2d6394] bg-[#2d6394]' : 'border-[#2e323c]'}`}>
                       {isSelected && <div className="w-2 h-2 rounded-full bg-[#f3f4f6]" />}
                     </div>
                   </div>
@@ -191,9 +183,9 @@ export function SetupScreen({
           type="button"
           onClick={onStartGame}
           disabled={!canStart}
-          className="btn-primary w-full py-4 text-base font-bold font-display"
+          className="btn-primary w-full font-display"
         >
-          {canStart ? 'Lancer la veillée Vachao 🐮' : 'Ajoutez au moins 2 chefs pour jouer'}
+          {canStart ? 'Lancer la veillée Vachao' : 'Ajoutez au moins 2 chefs pour jouer'}
         </button>
       </div>
     </div>

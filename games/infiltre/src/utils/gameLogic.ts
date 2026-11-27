@@ -1,5 +1,7 @@
 import type { Player, Card, AssignedPlayer, Role } from '../types'
 
+const PREV_ROLES_KEY = 'scoutgame_prev_roles_infiltre'
+
 /**
  * Algorithme de mélange robuste Fisher-Yates sans aucun biais statistique
  */
@@ -14,9 +16,81 @@ export function shuffle<T>(array: readonly T[]): T[] {
   return result
 }
 
+function getCanonicalPairKey(card: Card): string {
+  const a = (card.content || '').trim().toLowerCase()
+  const b = (card.extra || '').trim().toLowerCase()
+  return [a, b].sort().join('|')
+}
+
+function readJsonStorage<T>(key: string, fallback: T): T {
+  try {
+    const raw = localStorage.getItem(key)
+    if (!raw) return fallback
+    return JSON.parse(raw) as T
+  } catch {
+    return fallback
+  }
+}
+
+function writeJsonStorage(key: string, value: unknown): void {
+  try {
+    localStorage.setItem(key, JSON.stringify(value))
+  } catch {
+    // Safari private browsing or quota exceeded
+  }
+}
+
 /**
- * Attribution aléatoire des rôles aux joueurs via Fisher-Yates
- * afin d'éliminer tout biais d'ordre de saisie.
+ * Pioche une paire de mots sans remise via localStorage + Fisher-Yates,
+ * et inverse aléatoirement (50/50) le mot des joueurs ordinaires et celui de l'infiltré.
+ */
+export function drawNonRepeatingWordPair(cards: readonly Card[], storageKey: string): Card | null {
+  if (!cards || cards.length === 0) return null
+
+  // Déduplication par paire canonique pour éviter les doublons API/fallback
+  const seenInPool = new Set<string>()
+  const uniqueCards: Card[] = []
+  for (const c of cards) {
+    const k = getCanonicalPairKey(c)
+    if (!seenInPool.has(k)) {
+      seenInPool.add(k)
+      uniqueCards.push(c)
+    }
+  }
+
+  const history = readJsonStorage<string[]>(storageKey, [])
+  const historySet = new Set(history)
+  let unseen = uniqueCards.filter(c => !historySet.has(getCanonicalPairKey(c)))
+
+  let nextHistory = [...history]
+  if (unseen.length === 0) {
+    const lastKey = history.length > 0 ? history[history.length - 1] : null
+    nextHistory = lastKey && uniqueCards.length > 1 ? [lastKey] : []
+    const resetSet = new Set(nextHistory)
+    unseen = uniqueCards.filter(c => !resetSet.has(getCanonicalPairKey(c)))
+    if (unseen.length === 0) unseen = uniqueCards
+  }
+
+  const picked = shuffle(unseen)[0]
+  if (!picked) return null
+
+  const pickedKey = getCanonicalPairKey(picked)
+  writeJsonStorage(storageKey, [...nextHistory.filter(k => k !== pickedKey), pickedKey])
+
+  if (picked.extra && Math.random() < 0.5) {
+    return {
+      ...picked,
+      content: picked.extra,
+      extra: picked.content,
+    }
+  }
+
+  return picked
+}
+
+/**
+ * Attribution aléatoire des rôles aux joueurs via Fisher-Yates,
+ * en évitant qu'un même joueur reçoive le même rôle spécial deux parties de suite.
  */
 export function assignRoles(
   players: readonly Player[],
@@ -33,17 +107,43 @@ export function assignRoles(
     ...Array(civilCount).fill('civil'),
   ]
 
-  const shuffledRoles = shuffle(roles)
+  const prevRoles = readJsonStorage<Record<string, Role>>(PREV_ROLES_KEY, {})
+
+  let bestRoles = shuffle(roles)
+  let bestRepeats = Infinity
+
+  for (let attempt = 0; attempt < 40; attempt++) {
+    const candidate = attempt === 0 ? bestRoles : shuffle(roles)
+    let repeats = 0
+    for (let i = 0; i < players.length; i++) {
+      const role = candidate[i]
+      const playerKey = players[i].name.trim().toLowerCase()
+      if (role !== 'civil' && prevRoles[playerKey] === role) {
+        repeats++
+      }
+    }
+    if (repeats < bestRepeats) {
+      bestRepeats = repeats
+      bestRoles = candidate
+      if (repeats === 0) break
+    }
+  }
+
+  const nextPrevRoles: Record<string, Role> = {}
+  players.forEach((p, idx) => {
+    nextPrevRoles[p.name.trim().toLowerCase()] = bestRoles[idx]
+  })
+  writeJsonStorage(PREV_ROLES_KEY, nextPrevRoles)
 
   return players.map((player, idx) => {
-    const role = shuffledRoles[idx]
+    const role = bestRoles[idx]
     let secretWord = ''
     if (role === 'civil') {
-      secretWord = card.content // Mot majoritaire
+      secretWord = card.content
     } else if (role === 'infiltre') {
-      secretWord = card.extra || card.content // Mot alternatif
+      secretWord = card.extra || card.content
     } else {
-      secretWord = '' // Mister White ne reçoit AUCUN mot
+      secretWord = ''
     }
 
     return {
@@ -73,16 +173,13 @@ export function generateSpeakingOrder(
       return shuffle(alive)
     }
 
-    // Sélection aléatoire uniforme du 1er joueur parmi ceux qui ne sont PAS Mister White
     const firstIndex = Math.floor(Math.random() * nonWhites.length)
     const firstSpeaker = nonWhites[firstIndex]
 
-    // Le reste des joueurs en vie (y compris Mister White) est mélangé par Fisher-Yates
     const remainingSpeakers = alive.filter(p => p.player.id !== firstSpeaker.player.id)
     return [firstSpeaker, ...shuffle(remainingSpeakers)]
   }
 
-  // Tours suivants : tirage au sort parmi tous les survivants
   return shuffle(alive)
 }
 
@@ -101,16 +198,13 @@ export function checkVictoryCondition(
   const remainingCivils = alive.filter(p => p.role === 'civil').length
   const remainingEnemies = remainingInfiltres + remainingWhites
 
-  // 1. Victoire des Civils : Tous les ennemis éliminés
   if (remainingEnemies === 0) {
     return 'civils'
   }
 
-  // 2. Victoire des Ennemis : Il ne reste plus qu'un seul (ou 0) Joueur ordinaire face aux ennemis
   if (remainingCivils <= 1 && remainingEnemies > 0) {
     return 'enemies'
   }
 
-  // 3. Partie continue
   return null
 }

@@ -1,6 +1,6 @@
 /**
  * components/BlackoutScreen.tsx
- * Affichage du message officiel pendant la période de camp (section 2.4).
+ * Affichage du message officiel pendant la période de camp.
  */
 interface Props {
   message: string
@@ -11,16 +11,14 @@ export function BlackoutScreen({ message, onClose }: Props) {
   return (
     <div className="overlay flex items-center justify-center p-6" onClick={onClose}>
       <div
-        className="bg-[#162920] border border-[#2d6a4f] rounded-2xl max-w-md w-full p-8 text-center"
+        className="bg-[#1f2229] border border-[#2e6f56] rounded-2xl max-w-md w-full p-8 text-center"
         onClick={e => e.stopPropagation()}
       >
-        <div className="text-6xl mb-6">⛺</div>
-
-        <h2 className="font-display font-bold text-white text-xl mb-4">
+        <h2 className="font-display font-bold text-[#f3f4f6] text-xl mb-4">
           Période de camp scoute
         </h2>
 
-        <p className="text-gray-300 leading-relaxed text-sm">
+        <p className="text-slate-300 leading-relaxed text-sm">
           {message || (
             <>
               Période des camps scouts en cours. L'espace festif est temporairement suspendu.
@@ -30,17 +28,10 @@ export function BlackoutScreen({ message, onClose }: Props) {
           )}
         </p>
 
-        <div className="mt-8 flex flex-col gap-3">
-          <div className="flex items-center gap-3 justify-center text-scout-sage/60 text-xs">
-            <div className="h-px flex-1 bg-scout-sage/10" />
-            <span>Valeurs scoutes</span>
-            <div className="h-px flex-1 bg-scout-sage/10" />
-          </div>
-          <div className="flex justify-center gap-6 text-2xl">
-            <span title="Service">🤝</span>
-            <span title="Honnêteté">🌿</span>
-            <span title="Fraternité">⚜️</span>
-          </div>
+        <div className="mt-8 flex items-center gap-3 justify-center text-slate-400 text-xs">
+          <div className="h-px flex-1 bg-[#2e323c]" />
+          <span>Service · Honnêteté · Fraternité</span>
+          <div className="h-px flex-1 bg-[#2e323c]" />
         </div>
 
         <button className="btn-ghost mt-6 text-sm" onClick={onClose}>

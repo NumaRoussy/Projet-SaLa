@@ -9,6 +9,8 @@ import type {
 } from '../types'
 import { ROLES_DATA, getRoleComposition } from '../data/roles'
 
+const PREV_ROLES_KEY = 'scoutgame_prev_roles_couvrefeu'
+
 /**
  * Mélange aléatoire (Fisher-Yates)
  */
@@ -21,8 +23,26 @@ function shuffle<T>(array: T[]): T[] {
   return arr
 }
 
+function readPrevRoles(): Record<string, RoleType> {
+  try {
+    const raw = localStorage.getItem(PREV_ROLES_KEY)
+    return raw ? (JSON.parse(raw) as Record<string, RoleType>) : {}
+  } catch {
+    return {}
+  }
+}
+
+function writePrevRoles(roles: Record<string, RoleType>): void {
+  try {
+    localStorage.setItem(PREV_ROLES_KEY, JSON.stringify(roles))
+  } catch {
+    // Ignore storage errors
+  }
+}
+
 /**
- * Distribue les rôles selon la grille d'équilibrage
+ * Distribue les rôles selon la grille d'équilibrage via Fisher-Yates,
+ * en évitant qu'un même joueur reçoive le même rôle spécial deux parties d'affilée.
  */
 export function assignRoles(players: Player[]): AssignedPlayer[] {
   const comp = getRoleComposition(players.length)
@@ -39,12 +59,41 @@ export function assignRoles(players: Player[]): AssignedPlayer[] {
     rolePool.push('eclaireur')
   }
 
-  const shuffledRoles = shuffle(rolePool)
+  const prevRoles = readPrevRoles()
+  let bestRoles = shuffle(rolePool)
+  let bestScore = Infinity
+
+  for (let attempt = 0; attempt < 50; attempt++) {
+    const candidate = attempt === 0 ? bestRoles : shuffle(rolePool)
+    let specialRepeats = 0
+    let totalRepeats = 0
+    for (let i = 0; i < players.length; i++) {
+      const key = players[i].name.trim().toLowerCase()
+      if (prevRoles[key] === candidate[i]) {
+        totalRepeats++
+        if (candidate[i] !== 'eclaireur') {
+          specialRepeats++
+        }
+      }
+    }
+    const score = specialRepeats * 100 + totalRepeats
+    if (score < bestScore) {
+      bestScore = score
+      bestRoles = candidate
+      if (score === 0) break
+    }
+  }
+
+  const nextPrev: Record<string, RoleType> = {}
+  players.forEach((p, idx) => {
+    nextPrev[p.name.trim().toLowerCase()] = bestRoles[idx]
+  })
+  writePrevRoles(nextPrev)
 
   return players.map((p, idx) => ({
     id: p.id,
     name: p.name,
-    role: shuffledRoles[idx],
+    role: bestRoles[idx],
     isAlive: true,
     isCampChief: false,
     isInseparable: false,

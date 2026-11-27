@@ -31,7 +31,7 @@ export const ROLES_DATA: Record<RoleType, RoleDefinition> = {
     type: 'eclaireur',
     name: 'Éclaireur',
     camp: 'tentes',
-    campLabel: 'Camp des Tentes',
+    campLabel: 'Camp des éclaireurs',
     icon: '⛺',
     shortDesc: 'Scout loyal dormant sous la tente sans pouvoir nocturne.',
     fullDesc:
@@ -44,11 +44,11 @@ export const ROLES_DATA: Record<RoleType, RoleDefinition> = {
     type: 'cp',
     name: 'Chef de Patrouille (CP)',
     camp: 'tentes',
-    campLabel: 'Camp des Tentes',
+    campLabel: 'Camp des éclaireurs',
     icon: '🎖️',
     shortDesc: 'Guide respecté : tire une dernière fusée à sa mort (Chasseur).',
     fullDesc:
-      'Tu es le Chef de Patrouille (CP), respecté de tous. Ta détermination est sans faille. Si jamais tu es éliminé — que ce soit au vote du rassemblement ou par une attaque nocturne —, dans ton dernier souffle, tu tires une fusée de détresse et élimines sur-le-champ le joueur de ton choix !',
+      'Tu es le Chef de Patrouille (CP), respecté de tous. Ta détermination est sans faille. Si jamais tu es éliminé (que ce soit au vote du rassemblement ou par une attaque nocturne), dans ton dernier souffle, tu tires une fusée de détresse et élimines sur-le-champ le joueur de ton choix !',
     actionDesc:
       'Si tu viens à mourir (jour ou nuit) : désigne immédiatement un joueur sur l\'écran du meneur pour qu\'il meure avec toi sur-le-champ.',
     wakeOrder: -1,
@@ -57,7 +57,7 @@ export const ROLES_DATA: Record<RoleType, RoleDefinition> = {
     type: 'pharmacie',
     name: 'Resp. Pharmacie',
     camp: 'tentes',
-    campLabel: 'Camp des Tentes',
+    campLabel: 'Camp des éclaireurs',
     icon: '🩹',
     shortDesc: 'Gardien de la trousse de secours avec 2 soins uniques (Sorcière).',
     fullDesc:
@@ -70,7 +70,7 @@ export const ROLES_DATA: Record<RoleType, RoleDefinition> = {
     type: 'pisseur',
     name: 'Le Pisseur',
     camp: 'tentes',
-    campLabel: 'Camp des Tentes',
+    campLabel: 'Camp des éclaireurs',
     icon: '🚰',
     shortDesc: 'En route pour les feuillées, ausculte une tente (Voyante).',
     fullDesc:
@@ -83,7 +83,7 @@ export const ROLES_DATA: Record<RoleType, RoleDefinition> = {
     type: 'cuisto',
     name: 'Le Cuisto',
     camp: 'tentes',
-    campLabel: 'Camp des Tentes',
+    campLabel: 'Camp des éclaireurs',
     icon: '🍲',
     shortDesc: 'Prépare un casse-croûte protecteur chaque nuit (Salvateur).',
     fullDesc:
@@ -96,7 +96,7 @@ export const ROLES_DATA: Record<RoleType, RoleDefinition> = {
     type: 'ragoteur',
     name: 'Le Ragoteur',
     camp: 'tentes',
-    campLabel: 'Camp des Tentes',
+    campLabel: 'Camp des éclaireurs',
     icon: '💘',
     shortDesc: 'Nuit 1 uniquement : lie deux Inséparables pour la vie (Cupidon).',
     fullDesc:
@@ -109,13 +109,13 @@ export const ROLES_DATA: Record<RoleType, RoleDefinition> = {
     type: 'insomniaque',
     name: 'L\'Insomniaque',
     camp: 'tentes',
-    campLabel: 'Camp des Tentes',
+    campLabel: 'Camp des éclaireurs',
     icon: '🦉',
     shortDesc: 'Sommeil agité : écoute les pas nocturnes autour du camp.',
     fullDesc:
       'Tu as le sommeil fragile et passes tes nuits à te retourner dans ton sac de couchage. À l\'affût du moindre craquement de branche et du grincement des piquets de tente, tu aides les Éclaireurs à orienter les débats lors du rassemblement matinal.',
     actionDesc:
-      'Camp des Tentes : partage tes intuitions et déductions le jour pour démasquer les Responsables.',
+      'Camp des éclaireurs : partage tes intuitions et déductions le jour pour démasquer les Responsables.',
     wakeOrder: -1,
   },
 }

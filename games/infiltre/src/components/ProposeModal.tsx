@@ -9,7 +9,7 @@ interface Props {
 }
 
 export function ProposeModal({ isOpen, initialTheme, onClose }: Props) {
-  const [mode, setMode] = useState<'scout' | 'moldu'>(initialTheme === 'moldus' ? 'moldu' : 'scout')
+  const [mode, setMode] = useState<'scout' | 'moldu'>(initialTheme === 'moldu' ? 'moldu' : 'scout')
   const [civilWord, setCivilWord] = useState('')
   const [infiltreWord, setInfiltreWord] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -18,7 +18,7 @@ export function ProposeModal({ isOpen, initialTheme, onClose }: Props) {
 
   useEffect(() => {
     if (isOpen) {
-      setMode(initialTheme === 'moldus' ? 'moldu' : 'scout')
+      setMode(initialTheme === 'moldu' ? 'moldu' : 'scout')
       setError(null)
       setSuccess(false)
     }
@@ -60,11 +60,11 @@ export function ProposeModal({ isOpen, initialTheme, onClose }: Props) {
   return (
     <div className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4" onClick={onClose}>
       <div
-        className="bg-[#162b22] border border-[#2d6a4f] rounded-2xl w-full max-w-md max-h-[90dvh] overflow-y-auto p-5 space-y-4 text-[#f3f4f6]"
+        className="bg-[#1f2229] border border-[#2e323c] rounded-2xl w-full max-w-md max-h-[90dvh] overflow-y-auto p-5 space-y-4 text-[#f3f4f6]"
         onClick={e => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between pb-3 border-b border-[#2d6a4f]">
-          <h2 className="font-display font-bold text-lg text-[#f3f4f6]">💡 Proposer une paire — L'Infiltré</h2>
+        <div className="flex items-center justify-between pb-3 border-b border-[#2e323c]">
+          <h2 className="font-display font-bold text-lg text-[#f3f4f6]">Proposer une paire (L'Infiltré)</h2>
           <button type="button" onClick={onClose} className="btn-ghost px-2 py-1 text-sm">
             ✕
           </button>
@@ -72,8 +72,7 @@ export function ProposeModal({ isOpen, initialTheme, onClose }: Props) {
 
         {success ? (
           <div className="py-6 text-center space-y-4">
-            <div className="text-4xl">✅</div>
-            <p className="text-sm font-semibold text-[#8fd4b0]">
+            <p className="text-sm font-semibold text-emerald-300">
               Proposition envoyée ! Merci pour ta contribution.
             </p>
             <button type="button" onClick={onClose} className="btn-primary w-full">
@@ -83,24 +82,24 @@ export function ProposeModal({ isOpen, initialTheme, onClose }: Props) {
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-xs font-semibold text-[#95d5b2] uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
                 Thème
               </label>
               <div className="grid grid-cols-2 gap-2">
                 {(
                   [
-                    { id: 'scout', label: '⚜️ Scout' },
-                    { id: 'moldu', label: '🌍 Moldu' },
+                    { id: 'scout', label: 'Scout' },
+                    { id: 'moldu', label: 'Moldu' },
                   ] as const
                 ).map(item => (
                   <button
                     key={item.id}
                     type="button"
                     onClick={() => setMode(item.id)}
-                    className={`py-2.5 px-3 rounded-xl text-xs font-bold border transition-colors ${
+                    className={`py-2.5 px-3 rounded-lg text-xs font-semibold border transition-colors ${
                       mode === item.id
-                        ? 'bg-[#213f32] border-[#388463] text-[#f3f4f6]'
-                        : 'bg-[#0f1f18] border-[#2d6a4f] text-gray-300 hover:text-white'
+                        ? 'bg-[#262a33] border-[#2e6f56] text-[#f3f4f6]'
+                        : 'bg-[#16181d] border-[#2e323c] text-slate-300 hover:text-[#f3f4f6]'
                     }`}
                   >
                     {item.label}
@@ -110,7 +109,7 @@ export function ProposeModal({ isOpen, initialTheme, onClose }: Props) {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-gray-200 mb-1">
+              <label className="block text-xs font-semibold text-slate-200 mb-1">
                 Mot des Joueurs ordinaires <span className="text-red-400">*</span>
               </label>
               <input
@@ -124,7 +123,7 @@ export function ProposeModal({ isOpen, initialTheme, onClose }: Props) {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-gray-200 mb-1">
+              <label className="block text-xs font-semibold text-slate-200 mb-1">
                 Mot de L'Infiltré <span className="text-red-400">*</span>
               </label>
               <input
@@ -132,13 +131,13 @@ export function ProposeModal({ isOpen, initialTheme, onClose }: Props) {
                 required
                 value={infiltreWord}
                 onChange={e => setInfiltreWord(e.target.value)}
-                placeholder="Ex: Chapiteau"
+                placeholder="Ex: Spatz"
                 className="input-scout"
               />
             </div>
 
             {error && (
-              <p className="text-xs text-red-200 bg-[#3a1b20] border border-[#8c2d38] rounded-xl p-2.5">{error}</p>
+              <p className="text-xs text-red-200 bg-[#2a191c] border border-[#9b2c37] rounded-lg p-2.5">{error}</p>
             )}
 
             <div className="flex gap-2 pt-1">

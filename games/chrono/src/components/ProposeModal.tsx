@@ -62,11 +62,11 @@ export function ProposeModal({ isOpen, initialTheme, onClose }: Props) {
   return (
     <div className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4" onClick={onClose}>
       <div
-        className="bg-[#261e17] border border-[#785127] rounded-2xl w-full max-w-md max-h-[90dvh] overflow-y-auto p-5 space-y-4 text-[#f3f4f6]"
+        className="bg-[#1f2229] border border-[#2e323c] rounded-2xl w-full max-w-md max-h-[90dvh] overflow-y-auto p-5 space-y-4 text-[#f3f4f6]"
         onClick={e => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between pb-3 border-b border-[#785127]">
-          <h2 className="font-display font-bold text-lg text-[#f3f4f6]">💡 Proposer un mot — Chrono</h2>
+        <div className="flex items-center justify-between pb-3 border-b border-[#2e323c]">
+          <h2 className="font-display font-bold text-lg text-[#f3f4f6]">Proposer un mot (Chrono)</h2>
           <button type="button" onClick={onClose} className="btn-ghost px-2 py-1 text-sm">
             ✕
           </button>
@@ -74,8 +74,7 @@ export function ProposeModal({ isOpen, initialTheme, onClose }: Props) {
 
         {success ? (
           <div className="py-6 text-center space-y-4">
-            <div className="text-4xl">✅</div>
-            <p className="text-sm font-semibold text-[#8fd4b0]">
+            <p className="text-sm font-semibold text-emerald-300">
               Mot proposé ! Merci pour ta contribution.
             </p>
             <button type="button" onClick={onClose} className="btn-primary w-full">
@@ -85,24 +84,24 @@ export function ProposeModal({ isOpen, initialTheme, onClose }: Props) {
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-xs font-semibold text-[#deb07a] uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
                 Thème
               </label>
               <div className="grid grid-cols-2 gap-2">
                 {(
                   [
-                    { id: 'scout', label: '🏕️ Scout' },
-                    { id: 'moldu', label: '🏙️ Moldu' },
+                    { id: 'scout', label: 'Scout' },
+                    { id: 'moldu', label: 'Moldu' },
                   ] as const
                 ).map(item => (
                   <button
                     key={item.id}
                     type="button"
                     onClick={() => setMode(item.id)}
-                    className={`py-2.5 px-3 rounded-xl text-xs font-bold border transition-colors ${
+                    className={`py-2.5 px-3 rounded-lg text-xs font-semibold border transition-colors ${
                       mode === item.id
-                        ? 'bg-[#36281c] border-[#966530] text-[#f3f4f6]'
-                        : 'bg-[#1c1611] border-[#785127] text-gray-300 hover:text-white'
+                        ? 'bg-[#262a33] border-[#9c6631] text-[#f3f4f6]'
+                        : 'bg-[#16181d] border-[#2e323c] text-slate-300 hover:text-[#f3f4f6]'
                     }`}
                   >
                     {item.label}
@@ -112,7 +111,7 @@ export function ProposeModal({ isOpen, initialTheme, onClose }: Props) {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-gray-200 mb-1">
+              <label className="block text-xs font-semibold text-slate-200 mb-1">
                 Mot unique à faire deviner <span className="text-red-400">*</span>
               </label>
               <input
@@ -123,13 +122,13 @@ export function ProposeModal({ isOpen, initialTheme, onClose }: Props) {
                 placeholder="Ex: Sarasani"
                 className="input-scout"
               />
-              <p className="text-[11px] text-[#c9b7a2] mt-1">
+              <p className="text-[11px] text-slate-400 mt-1">
                 Un seul mot, sans espace.
               </p>
             </div>
 
             {error && (
-              <p className="text-xs text-red-200 bg-[#3a1b20] border border-[#8c2d38] rounded-xl p-2.5">{error}</p>
+              <p className="text-xs text-red-200 bg-[#2a191c] border border-[#9b2c37] rounded-lg p-2.5">{error}</p>
             )}
 
             <div className="flex gap-2 pt-1">

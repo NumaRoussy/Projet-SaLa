@@ -20,62 +20,59 @@ export function HelpModal({ isOpen, onClose }: HelpModalProps) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/75" onClick={onClose}>
       <div
-        className="w-full max-w-2xl max-h-[90dvh] flex flex-col bg-[#172036] border border-[#34497a] rounded-2xl overflow-hidden text-[#f3f4f6]"
+        className="w-full max-w-2xl max-h-[90dvh] flex flex-col bg-[#1f2229] border border-[#2e323c] rounded-2xl overflow-hidden text-[#f3f4f6]"
         onClick={e => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between px-5 py-4 border-b border-[#34497a] bg-[#101626]">
-          <div className="flex items-center gap-3">
-            <span className="text-2xl">📖</span>
-            <div>
-              <h2 className="text-base font-bold text-[#f3f4f6] font-display">
-                Guide du Meneur — Couvre-feu
-              </h2>
-              <p className="text-xs text-slate-400">Règles, rôles secrets et pouvoirs</p>
-            </div>
+        <div className="flex items-center justify-between px-5 py-4 border-b border-[#2e323c] bg-[#16181d]">
+          <div>
+            <h2 className="text-base font-bold text-[#f3f4f6] font-display">
+              Guide du Meneur : Couvre-feu
+            </h2>
+            <p className="text-xs text-slate-400">Règles, rôles secrets et pouvoirs</p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="w-9 h-9 rounded-xl flex items-center justify-center bg-[#172036] border border-[#34497a] hover:bg-[#1e2a45] text-slate-300 hover:text-[#f3f4f6] transition-colors"
+            className="w-9 h-9 rounded-lg flex items-center justify-center bg-[#1f2229] border border-[#2e323c] hover:bg-[#262a33] text-slate-300 hover:text-[#f3f4f6] transition-colors"
             title="Fermer"
           >
             ✕
           </button>
         </div>
 
-        <div className="flex border-b border-[#34497a] bg-[#101626] text-xs font-semibold px-4 pt-2 gap-2">
+        <div className="flex border-b border-[#2e323c] bg-[#16181d] text-xs font-semibold px-4 pt-2 gap-2">
           <button
             type="button"
             onClick={() => setSelectedTab('roles')}
             className={`pb-2.5 px-3 border-b-2 transition-colors ${
               selectedTab === 'roles'
-                ? 'border-[#5473bd] text-[#f3f4f6]'
+                ? 'border-[#3b5998] text-[#f3f4f6]'
                 : 'border-transparent text-slate-400 hover:text-[#f3f4f6]'
             }`}
           >
-            🎭 Les 9 Rôles
+            Les 9 Rôles
           </button>
           <button
             type="button"
             onClick={() => setSelectedTab('order')}
             className={`pb-2.5 px-3 border-b-2 transition-colors ${
               selectedTab === 'order'
-                ? 'border-[#5473bd] text-[#f3f4f6]'
+                ? 'border-[#3b5998] text-[#f3f4f6]'
                 : 'border-transparent text-slate-400 hover:text-[#f3f4f6]'
             }`}
           >
-            🌙 Ordre de Nuit
+            Ordre de la nuit
           </button>
           <button
             type="button"
             onClick={() => setSelectedTab('rules')}
             className={`pb-2.5 px-3 border-b-2 transition-colors ${
               selectedTab === 'rules'
-                ? 'border-[#5473bd] text-[#f3f4f6]'
+                ? 'border-[#3b5998] text-[#f3f4f6]'
                 : 'border-transparent text-slate-400 hover:text-[#f3f4f6]'
             }`}
           >
-            🏆 Victoire &amp; Camp
+            Victoire &amp; Camp
           </button>
         </div>
 
@@ -84,8 +81,8 @@ export function HelpModal({ isOpen, onClose }: HelpModalProps) {
             <>
               <div className="space-y-3">
                 <div className="flex items-center gap-2">
-                  <span className="w-2.5 h-2.5 rounded-full bg-red-500" />
-                  <h3 className="font-bold text-xs uppercase tracking-wider text-red-300">
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#9b2c37]" />
+                  <h3 className="font-bold text-xs uppercase tracking-wider text-[#e88c95]">
                     Camp de la Maîtrise
                   </h3>
                 </div>
@@ -94,26 +91,19 @@ export function HelpModal({ isOpen, onClose }: HelpModalProps) {
                     <div
                       key={role.type}
                       onClick={() => setSelectedRole(selectedRole === role.type ? null : role.type)}
-                      className={`p-3.5 rounded-xl border transition-colors cursor-pointer ${
+                      className={`p-3.5 rounded-xl border transition-colors cursor-pointer bg-[#16181d] ${
                         selectedRole === role.type
-                          ? 'bg-[#2b171b] border-[#7f2d38]'
-                          : 'bg-[#101626] border-[#34497a] hover:bg-[#1e2a45]'
+                          ? 'border-[#9b2c37]'
+                          : 'border-[#2e323c] hover:border-[#3b5998]'
                       }`}
                     >
-                      <div className="flex items-center gap-3">
-                        <span className="text-2xl p-2 rounded-lg bg-[#172036] border border-[#34497a]">
-                          {role.icon}
-                        </span>
-                        <div className="flex-1 min-w-0">
-                          <h4 className="font-bold text-[#f3f4f6] text-sm">{role.name}</h4>
-                          <p className="text-xs text-slate-400 line-clamp-1">{role.shortDesc}</p>
-                        </div>
-                      </div>
+                      <h4 className="font-bold text-[#f3f4f6] text-sm">{role.name}</h4>
+                      <p className="text-xs text-slate-400 line-clamp-1 mt-0.5">{role.shortDesc}</p>
                       {selectedRole === role.type && (
-                        <div className="mt-3 pt-3 border-t border-[#34497a] space-y-2 text-xs text-slate-200">
+                        <div className="mt-3 pt-3 border-t border-[#2e323c] space-y-2 text-xs text-slate-200">
                           <p>{role.fullDesc}</p>
-                          <div className="p-2.5 rounded-lg bg-[#261d12] text-amber-200 border border-[#785127]">
-                            <span className="font-semibold">Conseil Meneur : </span>
+                          <div className="p-2.5 rounded-lg bg-[#1f2229] text-slate-200 border border-[#9b2c37]">
+                            <span className="font-semibold text-[#e88c95]">Conseil Meneur : </span>
                             {role.actionDesc}
                           </div>
                         </div>
@@ -125,9 +115,9 @@ export function HelpModal({ isOpen, onClose }: HelpModalProps) {
 
               <div className="space-y-3 pt-2">
                 <div className="flex items-center gap-2">
-                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#2e6f56]" />
                   <h3 className="font-bold text-xs uppercase tracking-wider text-emerald-300">
-                    Camp des Tentes (Éclaireurs)
+                    Camp des éclaireurs
                   </h3>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
@@ -135,25 +125,18 @@ export function HelpModal({ isOpen, onClose }: HelpModalProps) {
                     <div
                       key={role.type}
                       onClick={() => setSelectedRole(selectedRole === role.type ? null : role.type)}
-                      className={`p-3.5 rounded-xl border transition-colors cursor-pointer ${
+                      className={`p-3.5 rounded-xl border transition-colors cursor-pointer bg-[#16181d] ${
                         selectedRole === role.type
-                          ? 'bg-[#122620] border-[#2d6a4f]'
-                          : 'bg-[#101626] border-[#34497a] hover:bg-[#1e2a45]'
+                          ? 'border-[#2e6f56]'
+                          : 'border-[#2e323c] hover:border-[#3b5998]'
                       }`}
                     >
-                      <div className="flex items-center gap-3">
-                        <span className="text-2xl p-2 rounded-lg bg-[#172036] border border-[#34497a]">
-                          {role.icon}
-                        </span>
-                        <div className="flex-1 min-w-0">
-                          <h4 className="font-bold text-[#f3f4f6] text-sm">{role.name}</h4>
-                          <p className="text-xs text-slate-400 line-clamp-1">{role.shortDesc}</p>
-                        </div>
-                      </div>
+                      <h4 className="font-bold text-[#f3f4f6] text-sm">{role.name}</h4>
+                      <p className="text-xs text-slate-400 line-clamp-1 mt-0.5">{role.shortDesc}</p>
                       {selectedRole === role.type && (
-                        <div className="mt-3 pt-3 border-t border-[#34497a] space-y-2 text-xs text-slate-200">
+                        <div className="mt-3 pt-3 border-t border-[#2e323c] space-y-2 text-xs text-slate-200">
                           <p>{role.fullDesc}</p>
-                          <div className="p-2.5 rounded-lg bg-[#122620] text-emerald-200 border border-[#2d6a4f]">
+                          <div className="p-2.5 rounded-lg bg-[#1f2229] text-emerald-200 border border-[#2e6f56]">
                             <span className="font-semibold">Conseil Meneur : </span>
                             {role.actionDesc}
                           </div>
@@ -174,42 +157,33 @@ export function HelpModal({ isOpen, onClose }: HelpModalProps) {
               <div className="space-y-2">
                 {[
                   {
-                    icon: '💘',
                     title: '1. Le Ragoteur (Nuit 1 uniquement)',
                     desc: 'Désigne 2 Inséparables. Le meneur les rendort et les touche discrètement pour qu\'ils ouvrent les yeux et se reconnaissent.',
                   },
                   {
-                    icon: '🍲',
                     title: '2. Le Cuisto',
                     desc: 'Prépare un casse-croûte protecteur pour un joueur. Interdiction formelle de protéger la même personne 2 nuits de suite.',
                   },
                   {
-                    icon: '🚰',
                     title: '3. Le Pisseur',
                     desc: 'En route pour les feuillées, il pointe un joueur. L\'écran dévoile son identité au meneur qui la lui communique silencieusement.',
                   },
                   {
-                    icon: '🔦',
                     title: '4. La Maîtrise (Responsables + Pico)',
                     desc: 'Se réveillent ensemble en silence et s\'accordent par gestes sur une victime à éliminer.',
                   },
                   {
-                    icon: '🗡️',
                     title: '5. Le Pico (Nuits paires : 2, 4, 6...)',
                     desc: 'Le rebelle peut poignarder discrètement un Responsable dans le dos (action optionnelle).',
                   },
                   {
-                    icon: '🩹',
                     title: '6. Resp. Pharmacie',
                     desc: 'Découvre la victime de la nuit (si non protégée par le Cuisto). Peut appliquer l\'Arnica (sauver) et/ou donner le Foie de morue (empoisonner). 1 seule utilisation chacune par partie.',
                   },
                 ].map(item => (
-                  <div key={item.title} className="p-3 rounded-xl bg-[#101626] border border-[#34497a] flex items-start gap-3">
-                    <span className="text-lg">{item.icon}</span>
-                    <div>
-                      <h4 className="font-bold text-[#f3f4f6]">{item.title}</h4>
-                      <p className="text-slate-300">{item.desc}</p>
-                    </div>
+                  <div key={item.title} className="p-3 rounded-xl bg-[#16181d] border border-[#2e323c]">
+                    <h4 className="font-bold text-[#f3f4f6]">{item.title}</h4>
+                    <p className="text-slate-300 mt-0.5">{item.desc}</p>
                   </div>
                 ))}
               </div>
@@ -218,9 +192,9 @@ export function HelpModal({ isOpen, onClose }: HelpModalProps) {
 
           {selectedTab === 'rules' && (
             <div className="space-y-4 text-xs leading-relaxed text-slate-300">
-              <div className="p-3.5 rounded-xl bg-[#101626] border border-[#34497a] space-y-2">
-                <h4 className="font-bold text-[#f3f4f6] flex items-center gap-2">
-                  <span>⭐</span> Chef de Camp (Élu au Jour 1)
+              <div className="p-3.5 rounded-xl bg-[#16181d] border border-[#2e323c] space-y-2">
+                <h4 className="font-bold text-[#f3f4f6]">
+                  Chef de Camp (Élu au Jour 1)
                 </h4>
                 <p>
                   Élu à main levée lors du premier rassemblement du matin. En cas d'égalité lors des
@@ -229,9 +203,9 @@ export function HelpModal({ isOpen, onClose }: HelpModalProps) {
                 </p>
               </div>
 
-              <div className="p-3.5 rounded-xl bg-[#101626] border border-[#34497a] space-y-2">
-                <h4 className="font-bold text-[#f3f4f6] flex items-center gap-2">
-                  <span>⚡</span> Effets en cascade immédiats
+              <div className="p-3.5 rounded-xl bg-[#16181d] border border-[#2e323c] space-y-2">
+                <h4 className="font-bold text-[#f3f4f6]">
+                  Effets en cascade immédiats
                 </h4>
                 <ul className="list-disc list-inside space-y-1 text-slate-300">
                   <li>
@@ -246,22 +220,22 @@ export function HelpModal({ isOpen, onClose }: HelpModalProps) {
                 </ul>
               </div>
 
-              <div className="p-3.5 rounded-xl bg-[#101626] border border-[#34497a] space-y-2">
-                <h4 className="font-bold text-[#f3f4f6] flex items-center gap-2">
-                  <span>🏆</span> Conditions de Victoire
+              <div className="p-3.5 rounded-xl bg-[#16181d] border border-[#2e323c] space-y-2">
+                <h4 className="font-bold text-[#f3f4f6]">
+                  Conditions de Victoire
                 </h4>
                 <ul className="list-disc list-inside space-y-1.5 text-slate-300">
                   <li>
                     <strong className="text-emerald-300">Éclaireurs (Tentes) :</strong> Tous les Responsables et le Pico sont éliminés.
                   </li>
                   <li>
-                    <strong className="text-red-300">Maîtrise :</strong> Les Responsables atteignent la parité numérique avec les survivants (sans opposition de Pico ou d'Inséparables mixtes).
+                    <strong className="text-[#e88c95]">Maîtrise :</strong> Les Responsables atteignent la parité numérique avec les survivants (sans opposition de Pico ou d'Inséparables mixtes).
                   </li>
                   <li>
-                    <strong className="text-purple-300">Le Pico :</strong> Termine unique survivant du campement.
+                    <strong className="text-[#e5be6d]">Le Pico :</strong> Termine unique survivant du campement.
                   </li>
                   <li>
-                    <strong className="text-pink-300">Les Inséparables :</strong> S'ils formaient une alliance mixte (Maîtrise + Éclaireur) et restent les 2 derniers survivants.
+                    <strong className="text-[#9eb4eb]">Les Inséparables :</strong> S'ils formaient une alliance mixte (Maîtrise + Éclaireur) et restent les 2 derniers survivants.
                   </li>
                 </ul>
               </div>
@@ -269,11 +243,11 @@ export function HelpModal({ isOpen, onClose }: HelpModalProps) {
           )}
         </div>
 
-        <div className="p-4 border-t border-[#34497a] bg-[#101626] flex justify-end">
+        <div className="p-4 border-t border-[#2e323c] bg-[#16181d] flex justify-end">
           <button
             type="button"
             onClick={onClose}
-            className="px-5 py-2.5 rounded-xl font-semibold text-xs bg-[#415b99] border border-[#34497a] hover:bg-[#4d6bb3] text-[#f3f4f6] transition-colors"
+            className="btn-primary text-xs"
           >
             Fermer le guide
           </button>

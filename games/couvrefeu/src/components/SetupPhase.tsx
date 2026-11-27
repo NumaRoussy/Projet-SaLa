@@ -76,13 +76,10 @@ export function SetupPhase({
     <div className="flex-1 flex flex-col max-w-xl mx-auto w-full p-4 sm:p-6 space-y-5">
       {/* Bannière */}
       <div className="text-center space-y-1.5 pt-1">
-        <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-[#172036] border border-[#34497a] text-3xl">
-          ⛺
-        </div>
         <h2 className="text-2xl font-extrabold text-[#f3f4f6] font-display tracking-tight">
           Préparez la veillée
         </h2>
-        <p className="text-xs sm:text-sm text-slate-300 max-w-md mx-auto">
+        <p className="text-xs sm:text-sm text-slate-400 max-w-md mx-auto">
           Rôles secrets et déduction au camp scout. La Maîtrise rôde après l'extinction des feux !
         </p>
       </div>
@@ -101,7 +98,7 @@ export function SetupPhase({
               <button
                 type="button"
                 onClick={handleAddDemoPlayers}
-                className="text-xs text-slate-200 hover:text-[#f3f4f6] hover:underline font-medium"
+                className="text-xs text-slate-300 hover:text-[#f3f4f6] hover:underline font-medium"
               >
                 Remplir (10 démo)
               </button>
@@ -110,7 +107,7 @@ export function SetupPhase({
               <button
                 type="button"
                 onClick={handleClearPlayers}
-                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#2b171b] hover:bg-[#3a1f24] border border-[#7f2d38] text-red-200 text-xs font-semibold transition-colors"
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#16181d] hover:bg-[#262a33] border border-[#9b2c37] text-red-200 text-xs font-semibold transition-colors"
               >
                 <span>🗑️</span>
                 <span>Vider</span>
@@ -135,7 +132,7 @@ export function SetupPhase({
           <button
             type="submit"
             disabled={!newPlayerName.trim() || count >= MAX_PLAYERS}
-            className="btn-amber px-4 py-2.5 shrink-0"
+            className="btn-primary py-2.5 px-4 shrink-0"
           >
             + Ajouter
           </button>
@@ -150,7 +147,7 @@ export function SetupPhase({
             {players.map((p, idx) => (
               <div
                 key={p.id}
-                className="flex items-center justify-between px-3 py-2 rounded-xl bg-[#101626] border border-[#34497a] text-xs"
+                className="flex items-center justify-between px-3 py-2 rounded-xl bg-[#16181d] border border-[#2e323c] text-xs"
               >
                 <div className="flex items-center gap-2 truncate">
                   <span className="text-slate-400 font-mono text-[10px] w-4">{idx + 1}.</span>
@@ -169,7 +166,7 @@ export function SetupPhase({
             ))}
           </div>
         ) : (
-          <div className="text-center py-5 text-slate-400 text-xs border border-dashed border-[#34497a] rounded-xl bg-[#101626]">
+          <div className="text-center py-5 text-slate-400 text-xs border border-dashed border-[#2e323c] rounded-xl bg-[#16181d]">
             Aucun scout inscrit. Ajoutez entre {MIN_PLAYERS} et {MAX_PLAYERS} prénoms pour débuter.
           </div>
         )}
@@ -178,55 +175,50 @@ export function SetupPhase({
       {/* Composition dynamique du Meneur */}
       <div className="glass-card p-4 sm:p-5 space-y-3">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="text-lg">📜</span>
-            <h2 className="text-xs sm:text-sm font-bold text-slate-200 uppercase tracking-wider font-display">
-              Composition de la partie
-            </h2>
-          </div>
+          <h2 className="text-xs sm:text-sm font-bold text-slate-200 uppercase tracking-wider font-display">
+            Composition de la partie
+          </h2>
           <span
             className={`px-2.5 py-0.5 rounded-full text-xs font-bold border ${
               isValidCount
-                ? 'bg-[#122620] text-emerald-200 border-[#2d6a4f]'
-                : 'bg-[#261d12] text-amber-200 border-[#785127]'
+                ? 'bg-[#16181d] text-emerald-300 border-[#2e6f56]'
+                : 'bg-[#16181d] text-[#e5be6d] border-[#b5892e]'
             }`}
           >
             {count} / {MAX_PLAYERS} Joueurs
           </span>
         </div>
 
-        <div className="p-3.5 rounded-xl bg-[#101626] border border-[#34497a] space-y-2">
+        <div className="p-3.5 rounded-xl bg-[#16181d] border border-[#2e323c] space-y-2">
           <div className="flex flex-wrap gap-1.5">
             {summaryParts.map((item, idx) => (
               <span
                 key={idx}
-                className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold bg-[#172036] border border-[#34497a] text-slate-200"
+                className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold bg-[#1f2229] border border-[#2e323c] text-slate-200"
               >
                 {item}
               </span>
             ))}
           </div>
 
-          <div className="pt-2 border-t border-[#34497a] flex items-center justify-between text-[11px] text-slate-400">
-            <span>⭐ Chef de Camp : élu le Jour 1</span>
+          <div className="pt-2 border-t border-[#2e323c] flex items-center justify-between text-[11px] text-slate-400">
+            <span>Chef de Camp : élu le Jour 1</span>
             <button
               type="button"
               onClick={onOpenHelp}
               className="text-slate-200 hover:text-[#f3f4f6] hover:underline font-semibold flex items-center gap-1"
             >
-              <span>Détails des pouvoirs</span> ➔
+              <span>Détails des pouvoirs</span>
+              <span>→</span>
             </button>
           </div>
         </div>
 
         {!isValidCount && (
-          <div className="p-3 rounded-xl bg-[#261d12] border border-[#785127] text-amber-200 text-xs flex items-center gap-2.5">
-            <span className="text-base">⚠️</span>
-            <p>
-              {count < MIN_PLAYERS
-                ? `Il vous manque encore ${MIN_PLAYERS - count} scout(s) pour lancer la partie (${MIN_PLAYERS} joueurs minimum).`
-                : `Le jeu accepte au maximum ${MAX_PLAYERS} joueurs.`}
-            </p>
+          <div className="p-3 rounded-xl bg-[#16181d] border border-[#b5892e] text-[#e5be6d] text-xs">
+            {count < MIN_PLAYERS
+              ? `Il vous manque encore ${MIN_PLAYERS - count} scout(s) pour lancer la partie (${MIN_PLAYERS} joueurs minimum).`
+              : `Le jeu accepte au maximum ${MAX_PLAYERS} joueurs.`}
           </div>
         )}
       </div>
@@ -237,10 +229,9 @@ export function SetupPhase({
           type="button"
           onClick={onStartDistribution}
           disabled={!isValidCount}
-          className="btn-amber w-full py-4 text-base font-bold font-display"
+          className="btn-primary w-full font-display"
         >
-          <span>🃏</span>
-          <span>Lancer la distribution des cartes</span>
+          Lancer la distribution des cartes
         </button>
       </div>
     </div>

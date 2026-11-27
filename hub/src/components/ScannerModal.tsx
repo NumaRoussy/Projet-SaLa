@@ -112,17 +112,16 @@ export function ScannerModal({ onAuthorized, onClose }: Props) {
   return (
     <div className="overlay flex items-end sm:items-center justify-center p-0 sm:p-4 z-50 overflow-y-auto" onClick={onClose}>
       <div
-        className="bg-[#162920] w-full max-w-lg rounded-b-none sm:rounded-3xl rounded-t-3xl p-5 sm:p-6 pb-8 max-h-[92dvh] overflow-y-auto border border-[#2d6a4f]"
+        className="bg-[#1f2229] w-full max-w-lg rounded-b-none sm:rounded-3xl rounded-t-3xl p-5 sm:p-6 pb-8 max-h-[92dvh] overflow-y-auto border border-[#2e323c]"
         onClick={e => e.stopPropagation()}
       >
-        <div className="w-10 h-1 bg-[#2d6a4f] rounded-full mx-auto mb-4" />
+        <div className="w-10 h-1 bg-[#2e323c] rounded-full mx-auto mb-4" />
 
         <div className="text-center mb-4 space-y-1">
-          <h2 className="font-display font-bold text-white text-lg sm:text-xl flex items-center justify-center gap-2">
-            <span>🔑</span>
-            <span>Accès Espace Maîtrise</span>
+          <h2 className="font-display font-bold text-[#f3f4f6] text-lg sm:text-xl">
+            Accès Espace Maîtrise
           </h2>
-          <p className="text-gray-300 text-xs max-w-xs mx-auto leading-relaxed">
+          <p className="text-slate-300 text-xs max-w-xs mx-auto leading-relaxed">
             Scannez le QR code d'un responsable parrain (120s) ou d'une amorce AG, ou saisissez le code.
           </p>
         </div>
@@ -137,8 +136,8 @@ export function ScannerModal({ onAuthorized, onClose }: Props) {
           />
         </div>
 
-        <form onSubmit={handleManualSubmit} className="flex flex-col gap-2.5 pt-3 border-t border-[#2d6a4f]/50">
-          <label className="text-xs font-semibold text-gray-300 text-center">
+        <form onSubmit={handleManualSubmit} className="flex flex-col gap-2.5 pt-3 border-t border-[#2e323c]">
+          <label className="text-xs font-semibold text-slate-300 text-center">
             Ou collez le code / lien d'invitation :
           </label>
           <input
@@ -151,12 +150,12 @@ export function ScannerModal({ onAuthorized, onClose }: Props) {
             spellCheck={false}
           />
           {error && <p className="text-red-300 text-xs text-center font-semibold">{error}</p>}
-          <button type="submit" disabled={loading || !code.trim()} className="btn-amber py-2.5 text-xs font-bold">
-            {loading ? '⏳ Vérification…' : '🔓 Valider le code manuellement'}
+          <button type="submit" disabled={loading || !code.trim()} className="btn-amber w-full text-xs font-semibold">
+            {loading ? 'Vérification…' : 'Valider le code manuellement'}
           </button>
         </form>
 
-        <button className="btn-ghost w-full mt-3 text-xs text-gray-300 hover:text-white" onClick={onClose}>
+        <button className="btn-ghost w-full mt-3 text-xs text-slate-300 hover:text-[#f3f4f6]" onClick={onClose}>
           Annuler
         </button>
       </div>

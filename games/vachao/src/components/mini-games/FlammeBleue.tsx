@@ -25,7 +25,6 @@ export function FlammeBleue({ player1, player2, sips = 2, onFinish }: Props) {
     onFinishRef.current = onFinish
   }, [onFinish])
 
-  // Single timer strictly driven by [phase] so parent re-renders never reset it
   useEffect(() => {
     if (phase !== 'waiting') return
 
@@ -85,32 +84,31 @@ export function FlammeBleue({ player1, player2, sips = 2, onFinish }: Props) {
   return (
     <div
       className={`fixed inset-0 z-50 select-none flex flex-col touch-none overflow-hidden transition-colors duration-100 ${
-        isBlue ? 'bg-[#2563eb]' : 'bg-[#0e1722]'
+        isBlue ? 'bg-[#2563eb]' : 'bg-[#16181d]'
       }`}
     >
       {/* Moitié Joueur 1 (Haut - orienté face à face) */}
       <div
         onPointerDown={() => handleTap(player1)}
-        className={`flex-1 flex flex-col items-center justify-center p-6 border-b border-[#28527a] cursor-pointer transition-colors ${
+        className={`flex-1 flex flex-col items-center justify-center p-6 border-b border-[#2e323c] cursor-pointer transition-colors ${
           isBlue
             ? 'bg-[#2563eb] active:bg-[#3b82f6]'
-            : 'bg-[#0e1722] active:bg-[#152233]'
+            : 'bg-[#16181d] active:bg-[#1f2229]'
         }`}
       >
         <div className="rotate-180 flex flex-col items-center gap-2 text-center">
-          <span className="text-3xl">{player1.avatar || '⛺'}</span>
           <span className="font-display font-black text-xl tracking-wide text-[#f3f4f6]">
             {player1.name}
           </span>
 
           {phase === 'result' && winner?.id === player1.id && reactionMs !== null && (
-            <span className="px-3 py-1 rounded-full bg-[#152233] border border-[#32689c] text-sky-200 font-mono text-sm font-bold">
-              🏆 {reactionMs} ms
+            <span className="px-3 py-1 rounded-full bg-[#1f2229] border border-[#2d6394] text-[#8ec2eb] font-mono text-sm font-bold">
+              {reactionMs} ms
             </span>
           )}
 
           {phase === 'false_start' && faultPlayer?.id === player1.id && (
-            <span className="px-3 py-1 rounded-full bg-[#2b171b] border border-[#7f2d38] text-red-200 font-bold text-xs">
+            <span className="px-3 py-1 rounded-full bg-[#1f2229] border border-[#9b2c37] text-[#e88c95] font-bold text-xs">
               FAUX DÉPART !
             </span>
           )}
@@ -121,18 +119,20 @@ export function FlammeBleue({ player1, player2, sips = 2, onFinish }: Props) {
         </div>
       </div>
 
-      {/* Centre : Flamme & Statut */}
+      {/* Centre : Statut */}
       <div
         className={`px-4 py-5 flex items-center justify-center border-y ${
           isBlue
             ? 'bg-[#3b82f6] border-blue-300'
-            : 'bg-[#152233] border-[#28527a]'
+            : 'bg-[#1f2229] border-[#2e323c]'
         }`}
       >
         {phase === 'waiting' && (
           <div className="flex flex-col items-center text-center gap-1">
-            <span className="text-4xl">🔥</span>
-            <span className="text-xs font-bold text-orange-300">
+            <span className="text-sm font-bold text-[#e0aa75] uppercase tracking-wider">
+              Flamme rouge / orange
+            </span>
+            <span className="text-xs font-semibold text-slate-300">
               Attendez le bleu... Ne touchez pas !
             </span>
           </div>
@@ -140,7 +140,6 @@ export function FlammeBleue({ player1, player2, sips = 2, onFinish }: Props) {
 
         {phase === 'blue' && (
           <div className="flex flex-col items-center text-center gap-1">
-            <span className="text-4xl">🔷</span>
             <span className="text-lg font-black text-white tracking-wider uppercase">
               MAINTENANT !
             </span>
@@ -149,13 +148,13 @@ export function FlammeBleue({ player1, player2, sips = 2, onFinish }: Props) {
 
         {phase === 'false_start' && (
           <div className="flex flex-col items-center text-center gap-2">
-            <span className="text-sm font-bold text-red-300">
-              🚨 Faux départ de {faultPlayer?.name} ! {loser?.name} prend {sips} gorgée{sips > 1 ? 's' : ''}
+            <span className="text-sm font-bold text-[#e88c95]">
+              Faux départ de {faultPlayer?.name} ! {loser?.name} prend {sips} gorgée{sips > 1 ? 's' : ''}
             </span>
             <button
               type="button"
               onClick={handleConfirm}
-              className="px-5 py-2 bg-[#32689c] hover:bg-[#3c7ab5] border border-[#28527a] text-[#f3f4f6] font-bold text-xs rounded-xl transition-colors"
+              className="btn-primary text-xs"
             >
               Continuer →
             </button>
@@ -164,13 +163,13 @@ export function FlammeBleue({ player1, player2, sips = 2, onFinish }: Props) {
 
         {phase === 'result' && (
           <div className="flex flex-col items-center text-center gap-2">
-            <span className="text-sm font-bold text-sky-200">
-              🏆 {winner?.name} gagne ({reactionMs} ms) ! {loser?.name} boit {sips} gorgée{sips > 1 ? 's' : ''}
+            <span className="text-sm font-bold text-[#8ec2eb]">
+              {winner?.name} gagne ({reactionMs} ms) ! {loser?.name} boit {sips} gorgée{sips > 1 ? 's' : ''}
             </span>
             <button
               type="button"
               onClick={handleConfirm}
-              className="px-5 py-2 bg-[#32689c] hover:bg-[#3c7ab5] border border-[#28527a] text-[#f3f4f6] font-bold text-xs rounded-xl transition-colors"
+              className="btn-primary text-xs"
             >
               Continuer →
             </button>
@@ -181,10 +180,10 @@ export function FlammeBleue({ player1, player2, sips = 2, onFinish }: Props) {
       {/* Moitié Joueur 2 (Bas) */}
       <div
         onPointerDown={() => handleTap(player2)}
-        className={`flex-1 flex flex-col items-center justify-center p-6 border-t border-[#28527a] cursor-pointer transition-colors ${
+        className={`flex-1 flex flex-col items-center justify-center p-6 border-t border-[#2e323c] cursor-pointer transition-colors ${
           isBlue
             ? 'bg-[#2563eb] active:bg-[#3b82f6]'
-            : 'bg-[#0e1722] active:bg-[#152233]'
+            : 'bg-[#16181d] active:bg-[#1f2229]'
         }`}
       >
         <div className="flex flex-col items-center gap-2 text-center">
@@ -193,21 +192,20 @@ export function FlammeBleue({ player1, player2, sips = 2, onFinish }: Props) {
           </span>
 
           {phase === 'false_start' && faultPlayer?.id === player2.id && (
-            <span className="px-3 py-1 rounded-full bg-[#2b171b] border border-[#7f2d38] text-red-200 font-bold text-xs">
+            <span className="px-3 py-1 rounded-full bg-[#1f2229] border border-[#9b2c37] text-[#e88c95] font-bold text-xs">
               FAUX DÉPART !
             </span>
           )}
 
           {phase === 'result' && winner?.id === player2.id && reactionMs !== null && (
-            <span className="px-3 py-1 rounded-full bg-[#152233] border border-[#32689c] text-sky-200 font-mono text-sm font-bold">
-              🏆 {reactionMs} ms
+            <span className="px-3 py-1 rounded-full bg-[#1f2229] border border-[#2d6394] text-[#8ec2eb] font-mono text-sm font-bold">
+              {reactionMs} ms
             </span>
           )}
 
           <span className="font-display font-black text-xl tracking-wide text-[#f3f4f6]">
             {player2.name}
           </span>
-          <span className="text-3xl">{player2.avatar || '🪵'}</span>
         </div>
       </div>
     </div>

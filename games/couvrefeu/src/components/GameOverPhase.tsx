@@ -21,27 +21,23 @@ export function GameOverPhase({
     switch (victory.winner) {
       case 'tentes':
         return {
-          icon: '⛺',
-          colorBadge: 'bg-[#122620] text-emerald-200 border-[#2d6a4f]',
-          border: 'border-[#2d6a4f]',
+          colorBadge: 'bg-[#16181d] text-emerald-300 border-[#2e6f56]',
+          border: 'border-[#2e6f56]',
         }
       case 'maitrise':
         return {
-          icon: '🔦',
-          colorBadge: 'bg-[#2b171b] text-red-200 border-[#7f2d38]',
-          border: 'border-[#7f2d38]',
+          colorBadge: 'bg-[#16181d] text-[#e88c95] border-[#9b2c37]',
+          border: 'border-[#9b2c37]',
         }
       case 'pico':
         return {
-          icon: '🗡️',
-          colorBadge: 'bg-[#201830] text-purple-200 border-[#5f3d91]',
-          border: 'border-[#5f3d91]',
+          colorBadge: 'bg-[#16181d] text-[#e5be6d] border-[#b5892e]',
+          border: 'border-[#b5892e]',
         }
       case 'inseparables':
         return {
-          icon: '💖',
-          colorBadge: 'bg-[#291724] text-pink-200 border-[#7d3666]',
-          border: 'border-[#7d3666]',
+          colorBadge: 'bg-[#16181d] text-[#9eb4eb] border-[#3b5998]',
+          border: 'border-[#3b5998]',
         }
     }
   }
@@ -51,13 +47,9 @@ export function GameOverPhase({
   return (
     <div className="flex-1 flex flex-col justify-center max-w-xl mx-auto w-full p-4 sm:p-6 space-y-6">
       <div className={`glass-card p-6 sm:p-8 text-center space-y-4 border-2 ${theme.border}`}>
-        <div className="w-16 h-16 mx-auto rounded-2xl bg-[#101626] border border-[#34497a] flex items-center justify-center text-4xl">
-          {theme.icon}
-        </div>
-
         <div className="space-y-2">
           <span
-            className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border ${theme.colorBadge}`}
+            className={`inline-block px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border ${theme.colorBadge}`}
           >
             Fin de la partie
           </span>
@@ -71,10 +63,10 @@ export function GameOverPhase({
 
         <div className="pt-2 flex items-center justify-center gap-4 text-xs text-slate-400 font-mono">
           <span>
-            ⏱️ Durée : {minutes}m {seconds < 10 ? `0${seconds}` : seconds}s
+            Durée : {minutes}m {seconds < 10 ? `0${seconds}` : seconds}s
           </span>
           <span>•</span>
-          <span>👥 {players.length} scouts</span>
+          <span>{players.length} scouts</span>
         </div>
       </div>
 
@@ -93,29 +85,34 @@ export function GameOverPhase({
                 key={p.id}
                 className={`p-3 rounded-xl border flex items-center justify-between text-xs ${
                   p.isAlive
-                    ? 'bg-[#101626] border-[#34497a] text-[#f3f4f6]'
-                    : 'bg-[#121828] border-[#263559] text-slate-400 opacity-75'
+                    ? 'bg-[#16181d] border-[#2e323c] text-[#f3f4f6]'
+                    : 'bg-[#16181d] border-[#2e323c] text-slate-400 opacity-70'
                 }`}
               >
-                <div className="flex items-center gap-2.5 truncate">
-                  <span className="text-xl shrink-0">{rDef.icon}</span>
-                  <div className="truncate">
-                    <div className="flex items-center gap-1.5 truncate">
-                      <span className="font-bold truncate">{p.name}</span>
-                      {p.isCampChief && <span title="Chef de Camp">⭐</span>}
-                      {p.isInseparable && <span title="Inséparable">❤️</span>}
-                    </div>
-                    <span className={`text-[11px] block ${isMaitrise ? 'text-red-300' : 'text-emerald-300'}`}>
-                      {rDef.name}
-                    </span>
+                <div className="truncate">
+                  <div className="flex items-center gap-1.5 truncate">
+                    <span className="font-bold truncate">{p.name}</span>
+                    {p.isCampChief && (
+                      <span className="text-[10px] px-1.5 py-0.2 rounded bg-[#1f2229] border border-[#b5892e] text-[#e5be6d]">
+                        Chef
+                      </span>
+                    )}
+                    {p.isInseparable && (
+                      <span className="text-[10px] px-1.5 py-0.2 rounded bg-[#1f2229] border border-[#3b5998] text-[#9eb4eb]">
+                        Lié
+                      </span>
+                    )}
                   </div>
+                  <span className={`text-[11px] block ${isMaitrise ? 'text-[#e88c95]' : 'text-emerald-300'}`}>
+                    {rDef.name}
+                  </span>
                 </div>
 
                 <span
-                  className={`text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 border ${
+                  className={`text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 border bg-[#1f2229] ${
                     p.isAlive
-                      ? 'bg-[#122620] text-emerald-200 border-[#2d6a4f]'
-                      : 'bg-[#2b171b] text-red-200 border-[#7f2d38]'
+                      ? 'text-emerald-300 border-[#2e6f56]'
+                      : 'text-[#e88c95] border-[#9b2c37]'
                   }`}
                 >
                   {p.isAlive ? 'Vivant' : 'Éliminé'}
@@ -127,9 +124,8 @@ export function GameOverPhase({
       </div>
 
       <div className="pt-1">
-        <button type="button" onClick={onRestartGame} className="btn-amber w-full py-4 text-base font-bold font-display">
-          <span>🔄</span>
-          <span>Rejouer une nouvelle partie</span>
+        <button type="button" onClick={onRestartGame} className="btn-primary w-full font-display">
+          Rejouer une nouvelle partie
         </button>
       </div>
     </div>

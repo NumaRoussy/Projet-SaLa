@@ -61,11 +61,11 @@ export function ProposeModal({ isOpen, initialGameMode, onClose }: Props) {
   return (
     <div className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4" onClick={onClose}>
       <div
-        className="bg-[#152233] border border-[#28527a] rounded-2xl w-full max-w-md max-h-[90dvh] overflow-y-auto p-5 space-y-4 text-[#f3f4f6]"
+        className="bg-[#1f2229] border border-[#2e323c] rounded-2xl w-full max-w-md max-h-[90dvh] overflow-y-auto p-5 space-y-4 text-[#f3f4f6]"
         onClick={e => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between pb-3 border-b border-[#28527a]">
-          <h2 className="font-display font-bold text-lg text-[#f3f4f6]">💡 Proposer une carte — Vachao</h2>
+        <div className="flex items-center justify-between pb-3 border-b border-[#2e323c]">
+          <h2 className="font-display font-bold text-lg text-[#f3f4f6]">Proposer une carte (Vachao)</h2>
           <button type="button" onClick={onClose} className="btn-ghost px-2 py-1 text-sm">
             ✕
           </button>
@@ -73,7 +73,6 @@ export function ProposeModal({ isOpen, initialGameMode, onClose }: Props) {
 
         {success ? (
           <div className="py-6 text-center space-y-4">
-            <div className="text-4xl">✅</div>
             <p className="text-sm font-semibold text-emerald-300">
               Carte proposée ! Merci pour ta contribution.
             </p>
@@ -91,24 +90,24 @@ export function ProposeModal({ isOpen, initialGameMode, onClose }: Props) {
                 <button
                   type="button"
                   onClick={() => setMode('passif')}
-                  className={`py-2.5 px-3 rounded-xl text-xs font-bold border transition-colors ${
+                  className={`py-2.5 px-3 rounded-lg text-xs font-semibold border transition-colors ${
                     mode === 'passif'
-                      ? 'bg-[#1c3552] border-[#32689c] text-sky-200'
-                      : 'bg-[#0e1722] border-[#28527a] text-slate-400 hover:text-[#f3f4f6]'
+                      ? 'bg-[#262a33] border-[#2d6394] text-[#f3f4f6]'
+                      : 'bg-[#16181d] border-[#2e323c] text-slate-400 hover:text-[#f3f4f6]'
                   }`}
                 >
-                  🪵 Pépère (Passif)
+                  Pépère (Passif)
                 </button>
                 <button
                   type="button"
                   onClick={() => setMode('actif')}
-                  className={`py-2.5 px-3 rounded-xl text-xs font-bold border transition-colors ${
+                  className={`py-2.5 px-3 rounded-lg text-xs font-semibold border transition-colors ${
                     mode === 'actif'
-                      ? 'bg-[#261d12] border-[#785127] text-amber-200'
-                      : 'bg-[#0e1722] border-[#28527a] text-slate-400 hover:text-[#f3f4f6]'
+                      ? 'bg-[#262a33] border-[#2d6394] text-[#f3f4f6]'
+                      : 'bg-[#16181d] border-[#2e323c] text-slate-400 hover:text-[#f3f4f6]'
                   }`}
                 >
-                  ⚡ Commando (Actif)
+                  Commando (Actif)
                 </button>
               </div>
             </div>
@@ -126,9 +125,9 @@ export function ProposeModal({ isOpen, initialGameMode, onClose }: Props) {
                 className="input-scout resize-none"
               />
               <p className="text-[11px] text-slate-400 mt-1">
-                Balises disponibles : <code className="text-sky-300">{'{p1}'}</code>,{' '}
-                <code className="text-sky-300">{'{p2}'}</code>,{' '}
-                <code className="text-amber-300">{'{sips}'}</code>
+                Balises disponibles : <code className="text-[#8ec2eb]">{'{p1}'}</code>,{' '}
+                <code className="text-[#8ec2eb]">{'{p2}'}</code>,{' '}
+                <code className="text-[#e5be6d]">{'{sips}'}</code>
               </p>
             </div>
 
@@ -144,8 +143,8 @@ export function ProposeModal({ isOpen, initialGameMode, onClose }: Props) {
                     onClick={() => setSips(val)}
                     className={`py-2 rounded-lg text-xs font-bold border transition-colors ${
                       sips === val
-                        ? 'bg-[#32689c] border-[#4280bd] text-[#f3f4f6]'
-                        : 'bg-[#0e1722] border-[#28527a] text-slate-400 hover:text-[#f3f4f6]'
+                        ? 'bg-[#2d6394] border-[#2d6394] text-[#f3f4f6]'
+                        : 'bg-[#16181d] border-[#2e323c] text-slate-400 hover:text-[#f3f4f6]'
                     }`}
                   >
                     {val}
@@ -155,7 +154,7 @@ export function ProposeModal({ isOpen, initialGameMode, onClose }: Props) {
             </div>
 
             {error && (
-              <p className="text-xs text-red-300 bg-[#2b171b] border border-[#7f2d38] rounded-xl p-2.5">
+              <p className="text-xs text-red-300 bg-[#2a191c] border border-[#9b2c37] rounded-lg p-2.5">
                 {error}
               </p>
             )}

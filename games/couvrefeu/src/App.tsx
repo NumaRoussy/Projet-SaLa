@@ -290,14 +290,14 @@ export default function App() {
   }
 
   return (
-    <div className="app-container bg-[#101626] text-[#f3f4f6] min-h-[100dvh] flex flex-col justify-between">
+    <div className="app-container bg-[#16181d] text-[#f3f4f6] min-h-[100dvh] flex flex-col justify-between">
       {/* ── En-tête uniforme ──────────────────────────────────────────────── */}
-      <header className="sticky top-0 z-30 bg-[#172036] border-b border-[#34497a] px-4 py-3">
+      <header className="sticky top-0 z-30 bg-[#1f2229] border-b border-[#3b5998] px-4 py-3">
         <div className="max-w-xl mx-auto grid grid-cols-3 items-center gap-2">
           <div className="justify-self-start">
             <a
               href={HUB_URL}
-              className="inline-flex items-center px-2.5 py-1.5 rounded-lg border border-[#34497a] bg-[#101626] hover:bg-[#1e2a45] text-[#f3f4f6] text-xs font-semibold transition-colors"
+              className="inline-flex items-center px-2.5 py-1.5 rounded-lg border border-[#2e323c] bg-[#16181d] hover:bg-[#262a33] text-[#f3f4f6] text-xs font-semibold transition-colors"
             >
               ← Menu
             </a>
@@ -311,7 +311,7 @@ export default function App() {
             <button
               type="button"
               onClick={() => setIsHelpOpen(true)}
-              className="inline-flex items-center gap-1 px-2 py-1.5 rounded-lg border border-[#34497a] bg-[#101626] hover:bg-[#1e2a45] text-[#f3f4f6] text-xs font-semibold transition-colors"
+              className="inline-flex items-center gap-1 px-2 py-1.5 rounded-lg border border-[#2e323c] bg-[#16181d] hover:bg-[#262a33] text-[#f3f4f6] text-xs font-semibold transition-colors"
               title="Consulter le guide des rôles et règles"
             >
               <span>?</span>
@@ -320,7 +320,7 @@ export default function App() {
             <button
               type="button"
               onClick={() => setIsProposeOpen(true)}
-              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-[#5473bd] bg-[#415b99] hover:bg-[#4d6bb3] text-[#f3f4f6] text-xs font-semibold transition-colors"
+              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-[#b5892e] bg-[#1f2229] hover:bg-[#262a33] text-[#f3f4f6] text-xs font-semibold transition-colors"
             >
               <span>💡</span>
               <span>Proposer</span>
@@ -415,8 +415,8 @@ export default function App() {
       <ProposeModal isOpen={isProposeOpen} onClose={() => setIsProposeOpen(false)} />
 
       {/* ── PIED DE PAGE DISCRET ─────────────────────────────────── */}
-      <footer className="py-3 px-4 text-center border-t border-[#34497a] bg-[#172036] text-[11px] text-slate-400">
-        Projet indépendant — Non affilié à l'ASVd, au MSdS, à J+S ou à toute autre organisation.
+      <footer className="py-3 px-4 text-center border-t border-[#2e323c] bg-[#1f2229] text-[11px] text-slate-400">
+        Projet indépendant. Non affilié à l'ASVd, au MSdS, à J+S ou à toute autre organisation.
       </footer>
     </div>
   )

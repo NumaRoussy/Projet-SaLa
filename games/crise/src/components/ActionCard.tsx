@@ -16,37 +16,39 @@ export function ActionCard({
   roundNumber,
   onExecute,
 }: Props) {
-  // Potential targets: other survivors
   const eligibleTargets = useMemo(() => {
     const others = survivors.filter(s => s.id !== activeResponsable.id)
     return others.length > 0 ? others : survivors
   }, [survivors, activeResponsable])
 
-  const [selectedTargetId, setSelectedTargetId] = useState<string>(() => {
-    return eligibleTargets[0]?.id || activeResponsable.id
-  })
+  const [selectedTargetId, setSelectedTargetId] = useState<string>('')
 
+  // Réinitialise la cible à chaque nouvelle carte / nouveau tour (aucune cible présélectionnée)
   useEffect(() => {
-    if (!eligibleTargets.some(t => t.id === selectedTargetId)) {
-      setSelectedTargetId(eligibleTargets[0]?.id || activeResponsable.id)
-    }
-  }, [eligibleTargets, selectedTargetId, activeResponsable.id])
+    setSelectedTargetId('')
+  }, [roundNumber, card.id, activeResponsable.id])
 
-  // Format content with player names
+  // Resynchronisation : réinitialise uniquement si la cible sélectionnée n'est plus éligible
+  useEffect(() => {
+    if (selectedTargetId && !eligibleTargets.some(t => t.id === selectedTargetId)) {
+      setSelectedTargetId('')
+    }
+  }, [eligibleTargets, selectedTargetId])
+
   const formattedContent = useMemo(() => {
     let text = card.content
-    const target = survivors.find(s => s.id === selectedTargetId) || activeResponsable
+    const target = eligibleTargets.find(s => s.id === selectedTargetId)
     text = text.replace(/{p1}/g, activeResponsable.name)
-    text = text.replace(/{p2}/g, target.name)
+    text = text.replace(/{p2}/g, target ? target.name : 'la cible')
     text = text.replace(/{sips}/g, `${card.sips || 2}`)
     return text
-  }, [card, activeResponsable, selectedTargetId, survivors])
+  }, [card, activeResponsable, selectedTargetId, eligibleTargets])
 
   const isDebuffCard = card.category === 'regle'
   const isAttackCard = card.category === 'attaque'
 
   const handleApply = () => {
-
+    if (!selectedTargetId) return
     let debuffTitle = ''
     if (isDebuffCard) {
       if (card.title.toLowerCase().includes('hache') || card.title.toLowerCase().includes('tronçonneuse')) {
@@ -62,74 +64,65 @@ export function ActionCard({
   }
 
   return (
-    <div className="flex-1 flex flex-col justify-between p-4 max-w-lg mx-auto w-full animate-fade-in">
+    <div className="flex-1 flex flex-col justify-between p-4 max-w-lg mx-auto w-full">
       {/* Active Responsable Banner */}
-      <div className="bg-[#161922] border border-[#8c2d38] rounded-2xl p-3 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <span className="text-2xl">{activeResponsable.avatar || '👮'}</span>
-          <div>
-            <div className="text-[10px] text-red-400 font-mono uppercase font-bold">
-              Responsable Actif au Rapport
-            </div>
-            <div className="font-display font-black text-white text-base leading-none">
-              {activeResponsable.name}
-            </div>
+      <div className="bg-[#1f2229] border border-[#9b2c37] rounded-2xl p-3 flex items-center justify-between">
+        <div>
+          <div className="text-[10px] text-[#e88c95] font-mono uppercase font-bold">
+            Responsable Actif au Rapport
+          </div>
+          <div className="font-display font-black text-[#f3f4f6] text-base leading-none mt-1">
+            {activeResponsable.name}
           </div>
         </div>
         <div className="text-right">
-          <div className="text-[10px] text-gray-400 font-mono">Perte Actuelle</div>
-          <div className="font-mono text-sm font-bold text-red-400">
+          <div className="text-[10px] text-slate-400 font-mono">Perte Actuelle</div>
+          <div className="font-mono text-sm font-bold text-[#e88c95]">
             {activeResponsable.lossPercent.toFixed(1)}%
           </div>
         </div>
       </div>
 
       {/* Main Crisis Action Card */}
-      <div className="my-auto py-4">
-        <div className="bg-[#161922] border border-red-900/60 rounded-2xl p-6 sm:p-7 space-y-5">
-          {/* Category Tag */}
+      <div className="my-auto py-3">
+        <div className="bg-[#1f2229] border border-[#9b2c37] rounded-2xl p-5 sm:p-6 space-y-4">
           <div className="flex items-center justify-between">
             <span
-              className={`text-[10px] px-2.5 py-0.5 rounded-full font-mono font-bold uppercase border ${
+              className={`text-[10px] px-2.5 py-0.5 rounded-full font-mono font-bold uppercase border bg-[#16181d] ${
                 isAttackCard
-                  ? 'bg-red-950/80 text-red-300 border-red-700/60'
+                  ? 'text-[#e88c95] border-[#9b2c37]'
                   : isDebuffCard
-                  ? 'bg-purple-950/80 text-purple-300 border-purple-700/60'
-                  : 'bg-amber-950/80 text-amber-300 border-amber-700/60'
+                  ? 'text-slate-200 border-[#9b2c37]'
+                  : 'text-[#e5be6d] border-[#b5892e]'
               }`}
             >
-              {isAttackCard ? '💥 Attaque Ciblée' : isDebuffCard ? '⚠️ Malus Permanent' : '⚖️ Inspection & Dilemme'}
+              {isAttackCard ? 'Attaque Ciblée' : isDebuffCard ? 'Malus Permanent' : 'Inspection & Dilemme'}
             </span>
-            <span className="text-[11px] font-mono text-gray-500">Tour #{roundNumber}</span>
+            <span className="text-[11px] font-mono text-slate-400">Tour #{roundNumber}</span>
           </div>
 
-          {/* Title */}
-          <h2 className="font-display font-black text-xl sm:text-2xl text-white tracking-wide leading-tight">
+          <h2 className="font-display font-black text-xl sm:text-2xl text-[#f3f4f6] tracking-wide leading-tight">
             {card.title}
           </h2>
 
-          {/* Body Content */}
-          <p className="font-display text-base sm:text-lg text-gray-200 leading-relaxed font-medium">
+          <p className="font-display text-base sm:text-lg text-slate-200 leading-relaxed font-medium">
             {formattedContent}
           </p>
 
-          {/* Loss impact preview */}
-          <div className="flex items-center justify-between p-3 rounded-xl bg-black/40 border border-white/5 text-xs font-mono">
-            <div className="flex items-center gap-1.5 text-red-400 font-bold">
-              <span>📉 Perte J+S :</span>
-              <span>+{card.loss_percent.toFixed(1)}%</span>
+          <div className="flex items-center justify-between p-3 rounded-xl bg-[#16181d] border border-[#2e323c] text-xs font-mono">
+            <div className="text-[#e88c95] font-bold">
+              Perte J+S : +{card.loss_percent.toFixed(1)}%
             </div>
             {card.sips > 0 && (
-              <div className="text-amber-400 font-bold">
-                🍺 {card.sips} gorgée{card.sips > 1 ? 's' : ''}
+              <div className="text-[#e5be6d] font-bold">
+                {card.sips} gorgée{card.sips > 1 ? 's' : ''}
               </div>
             )}
           </div>
 
-          {/* Target Selector */}
           <div className="space-y-2 pt-1">
-            <label className="text-[11px] font-mono font-bold uppercase text-gray-400 block">
-              🎯 Choisir le Responsable Cible :
+            <label className="text-[11px] font-mono font-bold uppercase text-slate-400 block">
+              Choisir le Responsable Cible :
             </label>
             <div className="grid grid-cols-2 gap-2">
               {eligibleTargets.map(target => {
@@ -139,17 +132,14 @@ export function ActionCard({
                     key={target.id}
                     type="button"
                     onClick={() => setSelectedTargetId(target.id)}
-                    className={`p-2.5 rounded-xl border text-left flex items-center justify-between transition-colors ${
+                    className={`p-2.5 rounded-xl border text-left flex items-center justify-between transition-colors bg-[#16181d] ${
                       isSelected
-                        ? 'bg-[#2b171b] border-[#8c2d38] text-[#f3f4f6]'
-                        : 'bg-[#0d1016] border-[#2a2f3d] text-slate-300 hover:border-[#8c2d38]'
+                        ? 'border-[#9b2c37] text-[#f3f4f6] ring-1 ring-[#9b2c37]'
+                        : 'border-[#2e323c] text-slate-300 hover:border-[#9b2c37]'
                     }`}
                   >
-                    <div className="flex items-center gap-1.5 min-w-0">
-                      <span className="text-sm">{target.avatar || '👮'}</span>
-                      <span className="font-bold text-xs truncate">{target.name}</span>
-                    </div>
-                    <span className="text-[10px] font-mono text-red-400 font-semibold shrink-0">
+                    <span className="font-bold text-xs truncate">{target.name}</span>
+                    <span className="text-[10px] font-mono text-[#e88c95] font-semibold shrink-0 ml-2">
                       {target.lossPercent.toFixed(1)}%
                     </span>
                   </button>
@@ -163,11 +153,12 @@ export function ActionCard({
       {/* Execute Button */}
       <div className="pb-2">
         <button
+          type="button"
           onClick={handleApply}
-          className="w-full py-4 bg-red-700 hover:bg-red-600 text-white font-black text-base rounded-2xl transition-colors flex items-center justify-center gap-2"
+          disabled={!selectedTargetId}
+          className="btn-primary w-full font-bold"
         >
-          <span>🚨</span>
-          <span>APPLIQUER LA PERTE J+S</span>
+          {selectedTargetId ? 'APPLIQUER LA PERTE J+S' : 'Sélectionnez une cible ci-dessus'}
         </button>
       </div>
     </div>

@@ -206,7 +206,7 @@ crise,crise,regle,Amnésie des Sifflets,{p1} a perdu son sifflet et sa voix. Sta
 crise,crise,regle,Responsable Panosse,"{p1} est désigné gardien de la propreté du carnotzet. Statut permanent : dès qu'un autre responsable renverse une goutte ou fait du cheni, {p1} boit {sips} gorgées.",Malus permanent,2,0.0,2
 crise,crise,regle,Inspection Swiss Olympic Renforcée,{p1} se voit attribuer un évaluateur personnel qui note le moindre faux pas. Statut permanent : chaque pénalité en % qu'il reçoit est augmentée de +0.5% (et {sips} gorgées immédiates).,Malus permanent,3,0.5,2
 debrief,debrief,dossiers,La boulette cachée au QM,"{p1}, quelle est la pire pièce de matériel (carré militaire moisi, mât tordu, tente Spatz déchirée) que tu as rangée en douce au local en espérant que le QM ne le voie jamais ?",Avoue le dossier ou bois {sips} gorgées.,3,0.0,2
-debrief,debrief,dossiers,Falsification de grille 3x3,"{p1}, raconte la fois où tu as rempli une analyse de risques 3x3 ou une fiche J+S à l'arrache dans la voiture sur le trajet du camp — ou carrément après l'activité.",Avoue le dossier ou bois {sips} gorgées.,3,0.0,2
+debrief,debrief,dossiers,Falsification de grille 3x3,"{p1}, raconte la fois où tu as rempli une analyse de risques 3x3 ou une fiche J+S à l'arrache dans la voiture sur le trajet du camp, ou carrément après l'activité.",Avoue le dossier ou bois {sips} gorgées.,3,0.0,2
 debrief,debrief,dossiers,Le pire plat servi aux jeunes,"{p1}, quel est le plat le plus immangeable ou douteux que tu aies servi à la Troupe ou à la Meute en faisant croire que « c'est la recette traditionnelle trappeur » ?",Avoue le dossier ou bois {sips} gorgées.,3,0.0,2
 debrief,debrief,dossiers,Perdu en forêt avec sa patrouille,"{p1}, avoue la pire erreur d'orientation en hike ou en course d'orientation où tu as fait semblant devant les jeunes de savoir exactement où vous étiez sur la carte 1:25'000.",Avoue le dossier ou bois {sips} gorgées.,3,0.0,2
 debrief,debrief,dossiers,Le dossier de Froideville,"{p1}, quelle est la chose la plus honteuse ou improbable que tu aies faite lors d'un week-end de maîtrise à la cabane de Froideville ou après une AG cantonale ?",Avoue le dossier ou bois {sips} gorgées.,4,0.0,2
@@ -241,17 +241,76 @@ debrief,debrief,prefere,Évaluation surprise,"Tu préfères subir un audit surpr
 debrief,debrief,prefere,3e mi-temps de Froideville,"Tu préfères passer la panosse dans tout le carnotzet de Froideville à 7h du matin le dimanche, ou faire tous les allers-retours à la déchetterie avec la remorque ?",A: Panosse à 7h du mat | B: Corvée déchetterie avec remorque,2,0.0,3
 debrief,debrief,prefere,Rass mémorable,"Tu préfères animer un rass complètement Rasta devant tous les parents le dimanche matin, ou oublier les paroles du chant de groupe devant tout le canton ?",A: Rass Rasta devant les parents | B: Trou de mémoire devant le canton,3,0.0,3
 debrief,debrief,prefere,Retour de camp,"Tu préfères rentrer de camp en train CFF avec 25 louveteaux survoltés et 3 correspondances ratées, ou charger et décharger seul(e) tout le camion matériel ?",A: 3 correspondances CFF avec la Meute | B: Décharger tout le camion solo,3,0.0,3
-infiltre,,defi,Mot Secret,Place discrètement le mot « Sarasani » dans la conversation sans te faire démasquer.,Mot secret,1,0.0,3
+infiltre,scout,Campement,Sarasani / Spatz,Sarasani,Spatz,0,0.0,3
+infiltre,scout,Campement,Gothard / Berlingot,Gothard,Berlingot,0,0.0,3
+infiltre,scout,Campement,Sardine / Piquet,Sardine,Piquet,0,0.0,3
+infiltre,scout,Campement,Hauban / Corde,Hauban,Corde,0,0.0,3
+infiltre,scout,Campement,Bâche / Tente,Bâche,Tente,0,0.0,3
+infiltre,scout,Campement,Brasero / Foyer,Brasero,Foyer,0,0.0,3
+infiltre,scout,Campement,Braise / Cendre,Braise,Cendre,0,0.0,3
+infiltre,scout,Campement,Bûche / Brindille,Bûche,Brindille,0,0.0,3
+infiltre,scout,Campement,Hamac / Matelas,Hamac,Matelas,0,0.0,3
+infiltre,scout,Matériel,Gamelle / Gourde,Gamelle,Gourde,0,0.0,3
+infiltre,scout,Matériel,Boussole / Carte,Boussole,Carte,0,0.0,3
+infiltre,scout,Matériel,Hache / Scie,Hache,Scie,0,0.0,3
+infiltre,scout,Matériel,Pioche / Pelle,Pioche,Pelle,0,0.0,3
+infiltre,scout,Matériel,Mousqueton / Poulie,Mousqueton,Poulie,0,0.0,3
+infiltre,scout,Matériel,Sisal / Ficelle,Sisal,Ficelle,0,0.0,3
+infiltre,scout,Matériel,Frontale / Lanterne,Frontale,Lanterne,0,0.0,3
+infiltre,scout,Matériel,Thermos / Bidon,Thermos,Bidon,0,0.0,3
+infiltre,scout,Matériel,Jerrican / Vachao,Jerrican,Vachao,0,0.0,3
+infiltre,scout,Matériel,Panosse / Éponge,Panosse,Éponge,0,0.0,3
+infiltre,scout,Matériel,Victorinox / Couteau,Victorinox,Couteau,0,0.0,3
+infiltre,scout,Tradition,Totem / Surnom,Totem,Surnom,0,0.0,3
+infiltre,scout,Tradition,Foulard / Cravate,Foulard,Cravate,0,0.0,3
+infiltre,scout,Tradition,Chemise / Pull,Chemise,Pull,0,0.0,3
+infiltre,scout,Tradition,Sifflet / Cloche,Sifflet,Cloche,0,0.0,3
+infiltre,scout,Tradition,Rass / Veillée,Rass,Veillée,0,0.0,3
+infiltre,scout,Tradition,Hike / Raid,Hike,Raid,0,0.0,3
+infiltre,scout,Tradition,Morse / Sémaphore,Morse,Sémaphore,0,0.0,3
+infiltre,scout,Tradition,Patrouille / Sizaine,Patrouille,Sizaine,0,0.0,3
+infiltre,scout,Tradition,Meute / Troupe,Meute,Troupe,0,0.0,3
+infiltre,scout,Tradition,Froideville / Plambuit,Froideville,Plambuit,0,0.0,3
+infiltre,moldu,Hiver,Ski / Snowboard,Ski,Snowboard,0,0.0,3
+infiltre,moldu,Hiver,Fondue / Raclette,Fondue,Raclette,0,0.0,3
+infiltre,moldu,Hiver,Écharpe / Bonnet,Écharpe,Bonnet,0,0.0,3
+infiltre,moldu,Hiver,Moufles / Gants,Moufles,Gants,0,0.0,3
+infiltre,moldu,Hiver,Luge / Bobsleigh,Luge,Bobsleigh,0,0.0,3
+infiltre,moldu,Hiver,Flocon / Grêlon,Flocon,Grêlon,0,0.0,3
+infiltre,moldu,Hiver,Chalet / Cabane,Chalet,Cabane,0,0.0,3
+infiltre,moldu,Hiver,Marmotte / Chamois,Marmotte,Chamois,0,0.0,3
+infiltre,moldu,Cuisine,Croissant / Brioche,Croissant,Brioche,0,0.0,3
+infiltre,moldu,Cuisine,Spaghetti / Macaroni,Spaghetti,Macaroni,0,0.0,3
+infiltre,moldu,Cuisine,Chocolat / Caramel,Chocolat,Caramel,0,0.0,3
+infiltre,moldu,Cuisine,Pastèque / Melon,Pastèque,Melon,0,0.0,3
+infiltre,moldu,Cuisine,Meringue / Chantilly,Meringue,Chantilly,0,0.0,3
+infiltre,moldu,Cuisine,Citron / Orange,Citron,Orange,0,0.0,3
+infiltre,moldu,Cuisine,Beurre / Margarine,Beurre,Margarine,0,0.0,3
+infiltre,moldu,Objets,Parapluie / Parasol,Parapluie,Parasol,0,0.0,3
+infiltre,moldu,Objets,Oreiller / Coussin,Oreiller,Coussin,0,0.0,3
+infiltre,moldu,Objets,Valise / Sac,Valise,Sac,0,0.0,3
+infiltre,moldu,Objets,Horloge / Montre,Horloge,Montre,0,0.0,3
+infiltre,moldu,Objets,Bougie / Ampoule,Bougie,Ampoule,0,0.0,3
+infiltre,moldu,Objets,Ciseaux / Cutter,Ciseaux,Cutter,0,0.0,3
+infiltre,moldu,Objets,Serrure / Cadenas,Serrure,Cadenas,0,0.0,3
+infiltre,moldu,Objets,Miroir / Vitre,Miroir,Vitre,0,0.0,3
+infiltre,moldu,Nature,Volcan / Montagne,Volcan,Montagne,0,0.0,3
+infiltre,moldu,Nature,Cascade / Rivière,Cascade,Rivière,0,0.0,3
+infiltre,moldu,Nature,Désert / Plage,Désert,Plage,0,0.0,3
+infiltre,moldu,Nature,Forêt / Jungle,Forêt,Jungle,0,0.0,3
+infiltre,moldu,Animaux,Pingouin / Manchot,Pingouin,Manchot,0,0.0,3
+infiltre,moldu,Animaux,Hérisson / Porc-épic,Hérisson,Porc-épic,0,0.0,3
+infiltre,moldu,Animaux,Écureuil / Castor,Écureuil,Castor,0,0.0,3
 rondedenuit,,defi,Ronde de Nuit,Faites le tour du bivouac à pas de loup sans faire craquer la moindre brindille.,Défi discrétion,0,0.0,2
 vachao,passif,carte,Le Champion du Cheni,Votez à main levée : qui dans la maîtrise a laissé le pire cheni dans l'abri bouffe au dernier camp ?,Le désigné boit {sips} gorgées,2,0.0,3
 vachao,passif,regle,Loi du Quartier-Maître,Interdiction formelle de prononcer le mot « duvet » (on dit sac de couchage !). Chaque infraction coûte {sips} gorgée.,durée:3 tours,1,0.0,3
-vachao,passif,carte,Dilemme du MOVA,Préfères-tu revivre la canicule d'Ulrichen avec 2 tonnes de pain à décharger [A] ou passer 4 heures à remplir un concept J+S sur MiData [B] ?,Les minoritaires boivent {sips},2,0.0,3
+vachao,passif,carte,Dilemme du MOVA,Préfères-tu revivre la canicule d'Ulrichen avec 2 tonnes de pain à décharger ou passer 4 heures à remplir un concept J+S sur MiData ?,Les minoritaires boivent {sips},2,0.0,3
 vachao,passif,carte,L'As du Maquillage J+S,Votez : qui est le plus fort pour transformer une sieste sous le Sarasani en « 2 heures d'endurance motrice » sur le formulaire J+S ?,Le désigné boit {sips},3,0.0,3
 vachao,passif,regle,La Malle Secrète,À chaque fois que le Responsable de Groupe (RG) trinque tout le monde doit porter son verre au front en disant « Tout de bon ! ».,durée:4 tours,1,0.0,3
-vachao,passif,carte,Le Dahl vs Le Chili,Tu es condamné pour tout un camp : manger du dahl de lentilles matin et soir [A] ou du chili sin carne sans viande [B] ?,Votez ou buvez {sips},2,0.0,3
-vachao,passif,carte,L'Ambulance en Allemand,Votez : qui a eu la plus grosse sueur froide en essayant d'expliquer un bobo au 144 en suisse-allemand ?,Raconte ou bois {sips},3,0.0,3
+vachao,passif,carte,Le Dahl vs Le Chili,Tu es condamné pour tout un camp : manger du dahl de lentilles matin et soir ou du chili sin carne sans viande ?,Votez ou buvez {sips},2,0.0,3
+vachao,passif,carte,L'Ambulance en Allemand,Tous ceux qui ont déjà eu une grosse sueur froide en essayant d'expliquer un bobo au 144 en suisse-allemand boivent {sips} gorgées.,Tournée générale,3,0.0,3
 vachao,passif,regle,Le Respect de la Titine,Quiconque désigne quelqu'un du doigt doit taper sur la table et crier « Gare à la Titine ! » sous peine de {sips} gorgées.,durée:3 tours,1,0.0,3
-vachao,passif,carte,Météo Jurassienne,Préfères-tu 10 jours de roille non-stop à Plambuit [A] ou oublier la Malle de maîtrise à la gare de Lausanne [B] ?,Choix cornélien : {sips} gorgées,2,0.0,3
+vachao,passif,carte,Météo Jurassienne,Préfères-tu 10 jours de roille non-stop à Plambuit ou oublier la Malle de maîtrise à la gare de Lausanne ?,Choix cornélien : {sips} gorgées,2,0.0,3
 vachao,passif,carte,Le Thé Froid Frelaté,Votez : quel cuistot a déjà coupé le thé froid Migros avec 80% d'eau pour économiser le budget ?,Le radin prend {sips} gorgées,2,0.0,3
 vachao,passif,regle,La Panosse Céleste,À chaque fois qu'un verre tremble le responsable à la droite de la bouteille doit crier « Ça joue ! » sinon il boit {sips} gorgée.,durée:2 tours,1,0.0,3
 vachao,passif,carte,Distribution d'Intendance,{p1} distribue {sips} gorgées réparties entre les chefs qui n'ont jamais monté une patrouille Spatz sous la pluie.,Distribution autoritaire,3,0.0,3

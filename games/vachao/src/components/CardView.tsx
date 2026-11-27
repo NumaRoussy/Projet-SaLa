@@ -1,26 +1,64 @@
 import { useMemo } from 'react'
 import type { Card, Player } from '../types'
 
+export type VachaoCardKind = 'minijeu' | 'regle' | 'vote' | 'duel' | 'challenge' | 'collective'
+
+export function classifyVachaoCard(card: Card): VachaoCardKind {
+  if (card.category === 'minijeu') return 'minijeu'
+  if (card.category === 'regle') return 'regle'
+
+  const titleLower = (card.title || '').trim().toLowerCase()
+  const contentLower = (card.content || '').trim().toLowerCase()
+  const extraLower = (card.extra || '').trim().toLowerCase()
+
+  if (
+    titleLower.startsWith('distribution') ||
+    contentLower.startsWith('votez') ||
+    contentLower.startsWith('distribution') ||
+    extraLower.startsWith('distribution') ||
+    extraLower.includes('le désigné')
+  ) {
+    return 'vote'
+  }
+
+  const hasP1 = card.content.includes('{p1}')
+  const hasP2 = card.content.includes('{p2}')
+
+  if (hasP1 && hasP2) return 'duel'
+  if (hasP1) return 'challenge'
+
+  return 'collective'
+}
+
 interface Props {
   card: Card
+  players: Player[]
   player1: Player | null
   player2: Player | null
   roundNumber: number
   totalCards: number
   onLaunchMiniGame?: () => void
-  onValidate: (success: boolean) => void
+  onDesignatePlayer: (playerId: string) => void
+  onIndividualChallenge: (success: boolean) => void
+  onDuelResult: (loserId: string) => void
   onNext: () => void
 }
 
 export function CardView({
   card,
+  players,
   player1,
   player2,
   roundNumber,
   onLaunchMiniGame,
-  onValidate,
+  onDesignatePlayer,
+  onIndividualChallenge,
+  onDuelResult,
   onNext,
 }: Props) {
+  const sipsValue = card.sips || 2
+  const cardKind = useMemo(() => classifyVachaoCard(card), [card])
+
   const formattedContent = useMemo(() => {
     const p1Name = player1?.name || 'Un chef'
     const p2Name = player2?.name || player1?.name || 'Son binôme'
@@ -28,8 +66,8 @@ export function CardView({
     return card.content
       .replace(/{p1}/g, p1Name)
       .replace(/{p2}/g, p2Name)
-      .replace(/{sips}/g, String(card.sips || 2))
-  }, [card, player1, player2])
+      .replace(/{sips}/g, String(sipsValue))
+  }, [card, player1, player2, sipsValue])
 
   const formattedExtra = useMemo(() => {
     if (!card.extra) return null
@@ -38,23 +76,33 @@ export function CardView({
     return card.extra
       .replace(/{p1}/g, p1Name)
       .replace(/{p2}/g, p2Name)
-      .replace(/{sips}/g, String(card.sips || 2))
-  }, [card, player1, player2])
+      .replace(/{sips}/g, String(sipsValue))
+  }, [card, player1, player2, sipsValue])
 
-  const isMiniGame = card.category === 'minijeu'
-  const isRule = card.category === 'regle'
-  const isDuelOrChallenge = card.category === 'carte' && (card.mode === 'actif' || (player1 && player2))
+  const showBothPlayers = cardKind === 'minijeu' || cardKind === 'duel'
+  const showSinglePlayer =
+    cardKind === 'challenge' || (cardKind === 'vote' && card.content.includes('{p1}'))
 
   return (
     <div className="flex-1 flex flex-col justify-between p-4 max-w-lg mx-auto w-full">
       {/* Category / Mode Badge */}
-      <div className="flex items-center justify-between text-xs pt-2">
+      <div className="flex items-center justify-between text-xs pt-1">
         <div className="flex items-center gap-1.5">
-          <span className="px-2.5 py-0.5 rounded-full font-mono font-bold tracking-wider text-[11px] bg-[#152233] text-sky-300 border border-[#28527a] uppercase">
-            {isMiniGame ? '⚡ Mini-Jeu Tactile' : isRule ? '📜 Règle d\'Intendance' : '🃏 Carte de Veillée'}
+          <span className="px-2.5 py-0.5 rounded-full font-mono font-bold tracking-wider text-[11px] bg-[#1f2229] text-[#8ec2eb] border border-[#2d6394] uppercase">
+            {cardKind === 'minijeu'
+              ? 'Mini-Jeu Tactile'
+              : cardKind === 'regle'
+              ? "Règle d'Intendance"
+              : cardKind === 'duel'
+              ? 'Duel'
+              : cardKind === 'challenge'
+              ? 'Défi Individuel'
+              : cardKind === 'vote'
+              ? 'Vote / Désignation'
+              : 'Carte de Veillée'}
           </span>
           {card.mode && (
-            <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#152233] border border-[#28527a] text-slate-300 font-mono">
+            <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#1f2229] border border-[#2e323c] text-slate-300 font-mono">
               Mode {card.mode}
             </span>
           )}
@@ -63,50 +111,52 @@ export function CardView({
       </div>
 
       {/* Main Card Canvas */}
-      <div className="my-auto py-8">
-        <div className="relative bg-[#152233] border border-[#28527a] rounded-2xl p-6 sm:p-8 text-center space-y-6">
-          {/* Card Title */}
+      <div className="my-auto py-5">
+        <div className="relative bg-[#1f2229] border border-[#2d6394] rounded-2xl p-5 sm:p-7 text-center space-y-5">
           {card.title && (
             <h2 className="font-display font-black text-xl sm:text-2xl text-[#f3f4f6] tracking-wide">
               {card.title}
             </h2>
           )}
 
-          {/* Duellistes désignés si présents */}
-          {player1 && (
+          {showBothPlayers && player1 && (
             <div className="flex items-center justify-center gap-3 py-1">
-              <div className="flex items-center gap-1.5 px-3 py-1 bg-[#0e1722] border border-[#28527a] rounded-full text-xs font-bold text-sky-200">
-                <span>{player1.avatar || '⛺'}</span>
-                <span>{player1.name}</span>
+              <div className="px-3 py-1 bg-[#16181d] border border-[#2d6394] rounded-full text-xs font-bold text-[#8ec2eb]">
+                {player1.name}
               </div>
               {player2 && (
                 <>
-                  <span className="text-xs font-black text-amber-300">VS</span>
-                  <div className="flex items-center gap-1.5 px-3 py-1 bg-[#261d12] border border-[#785127] rounded-full text-xs font-bold text-amber-200">
-                    <span>{player2.avatar || '🪵'}</span>
-                    <span>{player2.name}</span>
+                  <span className="text-xs font-black text-slate-400">VS</span>
+                  <div className="px-3 py-1 bg-[#16181d] border border-[#2e323c] rounded-full text-xs font-bold text-[#f3f4f6]">
+                    {player2.name}
                   </div>
                 </>
               )}
             </div>
           )}
 
-          {/* Card Body */}
+          {showSinglePlayer && player1 && (
+            <div className="flex items-center justify-center py-1">
+              <div className="px-3.5 py-1 bg-[#16181d] border border-[#2d6394] rounded-full text-xs font-bold text-[#8ec2eb]">
+                {player1.name}
+              </div>
+            </div>
+          )}
+
           <p className="font-display text-lg sm:text-xl text-[#f3f4f6] font-medium leading-relaxed">
             {formattedContent}
           </p>
 
-          {/* Extra information & sips badge */}
-          <div className="flex flex-col items-center gap-2 pt-2">
+          <div className="flex flex-col items-center gap-2 pt-1">
             {formattedExtra && (
-              <span className="text-xs text-sky-300 font-semibold bg-[#0e1722] px-3 py-1 rounded-full border border-[#28527a]">
-                💡 {formattedExtra}
+              <span className="text-xs text-[#8ec2eb] font-semibold bg-[#16181d] px-3 py-1 rounded-full border border-[#2e323c]">
+                {formattedExtra}
               </span>
             )}
             {card.sips > 0 && (
-              <div className="inline-flex items-center gap-1.5 bg-[#261d12] border border-[#785127] px-3 py-1 rounded-full">
+              <div className="inline-flex items-center gap-1.5 bg-[#16181d] border border-[#b5892e] px-3 py-1 rounded-full">
                 <span className="text-sm">🍺</span>
-                <span className="font-mono text-xs font-bold text-amber-200">
+                <span className="font-mono text-xs font-bold text-[#e5be6d]">
                   {card.sips} gorgée{card.sips > 1 ? 's' : ''} en jeu
                 </span>
               </div>
@@ -116,38 +166,88 @@ export function CardView({
       </div>
 
       {/* Actions Bar */}
-      <div className="pb-4 space-y-2">
-        {isMiniGame && onLaunchMiniGame ? (
+      <div className="pb-3 space-y-2">
+        {cardKind === 'minijeu' && onLaunchMiniGame ? (
           <button
+            type="button"
             onClick={onLaunchMiniGame}
-            className="w-full py-4 bg-[#32689c] hover:bg-[#3c7ab5] border border-[#28527a] text-[#f3f4f6] font-black text-base rounded-2xl transition-colors flex items-center justify-center gap-2"
+            className="btn-primary w-full font-bold"
           >
-            <span className="text-xl">⚡</span>
-            <span>LANCER LE DUEL TACTILE SUR ÉCRAN</span>
+            Lancer le duel tactile sur écran
           </button>
-        ) : isDuelOrChallenge ? (
-          <div className="grid grid-cols-2 gap-3">
+        ) : cardKind === 'vote' ? (
+          <div className="space-y-2">
+            <div className="grid grid-cols-2 gap-2">
+              {players.map(p => (
+                <button
+                  key={p.id}
+                  type="button"
+                  onClick={() => onDesignatePlayer(p.id)}
+                  className="py-2.5 px-3 bg-[#1f2229] hover:bg-[#262a33] border border-[#2d6394] text-[#f3f4f6] font-semibold text-xs rounded-xl transition-colors flex items-center justify-between gap-1.5"
+                >
+                  <span className="truncate">{p.name}</span>
+                  <span className="shrink-0 font-mono text-[#e5be6d]">+{sipsValue} 🍺</span>
+                </button>
+              ))}
+            </div>
             <button
-              onClick={() => onValidate(true)}
-              className="py-3.5 bg-[#122620] hover:bg-[#19362d] border border-[#2d6a4f] text-emerald-200 font-bold text-sm rounded-xl transition-colors flex items-center justify-center gap-2"
+              type="button"
+              onClick={onNext}
+              className="btn-ghost w-full text-xs text-slate-400 hover:text-[#f3f4f6]"
             >
-              <span>✅</span>
-              <span>Réussi</span>
+              Passer
+            </button>
+          </div>
+        ) : cardKind === 'challenge' ? (
+          <div className="grid grid-cols-2 gap-2.5">
+            <button
+              type="button"
+              onClick={() => onIndividualChallenge(true)}
+              className="py-3 px-4 bg-[#2e6f56] hover:bg-[#378265] border border-[#2e6f56] text-[#f3f4f6] font-semibold text-sm rounded-lg transition-colors"
+            >
+              Réussi
             </button>
             <button
-              onClick={() => onValidate(false)}
-              className="py-3.5 bg-[#2b171b] hover:bg-[#3a1f24] border border-[#7f2d38] text-red-200 font-bold text-sm rounded-xl transition-colors flex items-center justify-center gap-2"
+              type="button"
+              onClick={() => onIndividualChallenge(false)}
+              className="py-3 px-4 bg-[#9b2c37] hover:bg-[#b03440] border border-[#9b2c37] text-[#f3f4f6] font-semibold text-xs sm:text-sm rounded-lg transition-colors"
             >
-              <span>❌</span>
-              <span>Échoué</span>
+              Raté ({player1?.name || 'Chef'} boit {sipsValue} 🍺)
+            </button>
+          </div>
+        ) : cardKind === 'duel' && player1 && player2 ? (
+          <div className="space-y-2">
+            <div className="grid grid-cols-2 gap-2.5">
+              <button
+                type="button"
+                onClick={() => onDuelResult(player1.id)}
+                className="py-3 px-3 bg-[#9b2c37] hover:bg-[#b03440] border border-[#9b2c37] text-[#f3f4f6] font-semibold text-xs sm:text-sm rounded-lg transition-colors truncate"
+              >
+                {player1.name} perd ({sipsValue} 🍺)
+              </button>
+              <button
+                type="button"
+                onClick={() => onDuelResult(player2.id)}
+                className="py-3 px-3 bg-[#9b2c37] hover:bg-[#b03440] border border-[#9b2c37] text-[#f3f4f6] font-semibold text-xs sm:text-sm rounded-lg transition-colors truncate"
+              >
+                {player2.name} perd ({sipsValue} 🍺)
+              </button>
+            </div>
+            <button
+              type="button"
+              onClick={onNext}
+              className="btn-ghost w-full text-xs text-slate-400 hover:text-[#f3f4f6]"
+            >
+              Passer
             </button>
           </div>
         ) : (
           <button
+            type="button"
             onClick={onNext}
-            className="w-full py-3.5 bg-[#32689c] hover:bg-[#3c7ab5] border border-[#28527a] text-[#f3f4f6] font-bold text-sm rounded-xl transition-colors"
+            className="btn-primary w-full"
           >
-            Carte Suivante →
+            Carte suivante
           </button>
         )}
       </div>

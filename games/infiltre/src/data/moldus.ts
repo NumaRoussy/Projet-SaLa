@@ -1,13 +1,34 @@
 import type { Card } from '../types'
 
-/**
- * Paires temporaires en placeholder pour la catégorie "Moldus".
- * Structure prête à accueillir les futurs mots génériques.
- */
 export const MOLDUS_CARDS: Card[] = [
-  { id: 'm1', game: 'infiltre', category: 'Objets du quotidien', title: 'Boissons chaudes', content: 'Thé', extra: 'Café' },
-  { id: 'm2', game: 'infiltre', category: 'Objets du quotidien', title: 'Instruments', content: 'Guitare', extra: 'Basse' },
-  { id: 'm3', game: 'infiltre', category: 'Objets du quotidien', title: 'Vacances', content: 'Plage', extra: 'Piscine' },
-  { id: 'm4', game: 'infiltre', category: 'Objets du quotidien', title: 'Restauration', content: 'Pizza', extra: 'Burger' },
-  { id: 'm5', game: 'infiltre', category: 'Objets du quotidien', title: 'Écriture', content: 'Stylo', extra: 'Crayon' },
+  { id: 'm1', game: 'infiltre', mode: 'moldu', category: 'Hiver', title: 'Ski / Snowboard', content: 'Ski', extra: 'Snowboard' },
+  { id: 'm2', game: 'infiltre', mode: 'moldu', category: 'Hiver', title: 'Fondue / Raclette', content: 'Fondue', extra: 'Raclette' },
+  { id: 'm3', game: 'infiltre', mode: 'moldu', category: 'Hiver', title: 'Écharpe / Bonnet', content: 'Écharpe', extra: 'Bonnet' },
+  { id: 'm4', game: 'infiltre', mode: 'moldu', category: 'Hiver', title: 'Moufles / Gants', content: 'Moufles', extra: 'Gants' },
+  { id: 'm5', game: 'infiltre', mode: 'moldu', category: 'Hiver', title: 'Luge / Bobsleigh', content: 'Luge', extra: 'Bobsleigh' },
+  { id: 'm6', game: 'infiltre', mode: 'moldu', category: 'Hiver', title: 'Flocon / Grêlon', content: 'Flocon', extra: 'Grêlon' },
+  { id: 'm7', game: 'infiltre', mode: 'moldu', category: 'Hiver', title: 'Chalet / Cabane', content: 'Chalet', extra: 'Cabane' },
+  { id: 'm8', game: 'infiltre', mode: 'moldu', category: 'Hiver', title: 'Marmotte / Chamois', content: 'Marmotte', extra: 'Chamois' },
+  { id: 'm9', game: 'infiltre', mode: 'moldu', category: 'Cuisine', title: 'Croissant / Brioche', content: 'Croissant', extra: 'Brioche' },
+  { id: 'm10', game: 'infiltre', mode: 'moldu', category: 'Cuisine', title: 'Spaghetti / Macaroni', content: 'Spaghetti', extra: 'Macaroni' },
+  { id: 'm11', game: 'infiltre', mode: 'moldu', category: 'Cuisine', title: 'Chocolat / Caramel', content: 'Chocolat', extra: 'Caramel' },
+  { id: 'm12', game: 'infiltre', mode: 'moldu', category: 'Cuisine', title: 'Pastèque / Melon', content: 'Pastèque', extra: 'Melon' },
+  { id: 'm13', game: 'infiltre', mode: 'moldu', category: 'Cuisine', title: 'Meringue / Chantilly', content: 'Meringue', extra: 'Chantilly' },
+  { id: 'm14', game: 'infiltre', mode: 'moldu', category: 'Cuisine', title: 'Citron / Orange', content: 'Citron', extra: 'Orange' },
+  { id: 'm15', game: 'infiltre', mode: 'moldu', category: 'Cuisine', title: 'Beurre / Margarine', content: 'Beurre', extra: 'Margarine' },
+  { id: 'm16', game: 'infiltre', mode: 'moldu', category: 'Objets', title: 'Parapluie / Parasol', content: 'Parapluie', extra: 'Parasol' },
+  { id: 'm17', game: 'infiltre', mode: 'moldu', category: 'Objets', title: 'Oreiller / Coussin', content: 'Oreiller', extra: 'Coussin' },
+  { id: 'm18', game: 'infiltre', mode: 'moldu', category: 'Objets', title: 'Valise / Sac', content: 'Valise', extra: 'Sac' },
+  { id: 'm19', game: 'infiltre', mode: 'moldu', category: 'Objets', title: 'Horloge / Montre', content: 'Horloge', extra: 'Montre' },
+  { id: 'm20', game: 'infiltre', mode: 'moldu', category: 'Objets', title: 'Bougie / Ampoule', content: 'Bougie', extra: 'Ampoule' },
+  { id: 'm21', game: 'infiltre', mode: 'moldu', category: 'Objets', title: 'Ciseaux / Cutter', content: 'Ciseaux', extra: 'Cutter' },
+  { id: 'm22', game: 'infiltre', mode: 'moldu', category: 'Objets', title: 'Serrure / Cadenas', content: 'Serrure', extra: 'Cadenas' },
+  { id: 'm23', game: 'infiltre', mode: 'moldu', category: 'Objets', title: 'Miroir / Vitre', content: 'Miroir', extra: 'Vitre' },
+  { id: 'm24', game: 'infiltre', mode: 'moldu', category: 'Nature', title: 'Volcan / Montagne', content: 'Volcan', extra: 'Montagne' },
+  { id: 'm25', game: 'infiltre', mode: 'moldu', category: 'Nature', title: 'Cascade / Rivière', content: 'Cascade', extra: 'Rivière' },
+  { id: 'm26', game: 'infiltre', mode: 'moldu', category: 'Nature', title: 'Désert / Plage', content: 'Désert', extra: 'Plage' },
+  { id: 'm27', game: 'infiltre', mode: 'moldu', category: 'Nature', title: 'Forêt / Jungle', content: 'Forêt', extra: 'Jungle' },
+  { id: 'm28', game: 'infiltre', mode: 'moldu', category: 'Animaux', title: 'Pingouin / Manchot', content: 'Pingouin', extra: 'Manchot' },
+  { id: 'm29', game: 'infiltre', mode: 'moldu', category: 'Animaux', title: 'Hérisson / Porc-épic', content: 'Hérisson', extra: 'Porc-épic' },
+  { id: 'm30', game: 'infiltre', mode: 'moldu', category: 'Animaux', title: 'Écureuil / Castor', content: 'Écureuil', extra: 'Castor' },
 ]

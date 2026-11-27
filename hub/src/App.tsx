@@ -26,7 +26,7 @@ export default function App() {
   const [pendingAccess, setPendingAccess] = useState<{ type: 'bootstrap' | 'invite'; token: string } | null>(null)
   const isConsumingRef = useRef(false)
 
-  // ── Section 7.3 — Interception silencieuse & Admin ───────────────────────
+  // Section 7.3 : Interception silencieuse & Admin
   useEffect(() => {
     try {
       localStorage.removeItem('scout_device_pass')
@@ -60,9 +60,9 @@ export default function App() {
   }, [uiState])
 
   useEffect(() => {
-    document.body.style.backgroundColor = isFaceBActive ? '#211013' : '#0f1f18'
+    document.body.style.backgroundColor = '#16181d'
     return () => {
-      document.body.style.backgroundColor = '#0f1f18'
+      document.body.style.backgroundColor = '#16181d'
     }
   }, [isFaceBActive])
 
@@ -161,8 +161,8 @@ export default function App() {
       {/* Verifying overlay (brief) */}
       {uiState === 'verifying' && (
         <div className="overlay flex items-center justify-center">
-          <div className="flex flex-col items-center gap-3 text-scout-sage">
-            <div className="w-8 h-8 border-2 border-scout-sage/30 border-t-scout-sage rounded-full animate-spin" />
+          <div className="flex flex-col items-center gap-3 text-slate-300">
+            <div className="w-8 h-8 border-2 border-[#2e323c] border-t-[#2e6f56] rounded-full animate-spin" />
             <span className="text-sm">Vérification…</span>
           </div>
         </div>
@@ -207,17 +207,14 @@ export default function App() {
 
       {accessError && (
         <div className="overlay flex items-center justify-center p-4 z-50">
-          <div className="bg-[#162920] max-w-sm w-full p-5 rounded-2xl space-y-4 text-center border border-[#8c2d38]">
-            <div className="w-12 h-12 mx-auto rounded-full bg-[#3a1b20] border border-[#8c2d38] flex items-center justify-center text-2xl">
-              ❌
-            </div>
+          <div className="bg-[#1f2229] max-w-sm w-full p-5 rounded-2xl space-y-4 text-center border border-[#9b2c37]">
             <div className="space-y-1">
-              <h3 className="font-display font-bold text-white text-base">Accès non autorisé</h3>
-              <p className="text-xs text-gray-300 leading-relaxed">{accessError}</p>
+              <h3 className="font-display font-bold text-[#f3f4f6] text-base">Accès non autorisé</h3>
+              <p className="text-xs text-slate-300 leading-relaxed">{accessError}</p>
             </div>
             <button
               onClick={() => setAccessError(null)}
-              className="btn-ghost w-full py-2 text-xs border border-[#2d6a4f] text-white font-semibold"
+              className="btn-ghost w-full py-2 text-xs border border-[#2e323c] text-[#f3f4f6] font-semibold"
             >
               Fermer
             </button>

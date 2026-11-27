@@ -12,6 +12,7 @@
 html {
   height: auto;
   min-height: 100%;
+  background-color: #16181d;
   overflow-x: clip;
   overflow-y: auto;
   scroll-behavior: smooth;
@@ -22,7 +23,7 @@ body {
   min-height: 100dvh;
   margin: 0;
   padding: 0;
-  background-color: #0f1f18;
+  background-color: #16181d;
   color: #f3f4f6;
   font-family: 'Inter', system-ui, sans-serif;
   overflow: visible;
@@ -46,6 +47,7 @@ input, textarea, select {
 #root, .app-container {
   min-height: 100dvh;
   height: auto;
+  background-color: #16181d;
   overflow: visible;
   display: flex;
   flex-direction: column;
@@ -58,40 +60,40 @@ input, textarea, select {
 }
 
 .glass-card {
-  background: #162b22;
-  border: 1px solid #2d6a4f;
+  background: #1f2229;
+  border: 1px solid #2e323c;
   border-radius: 1rem;
 }
 
 .btn-primary {
-  @apply inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-semibold text-sm
-         bg-[#388463] text-[#f3f4f6] border border-[#2d6a4f]
-         hover:bg-[#2d6a4f] active:scale-[0.98] transition-colors cursor-pointer
+  @apply inline-flex items-center justify-center gap-2 py-3 px-5 rounded-lg font-semibold text-sm
+         bg-[#2e6f56] text-[#f3f4f6] border border-[#2e6f56]
+         hover:bg-[#378265] active:scale-[0.98] transition-colors cursor-pointer
          disabled:opacity-45 disabled:cursor-not-allowed;
 }
 
-.btn-amber {
-  @apply inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-semibold text-sm
-         bg-[#966530] text-[#f3f4f6] border border-[#785127]
-         hover:bg-[#785127] active:scale-[0.98] transition-colors cursor-pointer
+.btn-secondary {
+  @apply inline-flex items-center justify-center gap-2 py-3 px-5 rounded-lg font-semibold text-sm
+         bg-[#1f2229] text-[#f3f4f6] border border-[#2e6f56]
+         hover:bg-[#262a33] active:scale-[0.98] transition-colors cursor-pointer
          disabled:opacity-45 disabled:cursor-not-allowed;
 }
 
 .btn-ghost {
   @apply inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg font-medium text-sm
-         text-gray-300 hover:text-white hover:bg-[#1e3a2d] border border-transparent
+         text-slate-300 hover:text-[#f3f4f6] hover:bg-[#262a33] border border-transparent
          active:scale-[0.98] transition-colors cursor-pointer;
 }
 
 .btn-danger {
-  @apply inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-semibold text-sm
-         bg-[#7a242e] text-red-100 border border-[#8c2d38]
-         hover:bg-[#8c2d38] active:scale-[0.98] transition-colors cursor-pointer disabled:opacity-45;
+  @apply inline-flex items-center justify-center gap-2 py-3 px-5 rounded-lg font-semibold text-sm
+         bg-[#9b2c37] text-[#f3f4f6] border border-[#9b2c37]
+         hover:bg-[#b03440] active:scale-[0.98] transition-colors cursor-pointer disabled:opacity-45;
 }
 
 .input-scout {
-  @apply w-full px-3.5 py-2.5 rounded-xl bg-[#0f1f18] border border-[#2d6a4f]
-         text-[#f3f4f6] placeholder-gray-400 text-sm
-         focus:outline-none focus:border-[#52b788] focus:ring-1 focus:ring-[#52b788]/40
+  @apply w-full px-3.5 py-2.5 rounded-lg bg-[#16181d] border border-[#2e323c]
+         text-[#f3f4f6] placeholder-slate-400 text-sm
+         focus:outline-none focus:border-[#2e6f56]
          transition-colors;
 }

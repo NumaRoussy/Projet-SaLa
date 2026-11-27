@@ -21,23 +21,22 @@ export function PlayersManager() {
     <div>
       <button
         type="button"
-        className="flex items-center gap-2 text-sm text-[#a3c9b4] hover:text-white transition-colors"
+        className="flex items-center gap-2 text-sm text-slate-300 hover:text-[#f3f4f6] transition-colors mx-auto"
         onClick={() => setOpen(!open)}
       >
-        <span>👥</span>
-        <span>{players.length > 0 ? `${players.length} joueur${players.length > 1 ? 's' : ''}` : 'Ajouter des joueurs'}</span>
+        <span>{players.length > 0 ? `Joueurs (${players.length})` : 'Ajouter des joueurs'}</span>
         <span className="text-xs">{open ? '▲' : '▼'}</span>
       </button>
 
       {open && (
-        <div className="mt-3 bg-[#162920] border border-[#2d6a4f] rounded-xl p-4 space-y-3">
+        <div className="mt-3 bg-[#1f2229] border border-[#2e323c] rounded-xl p-4 space-y-3">
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-semibold text-[#f3f4f6]">Joueurs actifs</h3>
             {players.length > 0 && (
               <button
                 type="button"
                 onClick={clearAll}
-                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#3a1b20] border border-[#8c2d38] text-xs font-medium text-red-200 hover:bg-[#4e2229] transition-colors"
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#16181d] border border-[#9b2c37] text-xs font-medium text-red-200 hover:bg-[#262a33] transition-colors"
               >
                 <span>🗑️</span>
                 <span>Vider</span>
@@ -50,13 +49,13 @@ export function PlayersManager() {
               {players.map(p => (
                 <div
                   key={p.id}
-                  className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#0f1f18] border border-[#2d6a4f] text-sm text-[#c7e6d4]"
+                  className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#16181d] border border-[#2e323c] text-sm text-[#f3f4f6]"
                 >
                   <span>{p.name}</span>
                   <button
                     type="button"
                     onClick={() => removePlayer(p.id)}
-                    className="text-[#8ab39c] hover:text-red-300 transition-colors leading-none"
+                    className="text-slate-400 hover:text-red-300 transition-colors leading-none"
                     aria-label={`Supprimer ${p.name}`}
                   >
                     ×

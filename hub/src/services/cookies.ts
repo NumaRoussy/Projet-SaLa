@@ -59,7 +59,7 @@ export function savePlayers(players: Player[]): void {
       .filter(Boolean)
       .join('; ')
   } catch {
-    // Cookie write failed — silently ignore
+    // Cookie write failed, silently ignore
   }
 }
 
@@ -111,7 +111,7 @@ export function saveDevicePass(pass: string): void {
       document.cookie = `${DEVICE_PASS_COOKIE}=${encodeURIComponent(pass)}; Path=/; Max-Age=31536000; SameSite=Lax`
     }
   } catch {
-    // Cookie write failed — silently ignore
+    // Cookie write failed, silently ignore
   }
 }
 

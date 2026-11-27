@@ -51,8 +51,7 @@ export function NightPhase({
   if (!currentStep || steps.length === 0) {
     return (
       <div className="flex-1 flex flex-col items-center justify-center max-w-md mx-auto w-full p-6 text-center space-y-5">
-        <span className="text-5xl">🌙</span>
-        <h2 className="text-xl font-bold text-[#f3f4f6]">Nuit {nightNumber} — Aucun rôle actif</h2>
+        <h2 className="text-xl font-bold text-[#f3f4f6]">Nuit {nightNumber} : Aucun rôle actif</h2>
         <p className="text-xs text-slate-300">
           Aucun rôle spécial ne peut agir cette nuit. Passez directement au rassemblement du matin.
         </p>
@@ -68,9 +67,9 @@ export function NightPhase({
               pharmacieKillTargetId,
             })
           }
-          className="btn-amber px-6 py-3"
+          className="btn-primary"
         >
-          ☀️ Réveiller le campement
+          Réveiller le campement
         </button>
       </div>
     )
@@ -97,18 +96,13 @@ export function NightPhase({
   return (
     <div className="flex-1 flex flex-col max-w-xl mx-auto w-full p-4 sm:p-6 space-y-5">
       {/* En-tête de la phase de nuit */}
-      <div className="flex items-center gap-2.5">
-        <span className="w-9 h-9 rounded-xl bg-[#172036] border border-[#34497a] flex items-center justify-center text-lg">
-          🌙
-        </span>
-        <div>
-          <h2 className="text-base sm:text-lg font-bold text-[#f3f4f6] font-display">
-            Nuit {nightNumber} — Guidage du Meneur
-          </h2>
-          <p className="text-xs text-slate-400">
-            Étape {currentStepIdx + 1} sur {steps.length}
-          </p>
-        </div>
+      <div>
+        <h2 className="text-base sm:text-lg font-bold text-[#f3f4f6] font-display">
+          Nuit {nightNumber} : Guidage du Meneur
+        </h2>
+        <p className="text-xs text-slate-400">
+          Étape {currentStepIdx + 1} sur {steps.length}
+        </p>
       </div>
 
       {/* Barre de progression */}
@@ -118,10 +112,10 @@ export function NightPhase({
             key={s}
             className={`h-1.5 flex-1 rounded-full transition-colors ${
               idx === currentStepIdx
-                ? 'bg-[#415b99]'
+                ? 'bg-[#3b5998]'
                 : idx < currentStepIdx
-                ? 'bg-emerald-500'
-                : 'bg-[#172036]'
+                ? 'bg-[#2e6f56]'
+                : 'bg-[#1f2229]'
             }`}
           />
         ))}
@@ -129,22 +123,19 @@ export function NightPhase({
 
       {/* 1. LE RAGOTEUR */}
       {currentStep === 'ragoteur' && (
-        <div className="glass-card p-5 sm:p-6 space-y-5 border-[#7d3666]">
-          <div className="flex items-center gap-3">
-            <span className="text-3xl p-2 rounded-xl bg-[#291724] border border-[#7d3666]">💘</span>
-            <div>
-              <span className="text-[10px] font-bold text-pink-300 uppercase tracking-wider">
-                Nuit 1 Uniquement
-              </span>
-              <h3 className="text-lg font-bold text-[#f3f4f6] font-display">
-                L'Appel du Ragoteur (Cupidon)
-              </h3>
-            </div>
+        <div className="glass-card p-5 sm:p-6 space-y-5 border-[#3b5998]">
+          <div>
+            <span className="text-[10px] font-bold text-[#9eb4eb] uppercase tracking-wider">
+              Nuit 1 Uniquement
+            </span>
+            <h3 className="text-lg font-bold text-[#f3f4f6] font-display">
+              L'Appel du Ragoteur (Cupidon)
+            </h3>
           </div>
 
-          <div className="p-3.5 rounded-xl bg-[#101626] border border-[#34497a] space-y-1.5">
-            <span className="text-[11px] font-bold text-amber-300 uppercase tracking-wider flex items-center gap-1.5">
-              <span>🗣️</span> À réciter à voix haute :
+          <div className="p-3.5 rounded-xl bg-[#16181d] border border-[#2e323c] space-y-1.5">
+            <span className="text-[11px] font-bold text-[#e5be6d] uppercase tracking-wider block">
+              À réciter à voix haute :
             </span>
             <p className="text-xs text-slate-300 italic leading-relaxed">
               « La nuit est tombée sur le campement. Tous les scouts s'endorment dans leurs
@@ -179,21 +170,21 @@ export function NightPhase({
                         }
                       }
                     }}
-                    className={`px-3 py-2.5 rounded-xl text-xs font-semibold border text-left flex items-center justify-between transition-colors ${
+                    className={`px-3 py-2.5 rounded-xl text-xs font-semibold border text-left flex items-center justify-between transition-colors bg-[#16181d] ${
                       isSelected
-                        ? 'bg-[#291724] border-[#7d3666] text-pink-200'
-                        : 'bg-[#101626] border-[#34497a] text-slate-200 hover:bg-[#1e2a45]'
+                        ? 'border-[#3b5998] text-[#9eb4eb]'
+                        : 'border-[#2e323c] text-slate-200 hover:border-[#3b5998]'
                     }`}
                   >
                     <span className="truncate">{p.name}</span>
-                    {isSelected && <span>❤️</span>}
+                    {isSelected && <span>✓</span>}
                   </button>
                 )
               })}
             </div>
           </div>
 
-          <div className="p-3 rounded-xl bg-[#291724] border border-[#7d3666] text-xs text-pink-200 leading-relaxed">
+          <div className="p-3 rounded-xl bg-[#16181d] border border-[#3b5998] text-xs text-slate-200 leading-relaxed">
             <strong className="block mb-0.5">Consigne pour le meneur :</strong>
             Rendors le Ragoteur : « Ragoteur, rendors-toi ! ». Touche ensuite discrètement les deux
             Inséparables sur l'épaule pour qu'ils ouvrent les yeux, se reconnaissent en silence,
@@ -204,31 +195,28 @@ export function NightPhase({
             type="button"
             onClick={handleNextStep}
             disabled={!inseparables || inseparables.length < 2 || !inseparables[1]}
-            className="btn-amber w-full py-3.5 text-sm font-bold"
+            className="btn-primary w-full"
           >
-            Valider les Inséparables ➔
+            Valider les Inséparables
           </button>
         </div>
       )}
 
       {/* 2. LE CUISTO */}
       {currentStep === 'cuisto' && (
-        <div className="glass-card p-5 sm:p-6 space-y-5 border-[#785127]">
-          <div className="flex items-center gap-3">
-            <span className="text-3xl p-2 rounded-xl bg-[#261d12] border border-[#785127]">🍲</span>
-            <div>
-              <span className="text-[10px] font-bold text-amber-300 uppercase tracking-wider">
-                Protection Nocturne
-              </span>
-              <h3 className="text-lg font-bold text-[#f3f4f6] font-display">
-                L'Appel du Cuisto (Salvateur)
-              </h3>
-            </div>
+        <div className="glass-card p-5 sm:p-6 space-y-5 border-[#3b5998]">
+          <div>
+            <span className="text-[10px] font-bold text-[#e5be6d] uppercase tracking-wider">
+              Protection Nocturne
+            </span>
+            <h3 className="text-lg font-bold text-[#f3f4f6] font-display">
+              L'Appel du Cuisto (Salvateur)
+            </h3>
           </div>
 
-          <div className="p-3.5 rounded-xl bg-[#101626] border border-[#34497a] space-y-1.5">
-            <span className="text-[11px] font-bold text-amber-300 uppercase tracking-wider flex items-center gap-1.5">
-              <span>🗣️</span> À réciter à voix haute :
+          <div className="p-3.5 rounded-xl bg-[#16181d] border border-[#2e323c] space-y-1.5">
+            <span className="text-[11px] font-bold text-[#e5be6d] uppercase tracking-wider block">
+              À réciter à voix haute :
             </span>
             <p className="text-xs text-slate-300 italic leading-relaxed">
               « J'appelle le Cuisto ! Réveille-toi et prépare un remontant pour protéger un scout
@@ -259,24 +247,24 @@ export function NightPhase({
                     type="button"
                     disabled={isForbidden}
                     onClick={() => setCuistoProtectedId(p.id)}
-                    className={`px-3 py-2.5 rounded-xl text-xs font-semibold border text-left flex items-center justify-between transition-colors ${
+                    className={`px-3 py-2.5 rounded-xl text-xs font-semibold border text-left flex items-center justify-between transition-colors bg-[#16181d] ${
                       isSelected
-                        ? 'bg-[#261d12] border-[#966530] text-amber-200'
+                        ? 'border-[#3b5998] text-[#9eb4eb]'
                         : isForbidden
-                        ? 'bg-[#121828] border-[#263559] text-slate-500 opacity-60 cursor-not-allowed'
-                        : 'bg-[#101626] border-[#34497a] text-slate-200 hover:bg-[#1e2a45]'
+                        ? 'border-[#2e323c] text-slate-500 opacity-55 cursor-not-allowed'
+                        : 'border-[#2e323c] text-slate-200 hover:border-[#3b5998]'
                     }`}
                   >
                     <span className="truncate">{p.name}</span>
-                    {isSelected && <span>🛡️</span>}
-                    {isForbidden && <span className="text-[9px] text-amber-300 font-normal">Hier</span>}
+                    {isSelected && <span>✓</span>}
+                    {isForbidden && <span className="text-[9px] text-[#e5be6d] font-normal">Hier</span>}
                   </button>
                 )
               })}
             </div>
           </div>
 
-          <div className="p-3 rounded-xl bg-[#101626] border border-[#34497a] text-xs text-slate-300">
+          <div className="p-3 rounded-xl bg-[#16181d] border border-[#2e323c] text-xs text-slate-300">
             <strong>Consigne meneur :</strong> Garde ce choix secret. Rendors le Cuisto : « Cuisto,
             rendors-toi ! ».
           </div>
@@ -285,31 +273,28 @@ export function NightPhase({
             type="button"
             onClick={handleNextStep}
             disabled={!cuistoProtectedId}
-            className="btn-amber w-full py-3.5 text-sm font-bold"
+            className="btn-primary w-full"
           >
-            Valider la protection ➔
+            Valider la protection
           </button>
         </div>
       )}
 
       {/* 3. LE PISSEUR */}
       {currentStep === 'pisseur' && (
-        <div className="glass-card p-5 sm:p-6 space-y-5 border-[#2b5b84]">
-          <div className="flex items-center gap-3">
-            <span className="text-3xl p-2 rounded-xl bg-[#142336] border border-[#2b5b84]">🚰</span>
-            <div>
-              <span className="text-[10px] font-bold text-sky-300 uppercase tracking-wider">
-                Auscultation Secrète
-              </span>
-              <h3 className="text-lg font-bold text-[#f3f4f6] font-display">
-                L'Appel du Pisseur (Voyante)
-              </h3>
-            </div>
+        <div className="glass-card p-5 sm:p-6 space-y-5 border-[#3b5998]">
+          <div>
+            <span className="text-[10px] font-bold text-[#9eb4eb] uppercase tracking-wider">
+              Auscultation Secrète
+            </span>
+            <h3 className="text-lg font-bold text-[#f3f4f6] font-display">
+              L'Appel du Pisseur (Voyante)
+            </h3>
           </div>
 
-          <div className="p-3.5 rounded-xl bg-[#101626] border border-[#34497a] space-y-1.5">
-            <span className="text-[11px] font-bold text-amber-300 uppercase tracking-wider flex items-center gap-1.5">
-              <span>🗣️</span> À réciter à voix haute :
+          <div className="p-3.5 rounded-xl bg-[#16181d] border border-[#2e323c] space-y-1.5">
+            <span className="text-[11px] font-bold text-[#e5be6d] uppercase tracking-wider block">
+              À réciter à voix haute :
             </span>
             <p className="text-xs text-slate-300 italic leading-relaxed">
               « J'appelle le Pisseur ! Réveille-toi, va aux feuillées et ausculte la tente d'un
@@ -329,14 +314,14 @@ export function NightPhase({
                     key={p.id}
                     type="button"
                     onClick={() => setPisseurTargetId(p.id)}
-                    className={`px-3 py-2.5 rounded-xl text-xs font-semibold border text-left flex items-center justify-between transition-colors ${
+                    className={`px-3 py-2.5 rounded-xl text-xs font-semibold border text-left flex items-center justify-between transition-colors bg-[#16181d] ${
                       isSelected
-                        ? 'bg-[#142336] border-[#32689c] text-sky-200'
-                        : 'bg-[#101626] border-[#34497a] text-slate-200 hover:bg-[#1e2a45]'
+                        ? 'border-[#3b5998] text-[#9eb4eb]'
+                        : 'border-[#2e323c] text-slate-200 hover:border-[#3b5998]'
                     }`}
                   >
                     <span className="truncate">{p.name}</span>
-                    {isSelected && <span>👀</span>}
+                    {isSelected && <span>✓</span>}
                   </button>
                 )
               })}
@@ -344,28 +329,25 @@ export function NightPhase({
           </div>
 
           {pisseurTargetId && (
-            <div className="p-4 rounded-xl bg-[#142336] border border-[#2b5b84] space-y-2">
-              <span className="text-[11px] font-bold text-sky-300 uppercase tracking-wider block">
-                🔍 Identité secrète révélée :
+            <div className="p-4 rounded-xl bg-[#16181d] border border-[#3b5998] space-y-2">
+              <span className="text-[11px] font-bold text-[#9eb4eb] uppercase tracking-wider block">
+                Identité secrète révélée :
               </span>
               {(() => {
                 const target = players.find(p => p.id === pisseurTargetId)
                 if (!target) return null
                 const rDef = ROLES_DATA[target.role]
                 return (
-                  <div className="flex items-center gap-3 bg-[#101626] p-3 rounded-lg border border-[#2b5b84]">
-                    <span className="text-3xl">{rDef.icon}</span>
-                    <div>
-                      <h4 className="font-bold text-[#f3f4f6] text-sm">
-                        {target.name} est : {rDef.name}
-                      </h4>
-                      <p className="text-xs text-slate-300">
-                        Camp :{' '}
-                        <strong className={rDef.camp === 'maitrise' ? 'text-red-300' : 'text-emerald-300'}>
-                          {rDef.campLabel}
-                        </strong>
-                      </p>
-                    </div>
+                  <div className="bg-[#1f2229] p-3 rounded-lg border border-[#2e323c]">
+                    <h4 className="font-bold text-[#f3f4f6] text-sm">
+                      {target.name} est : {rDef.name}
+                    </h4>
+                    <p className="text-xs text-slate-300 mt-0.5">
+                      Camp :{' '}
+                      <strong className={rDef.camp === 'maitrise' ? 'text-[#e88c95]' : 'text-emerald-300'}>
+                        {rDef.campLabel}
+                      </strong>
+                    </p>
                   </div>
                 )
               })()}
@@ -380,31 +362,28 @@ export function NightPhase({
             type="button"
             onClick={handleNextStep}
             disabled={!pisseurTargetId}
-            className="btn-amber w-full py-3.5 text-sm font-bold"
+            className="btn-primary w-full"
           >
-            Rendormir le Pisseur ➔
+            Rendormir le Pisseur
           </button>
         </div>
       )}
 
       {/* 4. LA MAÎTRISE */}
       {currentStep === 'maitrise' && (
-        <div className="glass-card p-5 sm:p-6 space-y-5 border-[#7f2d38]">
-          <div className="flex items-center gap-3">
-            <span className="text-3xl p-2 rounded-xl bg-[#2b171b] border border-[#7f2d38]">🔦</span>
-            <div>
-              <span className="text-[10px] font-bold text-red-300 uppercase tracking-wider">
-                Ronde Nocturne
-              </span>
-              <h3 className="text-lg font-bold text-[#f3f4f6] font-display">
-                L'Appel de la Maîtrise (Chefs &amp; Pico)
-              </h3>
-            </div>
+        <div className="glass-card p-5 sm:p-6 space-y-5 border-[#9b2c37]">
+          <div>
+            <span className="text-[10px] font-bold text-[#e88c95] uppercase tracking-wider">
+              Ronde Nocturne
+            </span>
+            <h3 className="text-lg font-bold text-[#f3f4f6] font-display">
+              L'Appel de la Maîtrise (Chefs &amp; Pico)
+            </h3>
           </div>
 
-          <div className="p-3.5 rounded-xl bg-[#101626] border border-[#34497a] space-y-1.5">
-            <span className="text-[11px] font-bold text-amber-300 uppercase tracking-wider flex items-center gap-1.5">
-              <span>🗣️</span> À réciter à voix haute :
+          <div className="p-3.5 rounded-xl bg-[#16181d] border border-[#2e323c] space-y-1.5">
+            <span className="text-[11px] font-bold text-[#e5be6d] uppercase tracking-wider block">
+              À réciter à voix haute :
             </span>
             <p className="text-xs text-slate-300 italic leading-relaxed">
               « J'appelle la Maîtrise ! Responsables et Pico, réveillez-vous en silence,
@@ -424,21 +403,21 @@ export function NightPhase({
                     key={p.id}
                     type="button"
                     onClick={() => setMaitriseTargetId(p.id)}
-                    className={`px-3 py-2.5 rounded-xl text-xs font-semibold border text-left flex items-center justify-between transition-colors ${
+                    className={`px-3 py-2.5 rounded-xl text-xs font-semibold border text-left flex items-center justify-between transition-colors bg-[#16181d] ${
                       isSelected
-                        ? 'bg-[#2b171b] border-[#7f2d38] text-red-200'
-                        : 'bg-[#101626] border-[#34497a] text-slate-200 hover:bg-[#1e2a45]'
+                        ? 'border-[#9b2c37] text-[#e88c95]'
+                        : 'border-[#2e323c] text-slate-200 hover:border-[#3b5998]'
                     }`}
                   >
                     <span className="truncate">{p.name}</span>
-                    {isSelected && <span>🎯</span>}
+                    {isSelected && <span>✓</span>}
                   </button>
                 )
               })}
             </div>
           </div>
 
-          <div className="p-3 rounded-xl bg-[#101626] border border-[#34497a] text-xs text-slate-300">
+          <div className="p-3 rounded-xl bg-[#16181d] border border-[#2e323c] text-xs text-slate-300">
             <strong>Consigne meneur :</strong> Prends note du choix des chefs. Rendors la Maîtrise :
             « Maîtrise, rendormez-vous ! ».
           </div>
@@ -447,31 +426,28 @@ export function NightPhase({
             type="button"
             onClick={handleNextStep}
             disabled={!maitriseTargetId}
-            className="btn-amber w-full py-3.5 text-sm font-bold"
+            className="btn-primary w-full"
           >
-            Valider la cible de la Maîtrise ➔
+            Valider la cible de la Maîtrise
           </button>
         </div>
       )}
 
       {/* 5. LE PICO */}
       {currentStep === 'pico' && (
-        <div className="glass-card p-5 sm:p-6 space-y-5 border-[#5f3d91]">
-          <div className="flex items-center gap-3">
-            <span className="text-3xl p-2 rounded-xl bg-[#201830] border border-[#5f3d91]">🗡️</span>
-            <div>
-              <span className="text-[10px] font-bold text-purple-300 uppercase tracking-wider">
-                Action Solitaire (1 nuit sur 2)
-              </span>
-              <h3 className="text-lg font-bold text-[#f3f4f6] font-display">
-                L'Appel du Pico (Le Rebelle)
-              </h3>
-            </div>
+        <div className="glass-card p-5 sm:p-6 space-y-5 border-[#3b5998]">
+          <div>
+            <span className="text-[10px] font-bold text-[#e5be6d] uppercase tracking-wider">
+              Action Solitaire (1 nuit sur 2)
+            </span>
+            <h3 className="text-lg font-bold text-[#f3f4f6] font-display">
+              L'Appel du Pico (Le Rebelle)
+            </h3>
           </div>
 
-          <div className="p-3.5 rounded-xl bg-[#101626] border border-[#34497a] space-y-1.5">
-            <span className="text-[11px] font-bold text-amber-300 uppercase tracking-wider flex items-center gap-1.5">
-              <span>🗣️</span> À réciter à voix haute :
+          <div className="p-3.5 rounded-xl bg-[#16181d] border border-[#2e323c] space-y-1.5">
+            <span className="text-[11px] font-bold text-[#e5be6d] uppercase tracking-wider block">
+              À réciter à voix haute :
             </span>
             <p className="text-xs text-slate-300 italic leading-relaxed">
               « J'appelle le Pico ! Si c'est ton tour d'agir cette nuit, réveille-toi discrètement...
@@ -487,10 +463,10 @@ export function NightPhase({
               <button
                 type="button"
                 onClick={() => setPicoTargetId(null)}
-                className={`px-3 py-2.5 rounded-xl text-xs font-semibold border text-left flex items-center justify-between transition-colors ${
+                className={`px-3 py-2.5 rounded-xl text-xs font-semibold border text-left flex items-center justify-between transition-colors bg-[#16181d] ${
                   picoTargetId === null
-                    ? 'bg-[#122620] border-[#2d6a4f] text-emerald-200'
-                    : 'bg-[#101626] border-[#34497a] text-slate-200 hover:bg-[#1e2a45]'
+                    ? 'border-[#2e6f56] text-emerald-300'
+                    : 'border-[#2e323c] text-slate-200 hover:border-[#3b5998]'
                 }`}
               >
                 <span>Ne pas attaquer</span>
@@ -506,49 +482,46 @@ export function NightPhase({
                       key={p.id}
                       type="button"
                       onClick={() => setPicoTargetId(p.id)}
-                      className={`px-3 py-2.5 rounded-xl text-xs font-semibold border text-left flex items-center justify-between transition-colors ${
+                      className={`px-3 py-2.5 rounded-xl text-xs font-semibold border text-left flex items-center justify-between transition-colors bg-[#16181d] ${
                         isSelected
-                          ? 'bg-[#201830] border-[#5f3d91] text-purple-200'
-                          : 'bg-[#101626] border-[#34497a] text-slate-200 hover:bg-[#1e2a45]'
+                          ? 'border-[#9b2c37] text-[#e88c95]'
+                          : 'border-[#2e323c] text-slate-200 hover:border-[#3b5998]'
                       }`}
                     >
                       <span className="truncate">{p.name} (Chef)</span>
-                      {isSelected && <span>🗡️</span>}
+                      {isSelected && <span>✓</span>}
                     </button>
                   )
                 })}
             </div>
           </div>
 
-          <div className="p-3 rounded-xl bg-[#101626] border border-[#34497a] text-xs text-slate-300">
+          <div className="p-3 rounded-xl bg-[#16181d] border border-[#2e323c] text-xs text-slate-300">
             <strong>Consigne meneur :</strong> Le Pico n'est pas obligé d'attaquer. Rendors le Pico :
             « Pico, rendors-toi ! ».
           </div>
 
-          <button type="button" onClick={handleNextStep} className="btn-amber w-full py-3.5 text-sm font-bold">
-            Valider l'action du Pico ➔
+          <button type="button" onClick={handleNextStep} className="btn-primary w-full">
+            Valider l'action du Pico
           </button>
         </div>
       )}
 
       {/* 6. RESP. PHARMACIE */}
       {currentStep === 'pharmacie' && (
-        <div className="glass-card p-5 sm:p-6 space-y-5 border-[#2d6a4f]">
-          <div className="flex items-center gap-3">
-            <span className="text-3xl p-2 rounded-xl bg-[#122620] border border-[#2d6a4f]">🩹</span>
-            <div>
-              <span className="text-[10px] font-bold text-emerald-300 uppercase tracking-wider">
-                Trousse de Secours
-              </span>
-              <h3 className="text-lg font-bold text-[#f3f4f6] font-display">
-                L'Appel du Resp. Pharmacie (Sorcière)
-              </h3>
-            </div>
+        <div className="glass-card p-5 sm:p-6 space-y-5 border-[#2e6f56]">
+          <div>
+            <span className="text-[10px] font-bold text-emerald-300 uppercase tracking-wider">
+              Trousse de Secours
+            </span>
+            <h3 className="text-lg font-bold text-[#f3f4f6] font-display">
+              L'Appel du Resp. Pharmacie (Sorcière)
+            </h3>
           </div>
 
-          <div className="p-3.5 rounded-xl bg-[#101626] border border-[#34497a] space-y-1.5">
-            <span className="text-[11px] font-bold text-amber-300 uppercase tracking-wider flex items-center gap-1.5">
-              <span>🗣️</span> À réciter à voix haute :
+          <div className="p-3.5 rounded-xl bg-[#16181d] border border-[#2e323c] space-y-1.5">
+            <span className="text-[11px] font-bold text-[#e5be6d] uppercase tracking-wider block">
+              À réciter à voix haute :
             </span>
             <p className="text-xs text-slate-300 italic leading-relaxed">
               « J'appelle le Responsable Pharmacie ! Réveille-toi et inspecte la trousse de
@@ -556,20 +529,20 @@ export function NightPhase({
             </p>
           </div>
 
-          <div className="p-3.5 rounded-xl bg-[#101626] border border-[#34497a] space-y-3">
+          <div className="p-3.5 rounded-xl bg-[#16181d] border border-[#2e323c] space-y-3">
             <h4 className="text-xs font-bold text-[#f3f4f6] uppercase tracking-wider">
               1. Potion de Sauvetage : Arnica
             </h4>
 
             {isMaitriseTargetSavedByCuisto ? (
-              <div className="p-3 rounded-lg bg-[#122620] border border-[#2d6a4f] text-xs text-emerald-200">
-                🛡️ La cible de la Maîtrise a été mise à l'abri par le Cuisto ! Personne n'est en
+              <div className="p-3 rounded-lg bg-[#1f2229] border border-[#2e6f56] text-xs text-emerald-300">
+                La cible de la Maîtrise a été mise à l'abri par le Cuisto ! Personne n'est en
                 danger mortel.
               </div>
             ) : maitriseTargetId ? (
-              <div className="flex items-center justify-between p-3 rounded-lg bg-[#2b171b] border border-[#7f2d38] text-xs">
+              <div className="flex items-center justify-between p-3 rounded-lg bg-[#1f2229] border border-[#9b2c37] text-xs">
                 <div>
-                  <span className="text-red-300">Victime de la Maîtrise :</span>{' '}
+                  <span className="text-[#e88c95]">Victime de la Maîtrise :</span>{' '}
                   <strong className="text-[#f3f4f6] font-bold">
                     {players.find(p => p.id === maitriseTargetId)?.name}
                   </strong>
@@ -579,10 +552,10 @@ export function NightPhase({
                   <button
                     type="button"
                     onClick={() => setPharmacieSavedTarget(!pharmacieSavedTarget)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors border ${
                       pharmacieSavedTarget
-                        ? 'bg-[#2d6a4f] text-[#f3f4f6] border border-[#388463]'
-                        : 'bg-[#172036] border border-[#34497a] text-slate-200 hover:bg-[#1e2a45]'
+                        ? 'bg-[#2e6f56] text-[#f3f4f6] border-[#2e6f56]'
+                        : 'bg-[#16181d] border-[#2e323c] text-slate-200 hover:border-[#3b5998]'
                     }`}
                   >
                     {pharmacieSavedTarget ? '✓ Arnica appliquée' : 'Appliquer Arnica'}
@@ -596,7 +569,7 @@ export function NightPhase({
             )}
           </div>
 
-          <div className="p-3.5 rounded-xl bg-[#101626] border border-[#34497a] space-y-3">
+          <div className="p-3.5 rounded-xl bg-[#16181d] border border-[#2e323c] space-y-3">
             <div className="flex items-center justify-between">
               <h4 className="text-xs font-bold text-[#f3f4f6] uppercase tracking-wider">
                 2. Potion d'Élimination : Huile de Foie de morue
@@ -611,10 +584,10 @@ export function NightPhase({
                 <button
                   type="button"
                   onClick={() => setPharmacieKillTargetId(null)}
-                  className={`px-3 py-2 rounded-lg text-xs font-semibold border text-left flex items-center justify-between transition-colors ${
+                  className={`px-3 py-2 rounded-lg text-xs font-semibold border text-left flex items-center justify-between transition-colors bg-[#1f2229] ${
                     pharmacieKillTargetId === null
-                      ? 'bg-[#122620] border-[#2d6a4f] text-emerald-200'
-                      : 'bg-[#172036] border-[#34497a] text-slate-200 hover:bg-[#1e2a45]'
+                      ? 'border-[#2e6f56] text-emerald-300'
+                      : 'border-[#2e323c] text-slate-200 hover:border-[#3b5998]'
                   }`}
                 >
                   <span>Ne pas donner</span>
@@ -628,14 +601,14 @@ export function NightPhase({
                       key={p.id}
                       type="button"
                       onClick={() => setPharmacieKillTargetId(p.id)}
-                      className={`px-3 py-2 rounded-lg text-xs font-semibold border text-left flex items-center justify-between transition-colors ${
+                      className={`px-3 py-2 rounded-lg text-xs font-semibold border text-left flex items-center justify-between transition-colors bg-[#1f2229] ${
                         isSelected
-                          ? 'bg-[#2b171b] border-[#7f2d38] text-red-200'
-                          : 'bg-[#172036] border-[#34497a] text-slate-200 hover:bg-[#1e2a45]'
+                          ? 'border-[#9b2c37] text-[#e88c95]'
+                          : 'border-[#2e323c] text-slate-200 hover:border-[#3b5998]'
                       }`}
                     >
                       <span className="truncate">{p.name}</span>
-                      {isSelected && <span>☠️</span>}
+                      {isSelected && <span>✓</span>}
                     </button>
                   )
                 })}
@@ -647,13 +620,13 @@ export function NightPhase({
             )}
           </div>
 
-          <div className="p-3 rounded-xl bg-[#101626] border border-[#34497a] text-xs text-slate-300">
+          <div className="p-3 rounded-xl bg-[#16181d] border border-[#2e323c] text-xs text-slate-300">
             <strong>Consigne meneur :</strong> Rendors le Responsable Pharmacie : « Pharmacie,
             rendors-toi ! ».
           </div>
 
-          <button type="button" onClick={handleNextStep} className="btn-amber w-full py-4 text-sm font-bold">
-            ☀️ Terminer la nuit et réveiller le campement
+          <button type="button" onClick={handleNextStep} className="btn-primary w-full">
+            Terminer la nuit et réveiller le campement
           </button>
         </div>
       )}

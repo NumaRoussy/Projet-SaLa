@@ -21,13 +21,9 @@ export function CascadeModal({ cascade, players, onResolve }: CascadeModalProps)
 
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75">
-        <div className="w-full max-w-md p-6 rounded-2xl bg-[#172036] border-2 border-[#7d3666] text-center space-y-5 text-[#f3f4f6]">
-          <div className="w-16 h-16 mx-auto rounded-2xl bg-[#291724] border border-[#7d3666] flex items-center justify-center text-4xl">
-            💔
-          </div>
-
+        <div className="w-full max-w-md p-6 rounded-2xl bg-[#1f2229] border-2 border-[#3b5998] text-center space-y-5 text-[#f3f4f6]">
           <div className="space-y-2">
-            <span className="px-3 py-1 rounded-full text-xs font-bold bg-[#291724] text-pink-200 border border-[#7d3666] uppercase tracking-wider">
+            <span className="inline-block px-3 py-1 rounded-full text-xs font-bold bg-[#16181d] text-[#9eb4eb] border border-[#3b5998] uppercase tracking-wider">
               Chagrin Inconsolable • Révélation Publique
             </span>
             <h2 className="text-xl sm:text-2xl font-extrabold text-[#f3f4f6] font-display">
@@ -35,40 +31,35 @@ export function CascadeModal({ cascade, players, onResolve }: CascadeModalProps)
             </h2>
             <p className="text-xs sm:text-sm text-slate-300">
               Suite à la mort de <strong className="text-[#f3f4f6]">{cascade.sourcePlayerName}</strong>,{' '}
-              son partenaire <strong className="text-pink-300">{partner?.name}</strong> s'effondre de chagrin !
+              son partenaire <strong className="text-[#9eb4eb]">{partner?.name}</strong> s'effondre de chagrin !
             </p>
           </div>
 
           {partner && partnerRoleDef && (
             <div
-              className={`p-4 rounded-xl border-2 space-y-2 ${
-                isMaitrise ? 'bg-[#2b171b] border-[#7f2d38]' : 'bg-[#122620] border-[#2d6a4f]'
+              className={`p-4 rounded-xl border-2 space-y-2 bg-[#16181d] ${
+                isMaitrise ? 'border-[#9b2c37]' : 'border-[#2e6f56]'
               }`}
             >
               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block text-left">
                 Rôle révélé au campement :
               </span>
-              <div className="flex items-center gap-3 text-left">
-                <span className="text-4xl p-2 rounded-xl bg-[#101626] border border-[#34497a] shrink-0">
-                  {partnerRoleDef.icon}
+              <div className="text-left">
+                <h3 className="font-extrabold text-[#f3f4f6] text-base">
+                  {partner.name} était : <span className="text-[#e5be6d]">{partnerRoleDef.name}</span>
+                </h3>
+                <span className={`text-xs font-bold block ${isMaitrise ? 'text-[#e88c95]' : 'text-emerald-300'}`}>
+                  {partnerRoleDef.campLabel}
                 </span>
-                <div>
-                  <h3 className="font-extrabold text-[#f3f4f6] text-base">
-                    {partner.name} était : <span className="text-amber-300">{partnerRoleDef.name}</span>
-                  </h3>
-                  <span className={`text-xs font-bold block ${isMaitrise ? 'text-red-300' : 'text-emerald-300'}`}>
-                    {partnerRoleDef.campLabel}
-                  </span>
-                  <p className="text-[11px] text-slate-300 mt-0.5 line-clamp-1">
-                    {partnerRoleDef.shortDesc}
-                  </p>
-                </div>
+                <p className="text-[11px] text-slate-300 mt-0.5 line-clamp-1">
+                  {partnerRoleDef.shortDesc}
+                </p>
               </div>
             </div>
           )}
 
-          <button type="button" onClick={() => onResolve()} className="btn-amber w-full py-3.5 text-sm font-bold">
-            Confirmer la révélation et continuer ➔
+          <button type="button" onClick={() => onResolve()} className="btn-primary w-full">
+            Confirmer la révélation et continuer
           </button>
         </div>
       </div>
@@ -85,13 +76,9 @@ export function CascadeModal({ cascade, players, onResolve }: CascadeModalProps)
     if (collateralTarget && collateralRoleDef) {
       return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75">
-          <div className="w-full max-w-md p-6 rounded-2xl bg-[#172036] border-2 border-[#7f2d38] text-center space-y-5 text-[#f3f4f6]">
-            <div className="w-16 h-16 mx-auto rounded-2xl bg-[#2b171b] border border-[#7f2d38] flex items-center justify-center text-4xl">
-              💥
-            </div>
-
+          <div className="w-full max-w-md p-6 rounded-2xl bg-[#1f2229] border-2 border-[#9b2c37] text-center space-y-5 text-[#f3f4f6]">
             <div className="space-y-2">
-              <span className="px-3 py-1 rounded-full text-xs font-bold bg-[#2b171b] text-red-200 border border-[#7f2d38] uppercase tracking-wider">
+              <span className="inline-block px-3 py-1 rounded-full text-xs font-bold bg-[#16181d] text-[#e88c95] border border-[#9b2c37] uppercase tracking-wider">
                 Impact du Tir Collatéral • Révélation Publique
               </span>
               <h2 className="text-xl sm:text-2xl font-extrabold text-[#f3f4f6] font-display">
@@ -99,43 +86,38 @@ export function CascadeModal({ cascade, players, onResolve }: CascadeModalProps)
               </h2>
               <p className="text-xs sm:text-sm text-slate-300">
                 La fusée tirée par <strong className="text-[#f3f4f6]">{cascade.sourcePlayerName}</strong> a touché{' '}
-                <strong className="text-red-300">{collateralTarget.name}</strong> qui est éliminé(e) sur-le-champ !
+                <strong className="text-[#e88c95]">{collateralTarget.name}</strong> qui est éliminé(e) sur-le-champ !
               </p>
             </div>
 
             <div
-              className={`p-4 rounded-xl border-2 space-y-2 ${
-                isMaitrise ? 'bg-[#2b171b] border-[#7f2d38]' : 'bg-[#122620] border-[#2d6a4f]'
+              className={`p-4 rounded-xl border-2 space-y-2 bg-[#16181d] ${
+                isMaitrise ? 'border-[#9b2c37]' : 'border-[#2e6f56]'
               }`}
             >
               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block text-left">
                 Rôle révélé au campement :
               </span>
-              <div className="flex items-center gap-3 text-left">
-                <span className="text-4xl p-2 rounded-xl bg-[#101626] border border-[#34497a] shrink-0">
-                  {collateralRoleDef.icon}
+              <div className="text-left">
+                <h3 className="font-extrabold text-[#f3f4f6] text-base">
+                  {collateralTarget.name} était :{' '}
+                  <span className="text-[#e5be6d]">{collateralRoleDef.name}</span>
+                </h3>
+                <span className={`text-xs font-bold block ${isMaitrise ? 'text-[#e88c95]' : 'text-emerald-300'}`}>
+                  {collateralRoleDef.campLabel}
                 </span>
-                <div>
-                  <h3 className="font-extrabold text-[#f3f4f6] text-base">
-                    {collateralTarget.name} était :{' '}
-                    <span className="text-amber-300">{collateralRoleDef.name}</span>
-                  </h3>
-                  <span className={`text-xs font-bold block ${isMaitrise ? 'text-red-300' : 'text-emerald-300'}`}>
-                    {collateralRoleDef.campLabel}
-                  </span>
-                  <p className="text-[11px] text-slate-300 mt-0.5 line-clamp-1">
-                    {collateralRoleDef.shortDesc}
-                  </p>
-                </div>
+                <p className="text-[11px] text-slate-300 mt-0.5 line-clamp-1">
+                  {collateralRoleDef.shortDesc}
+                </p>
               </div>
             </div>
 
             <button
               type="button"
               onClick={() => onResolve(collateralTarget.id)}
-              className="btn-amber w-full py-3.5 text-sm font-bold"
+              className="btn-primary w-full"
             >
-              Confirmer la révélation et continuer ➔
+              Confirmer la révélation et continuer
             </button>
           </div>
         </div>
@@ -144,13 +126,9 @@ export function CascadeModal({ cascade, players, onResolve }: CascadeModalProps)
 
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75">
-        <div className="w-full max-w-md p-6 rounded-2xl bg-[#172036] border-2 border-[#7f2d38] text-center space-y-5 text-[#f3f4f6]">
-          <div className="w-16 h-16 mx-auto rounded-2xl bg-[#2b171b] border border-[#7f2d38] flex items-center justify-center text-4xl">
-            🚀
-          </div>
-
+        <div className="w-full max-w-md p-6 rounded-2xl bg-[#1f2229] border-2 border-[#9b2c37] text-center space-y-5 text-[#f3f4f6]">
           <div className="space-y-2">
-            <span className="px-3 py-1 rounded-full text-xs font-bold bg-[#2b171b] text-red-200 border border-[#7f2d38] uppercase tracking-wider">
+            <span className="inline-block px-3 py-1 rounded-full text-xs font-bold bg-[#16181d] text-[#e88c95] border border-[#9b2c37] uppercase tracking-wider">
               Dernier Souffle du CP
             </span>
             <h2 className="text-xl sm:text-2xl font-extrabold text-[#f3f4f6] font-display">
@@ -174,14 +152,14 @@ export function CascadeModal({ cascade, players, onResolve }: CascadeModalProps)
                     key={p.id}
                     type="button"
                     onClick={() => setSelectedTargetId(p.id)}
-                    className={`px-3 py-2 rounded-xl text-xs font-semibold border text-left flex items-center justify-between transition-colors ${
+                    className={`px-3 py-2 rounded-xl text-xs font-semibold border text-left flex items-center justify-between transition-colors bg-[#16181d] ${
                       isSelected
-                        ? 'bg-[#2b171b] border-[#7f2d38] text-red-200'
-                        : 'bg-[#101626] border-[#34497a] text-slate-200 hover:bg-[#1e2a45]'
+                        ? 'border-[#9b2c37] text-[#e88c95]'
+                        : 'border-[#2e323c] text-slate-200 hover:border-[#3b5998]'
                     }`}
                   >
                     <span className="truncate">{p.name}</span>
-                    {isSelected && <span>💥</span>}
+                    {isSelected && <span>✓</span>}
                   </button>
                 )
               })}
@@ -194,9 +172,9 @@ export function CascadeModal({ cascade, players, onResolve }: CascadeModalProps)
               if (selectedTargetId) setRevealedCollateralId(selectedTargetId)
             }}
             disabled={!selectedTargetId}
-            className="btn-danger w-full py-3.5 text-sm font-bold"
+            className="btn-danger w-full"
           >
-            Tirer la fusée et révéler le rôle ➔
+            Tirer la fusée et révéler le rôle
           </button>
         </div>
       </div>
@@ -206,13 +184,9 @@ export function CascadeModal({ cascade, players, onResolve }: CascadeModalProps)
   if (cascade.type === 'chief_succession') {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75">
-        <div className="w-full max-w-md p-6 rounded-2xl bg-[#172036] border-2 border-[#785127] text-center space-y-5 text-[#f3f4f6]">
-          <div className="w-16 h-16 mx-auto rounded-2xl bg-[#261d12] border border-[#785127] flex items-center justify-center text-4xl">
-            ⭐
-          </div>
-
+        <div className="w-full max-w-md p-6 rounded-2xl bg-[#1f2229] border-2 border-[#b5892e] text-center space-y-5 text-[#f3f4f6]">
           <div className="space-y-2">
-            <span className="px-3 py-1 rounded-full text-xs font-bold bg-[#261d12] text-amber-200 border border-[#785127] uppercase tracking-wider">
+            <span className="inline-block px-3 py-1 rounded-full text-xs font-bold bg-[#16181d] text-[#e5be6d] border border-[#b5892e] uppercase tracking-wider">
               Succession au Camp
             </span>
             <h2 className="text-xl sm:text-2xl font-extrabold text-[#f3f4f6] font-display">
@@ -236,14 +210,14 @@ export function CascadeModal({ cascade, players, onResolve }: CascadeModalProps)
                     key={p.id}
                     type="button"
                     onClick={() => setSelectedTargetId(p.id)}
-                    className={`px-3 py-2 rounded-xl text-xs font-semibold border text-left flex items-center justify-between transition-colors ${
+                    className={`px-3 py-2 rounded-xl text-xs font-semibold border text-left flex items-center justify-between transition-colors bg-[#16181d] ${
                       isSelected
-                        ? 'bg-[#261d12] border-[#966530] text-amber-200'
-                        : 'bg-[#101626] border-[#34497a] text-slate-200 hover:bg-[#1e2a45]'
+                        ? 'border-[#b5892e] text-[#e5be6d]'
+                        : 'border-[#2e323c] text-slate-200 hover:border-[#3b5998]'
                     }`}
                   >
                     <span className="truncate">{p.name}</span>
-                    {isSelected && <span>⭐</span>}
+                    {isSelected && <span>✓</span>}
                   </button>
                 )
               })}
@@ -256,9 +230,9 @@ export function CascadeModal({ cascade, players, onResolve }: CascadeModalProps)
               if (selectedTargetId) onResolve(selectedTargetId)
             }}
             disabled={!selectedTargetId}
-            className="btn-amber w-full py-3.5 text-sm font-bold"
+            className="btn-primary w-full"
           >
-            Conférer l'insigne de Chef de Camp ➔
+            Conférer l'insigne de Chef de Camp
           </button>
         </div>
       </div>

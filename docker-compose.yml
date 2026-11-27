@@ -22,6 +22,7 @@ services:
     restart: always
     environment:
       - ADMIN_KEY=${ADMIN_KEY:?ADMIN_KEY must be set in .env}
+      - DEV_ACCESS_CODE=${DEV_ACCESS_CODE:-}
       - SMTP_HOST=${SMTP_HOST:-mail.infomaniak.com}
       - SMTP_PORT=${SMTP_PORT:-587}
       - SMTP_USER=${SMTP_USER:-info@scoutgame.ch}
@@ -76,6 +77,12 @@ services:
 
   game-debrief:
     build: ./games/debrief
+    restart: always
+    networks:
+      - scout_net
+
+  dev-cards:
+    build: ./dev-cards
     restart: always
     networks:
       - scout_net

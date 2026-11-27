@@ -152,47 +152,46 @@ export function TirCorde({ player1, player2, sips = 3, onFinish }: Props) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 bg-[#0e1722] select-none flex flex-col touch-none overflow-hidden">
+    <div className="fixed inset-0 z-50 bg-[#16181d] select-none flex flex-col touch-none overflow-hidden">
       {/* Canvas Corde */}
       <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none z-10" />
 
       {/* Moitié P1 (Haut) */}
       <div
         onPointerDown={handleP1Tap}
-        className="relative z-20 flex-1 flex flex-col items-center justify-between p-4 bg-[#0e1722] active:bg-[#152233] border-b border-[#28527a] cursor-pointer"
+        className="relative z-20 flex-1 flex flex-col items-center justify-between p-4 bg-[#16181d] active:bg-[#1f2229] border-b border-[#2e323c] cursor-pointer"
       >
         <div className="rotate-180 flex flex-col items-center gap-1">
-          <span className="text-3xl">{player1.avatar || '⛺'}</span>
           <span className="font-display font-black text-xl text-[#f3f4f6]">{player1.name}</span>
-          <span className="text-[11px] text-sky-300 font-bold uppercase tracking-wider">
+          <span className="text-[11px] text-[#8ec2eb] font-bold uppercase tracking-wider">
             TAPPEZ FRÉNÉTIQUEMENT ICI !
           </span>
         </div>
-        <div className="rotate-180 text-xs font-mono text-sky-300">
+        <div className="rotate-180 text-xs font-mono text-[#8ec2eb]">
           Avance : {Math.max(0, -Math.round(position))}%
         </div>
       </div>
 
       {/* Ligne médiane / Statut */}
-      <div className="relative z-30 h-14 bg-[#152233] flex items-center justify-center border-y border-[#28527a] px-3">
+      <div className="relative z-30 h-14 bg-[#1f2229] flex items-center justify-center border-y border-[#2d6394] px-3">
         {gameState === 'countdown' && (
-          <span className="text-3xl font-black text-amber-300">{countdown}</span>
+          <span className="text-3xl font-black text-[#e5be6d]">{countdown}</span>
         )}
         {gameState === 'playing' && (
           <div className="flex items-center gap-3">
             <span className="text-xs font-bold text-slate-300 uppercase tracking-widest">
-              TIR À LA CORDE — MARTÈLE TON CÔTÉ !
+              TIR À LA CORDE : MARTÈLE TON CÔTÉ !
             </span>
           </div>
         )}
         {gameState === 'finished' && (
           <div className="flex items-center gap-3">
-            <span className="text-sm font-black text-amber-300">
-              🏆 {winner?.name} GAGNE ! {loser?.name} prend {sips} gorgées
+            <span className="text-sm font-black text-[#e5be6d]">
+              {winner?.name} GAGNE ! {loser?.name} prend {sips} gorgées
             </span>
             <button
               onClick={handleConfirm}
-              className="px-4 py-1.5 bg-[#32689c] hover:bg-[#3c7ab5] border border-[#28527a] text-[#f3f4f6] font-bold text-xs rounded-full transition-colors"
+              className="btn-primary py-1.5 px-4 text-xs"
             >
               Continuer →
             </button>
@@ -203,17 +202,16 @@ export function TirCorde({ player1, player2, sips = 3, onFinish }: Props) {
       {/* Moitié P2 (Bas) */}
       <div
         onPointerDown={handleP2Tap}
-        className="relative z-20 flex-1 flex flex-col items-center justify-between p-4 bg-[#121a26] active:bg-[#1a2636] border-t border-[#28527a] cursor-pointer"
+        className="relative z-20 flex-1 flex flex-col items-center justify-between p-4 bg-[#16181d] active:bg-[#1f2229] border-t border-[#2e323c] cursor-pointer"
       >
-        <div className="text-xs font-mono text-amber-300">
+        <div className="text-xs font-mono text-[#e5be6d]">
           Avance : {Math.max(0, Math.round(position))}%
         </div>
         <div className="flex flex-col items-center gap-1">
-          <span className="text-[11px] text-amber-300 font-bold uppercase tracking-wider">
+          <span className="text-[11px] text-[#e5be6d] font-bold uppercase tracking-wider">
             TAPPEZ FRÉNÉTIQUEMENT ICI !
           </span>
           <span className="font-display font-black text-xl text-[#f3f4f6]">{player2.name}</span>
-          <span className="text-3xl">{player2.avatar || '🪵'}</span>
         </div>
       </div>
     </div>

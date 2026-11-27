@@ -34,7 +34,7 @@ export function PrintSheetModal({ campaignName, token, onClose }: Props) {
         <div className="flex items-center justify-between pb-3 border-b border-[#2d6a4f] print:hidden">
           <div>
             <h2 className="font-display font-bold text-lg text-[#f3f4f6]">
-              Planche de bandelettes QR — {campaignName}
+              Planche de bandelettes QR : {campaignName}
             </h2>
             <p className="text-xs text-slate-300">
               Format A4 prêt à imprimer. Découpez les bandelettes le long des pointillés.

@@ -7,9 +7,8 @@ interface Props {
 export function BlackoutScreen({ message }: Props) {
   const hubUrl = getHubUrl()
   return (
-    <div className="fixed inset-0 z-50 bg-[#0e1722] flex items-center justify-center p-6 text-center">
-      <div className="glass-card max-w-md w-full p-8 space-y-5 border border-[#785127]">
-        <div className="text-6xl">⛺</div>
+    <div className="fixed inset-0 z-50 bg-[#16181d] flex items-center justify-center p-6 text-center">
+      <div className="glass-card max-w-md w-full p-8 space-y-5 border border-[#2d6394]">
         <h2 className="font-display font-bold text-[#f3f4f6] text-xl">
           Période de camp scoute
         </h2>
@@ -23,7 +22,7 @@ export function BlackoutScreen({ message }: Props) {
           )}
         </p>
         <div className="pt-4">
-          <a href={hubUrl} className="btn-amber w-full block text-sm font-bold">
+          <a href={hubUrl} className="btn-primary w-full block text-sm font-semibold">
             Retour au portail public
           </a>
         </div>

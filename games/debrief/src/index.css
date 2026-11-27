@@ -12,6 +12,7 @@
 html {
   height: auto;
   min-height: 100%;
+  background-color: #16181d;
   overflow-x: clip;
   overflow-y: auto;
   scroll-behavior: smooth;
@@ -22,7 +23,7 @@ body {
   min-height: 100dvh;
   margin: 0;
   padding: 0;
-  background-color: #0e0a0c;
+  background-color: #16181d;
   color: #f3f4f6;
   font-family: 'Inter', system-ui, sans-serif;
   overflow: visible;
@@ -46,6 +47,7 @@ input, textarea, select {
 #root, .app-container {
   min-height: 100dvh;
   height: auto;
+  background-color: #16181d;
   overflow: visible;
   display: flex;
   flex-direction: column;
@@ -58,33 +60,33 @@ input, textarea, select {
 }
 
 .glass-card {
-  background: #181215;
-  border: 1px solid #8a5629;
+  background: #1f2229;
+  border: 1px solid #2e323c;
   border-radius: 1rem;
 }
 
 .btn-primary {
-  @apply inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-semibold text-sm
-         bg-[#8a5629] text-[#f3f4f6] border border-[#a16632]
-         hover:bg-[#a16632] active:scale-[0.98] transition-colors cursor-pointer
+  @apply inline-flex items-center justify-center gap-2 py-3 px-5 rounded-lg font-semibold text-sm
+         bg-[#b5892e] text-[#16181d] border border-[#b5892e]
+         hover:bg-[#c79836] active:scale-[0.98] transition-colors cursor-pointer
          disabled:opacity-45 disabled:cursor-not-allowed;
 }
 
 .btn-secondary {
-  @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-xs
-         bg-[#241b1f] text-[#f3f4f6] border border-[#8a5629]
-         hover:bg-[#2e2228] active:scale-[0.98] transition-colors cursor-pointer;
+  @apply inline-flex items-center justify-center gap-2 py-3 px-5 rounded-lg font-semibold text-sm
+         bg-[#1f2229] text-[#f3f4f6] border border-[#b5892e]
+         hover:bg-[#262a33] active:scale-[0.98] transition-colors cursor-pointer;
 }
 
 .btn-ghost {
   @apply inline-flex items-center justify-center gap-2 px-3 py-1.5 rounded-lg font-medium text-xs
-         text-slate-300 hover:text-[#f3f4f6] hover:bg-[#241b1f] border border-transparent
+         text-slate-300 hover:text-[#f3f4f6] hover:bg-[#262a33] border border-transparent
          active:scale-[0.98] transition-colors cursor-pointer;
 }
 
 .input-scout {
-  @apply w-full px-3.5 py-2.5 rounded-xl bg-[#0e0a0c] border border-[#593a20]
+  @apply w-full px-3.5 py-2.5 rounded-lg bg-[#16181d] border border-[#2e323c]
          text-[#f3f4f6] placeholder-slate-400 text-sm
-         focus:outline-none focus:border-[#8a5629]
+         focus:outline-none focus:border-[#b5892e]
          transition-colors;
 }

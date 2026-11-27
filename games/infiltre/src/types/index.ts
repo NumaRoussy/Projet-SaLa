@@ -37,4 +37,4 @@ export interface AssignedPlayer {
 }
 
 export type GamePhase = 'setup' | 'reveal' | 'debate' | 'vote' | 'elimination' | 'gameover'
-export type GameTheme = 'scout' | 'moldus'
+export type GameTheme = 'scout' | 'moldu' | 'mixte'

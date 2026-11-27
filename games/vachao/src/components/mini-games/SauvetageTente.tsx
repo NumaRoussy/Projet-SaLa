@@ -348,32 +348,29 @@ export function SauvetageTente({ player1, player2, sips = 2, onFinish }: Props) 
   }
 
   return (
-    <div className="fixed inset-0 z-50 bg-[#0e1722] select-none flex flex-col touch-none overflow-hidden">
+    <div className="fixed inset-0 z-50 bg-[#16181d] select-none flex flex-col touch-none overflow-hidden">
       {/* HUD Header */}
-      <div className="relative z-20 px-4 py-2 bg-[#152233] border-b border-[#28527a] flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <span className="text-xl">⛺</span>
-          <div>
-            <div className="text-[10px] text-slate-400 uppercase font-mono">État de la Tente</div>
-            <div className="w-24 h-2.5 bg-[#0e1722] rounded-full overflow-hidden border border-[#28527a]">
-              <div
-                className={`h-full transition-all duration-300 ${
-                  tentHealth > 50 ? 'bg-emerald-500' : tentHealth > 20 ? 'bg-amber-500' : 'bg-red-500'
-                }`}
-                style={{ width: `${tentHealth}%` }}
-              />
-            </div>
+      <div className="relative z-20 px-4 py-2 bg-[#1f2229] border-b border-[#2d6394] flex items-center justify-between">
+        <div>
+          <div className="text-[10px] text-slate-400 uppercase font-mono">État de la Tente</div>
+          <div className="w-24 h-2.5 bg-[#16181d] rounded-full overflow-hidden border border-[#2e323c] mt-0.5">
+            <div
+              className={`h-full transition-all duration-300 ${
+                tentHealth > 50 ? 'bg-[#2e6f56]' : tentHealth > 20 ? 'bg-[#b5892e]' : 'bg-[#9b2c37]'
+              }`}
+              style={{ width: `${tentHealth}%` }}
+            />
           </div>
         </div>
 
         <div className="text-center">
           <div className="text-[10px] text-slate-400 font-mono uppercase">Temps Restant</div>
-          <div className="text-lg font-black font-mono text-sky-300">{timeLeft}s</div>
+          <div className="text-lg font-black font-mono text-[#8ec2eb]">{timeLeft}s</div>
         </div>
 
         <div className="flex items-center gap-3 text-xs font-mono">
-          <span className="text-sky-300 font-bold">{player1.name}: {scoreP1}</span>
-          <span className="text-amber-300 font-bold">{player2.name}: {scoreP2}</span>
+          <span className="text-[#8ec2eb] font-bold">{player1.name}: {scoreP1}</span>
+          <span className="text-[#e5be6d] font-bold">{player2.name}: {scoreP2}</span>
         </div>
       </div>
 
@@ -391,8 +388,7 @@ export function SauvetageTente({ player1, player2, sips = 2, onFinish }: Props) 
         {/* Modal Fin de Manche */}
         {isFinished && (
           <div className="absolute inset-0 bg-black/80 flex items-center justify-center p-6 z-30">
-            <div className="bg-[#152233] border border-[#28527a] rounded-2xl p-6 max-w-sm w-full text-center space-y-4">
-              <div className="text-5xl">{tentHealth > 0 ? '🏕️' : '💥'}</div>
+            <div className="bg-[#1f2229] border border-[#2d6394] rounded-2xl p-6 max-w-sm w-full text-center space-y-4">
               <h2 className="font-display font-black text-xl text-[#f3f4f6]">
                 {tentHealth > 0 ? 'Tente Sauvée !' : 'Tente Écrasée !'}
               </h2>
@@ -405,7 +401,7 @@ export function SauvetageTente({ player1, player2, sips = 2, onFinish }: Props) 
               </p>
               <button
                 onClick={handleConfirm}
-                className="w-full py-2.5 bg-[#32689c] hover:bg-[#3c7ab5] border border-[#28527a] text-[#f3f4f6] font-bold text-sm rounded-xl transition-colors"
+                className="btn-primary w-full"
               >
                 Continuer la veillée →
               </button>
@@ -416,8 +412,8 @@ export function SauvetageTente({ player1, player2, sips = 2, onFinish }: Props) 
 
       {/* Guide Swipe */}
       {!isFinished && (
-        <div className="relative z-20 py-1.5 text-center bg-[#152233] text-[11px] text-slate-400 border-t border-[#28527a]">
-          👉 Balayez l'écran au doigt pour trancher les troncs avant qu'ils ne touchent la tente !
+        <div className="relative z-20 py-1.5 text-center bg-[#1f2229] text-[11px] text-slate-400 border-t border-[#2e323c]">
+          Balayez l'écran au doigt pour trancher les troncs avant qu'ils ne touchent la tente !
         </div>
       )}
     </div>

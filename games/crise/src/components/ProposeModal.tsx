@@ -67,11 +67,11 @@ export function ProposeModal({ isOpen, initialCategory, onClose }: Props) {
   return (
     <div className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4" onClick={onClose}>
       <div
-        className="bg-[#161922] border border-[#2a2f3d] rounded-2xl w-full max-w-md max-h-[90dvh] overflow-y-auto p-5 space-y-4 text-gray-100"
+        className="bg-[#1f2229] border border-[#2e323c] rounded-2xl w-full max-w-md max-h-[90dvh] overflow-y-auto p-5 space-y-4 text-[#f3f4f6]"
         onClick={e => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between pb-3 border-b border-[#2a2f3d]">
-          <h2 className="font-display font-bold text-lg text-white">💡 Proposer une carte — Crise</h2>
+        <div className="flex items-center justify-between pb-3 border-b border-[#2e323c]">
+          <h2 className="font-display font-bold text-lg text-[#f3f4f6]">Proposer une carte (Crise)</h2>
           <button type="button" onClick={onClose} className="btn-ghost px-2 py-1 text-sm">
             ✕
           </button>
@@ -79,8 +79,7 @@ export function ProposeModal({ isOpen, initialCategory, onClose }: Props) {
 
         {success ? (
           <div className="py-6 text-center space-y-4">
-            <div className="text-4xl">✅</div>
-            <p className="text-sm font-semibold text-emerald-400">
+            <p className="text-sm font-semibold text-emerald-300">
               Incident transmis ! Merci pour ta contribution.
             </p>
             <button type="button" onClick={onClose} className="btn-primary w-full">
@@ -90,25 +89,25 @@ export function ProposeModal({ isOpen, initialCategory, onClose }: Props) {
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">
                 Type d'incident
               </label>
               <div className="grid grid-cols-3 gap-2">
                 {(
                   [
-                    { id: 'attaque', label: '💥 Attaque' },
-                    { id: 'dilemme', label: '⚖️ Dilemme' },
-                    { id: 'regle', label: '⚠️ Malus' },
+                    { id: 'attaque', label: 'Attaque' },
+                    { id: 'dilemme', label: 'Dilemme' },
+                    { id: 'regle', label: 'Malus' },
                   ] as const
                 ).map(item => (
                   <button
                     key={item.id}
                     type="button"
                     onClick={() => setCategory(item.id)}
-                    className={`py-2 px-2 rounded-xl text-xs font-bold border transition-colors ${
+                    className={`py-2 px-2 rounded-lg text-xs font-semibold border transition-colors ${
                       category === item.id
-                        ? 'bg-red-950/70 border-red-500 text-red-200'
-                        : 'bg-[#0d1016] border-[#2a2f3d] text-gray-400 hover:text-white'
+                        ? 'bg-[#262a33] border-[#9b2c37] text-[#f3f4f6]'
+                        : 'bg-[#16181d] border-[#2e323c] text-slate-400 hover:text-[#f3f4f6]'
                     }`}
                   >
                     {item.label}
@@ -118,7 +117,7 @@ export function ProposeModal({ isOpen, initialCategory, onClose }: Props) {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-gray-300 mb-1">
+              <label className="block text-xs font-semibold text-slate-300 mb-1">
                 Titre de l'incident <span className="text-red-400">*</span>
               </label>
               <input
@@ -132,7 +131,7 @@ export function ProposeModal({ isOpen, initialCategory, onClose }: Props) {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-gray-300 mb-1">
+              <label className="block text-xs font-semibold text-slate-300 mb-1">
                 Description <span className="text-red-400">*</span>
               </label>
               <textarea
@@ -143,16 +142,16 @@ export function ProposeModal({ isOpen, initialCategory, onClose }: Props) {
                 placeholder="Ex: {p1} accuse {p2} d'avoir perdu la caisse de matos. {p2} prend +1.0% et boit {sips} gorgées."
                 className="input-scout resize-none"
               />
-              <p className="text-[11px] text-gray-400 mt-1">
-                Balises disponibles : <code className="text-red-300">{'{p1}'}</code>,{' '}
-                <code className="text-red-300">{'{p2}'}</code>,{' '}
-                <code className="text-amber-300">{'{sips}'}</code>
+              <p className="text-[11px] text-slate-400 mt-1">
+                Balises disponibles : <code className="text-[#e88c95]">{'{p1}'}</code>,{' '}
+                <code className="text-[#e88c95]">{'{p2}'}</code>,{' '}
+                <code className="text-[#e5be6d]">{'{sips}'}</code>
               </p>
             </div>
 
             <div className="grid grid-cols-1 gap-3">
               <div>
-                <label className="block text-xs font-semibold text-gray-300 mb-1.5">
+                <label className="block text-xs font-semibold text-slate-300 mb-1.5">
                   Perte % J+S
                 </label>
                 <div className="grid grid-cols-5 gap-1.5">
@@ -163,8 +162,8 @@ export function ProposeModal({ isOpen, initialCategory, onClose }: Props) {
                       onClick={() => setLossPercent(val)}
                       className={`py-2 rounded-lg text-xs font-mono font-bold border transition-colors ${
                         lossPercent === val
-                          ? 'bg-red-700 border-red-500 text-white'
-                          : 'bg-[#0d1016] border-[#2a2f3d] text-gray-400 hover:text-white'
+                          ? 'bg-[#9b2c37] border-[#9b2c37] text-[#f3f4f6]'
+                          : 'bg-[#16181d] border-[#2e323c] text-slate-400 hover:text-[#f3f4f6]'
                       }`}
                     >
                       {val.toFixed(1)}%
@@ -174,7 +173,7 @@ export function ProposeModal({ isOpen, initialCategory, onClose }: Props) {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-gray-300 mb-1.5">
+                <label className="block text-xs font-semibold text-slate-300 mb-1.5">
                   Gorgées
                 </label>
                 <div className="grid grid-cols-5 gap-1.5">
@@ -185,8 +184,8 @@ export function ProposeModal({ isOpen, initialCategory, onClose }: Props) {
                       onClick={() => setSips(val)}
                       className={`py-2 rounded-lg text-xs font-bold border transition-colors ${
                         sips === val
-                          ? 'bg-amber-600 border-amber-500 text-white'
-                          : 'bg-[#0d1016] border-[#2a2f3d] text-gray-400 hover:text-white'
+                          ? 'bg-[#9b2c37] border-[#9b2c37] text-[#f3f4f6]'
+                          : 'bg-[#16181d] border-[#2e323c] text-slate-400 hover:text-[#f3f4f6]'
                       }`}
                     >
                       {val}
@@ -197,7 +196,7 @@ export function ProposeModal({ isOpen, initialCategory, onClose }: Props) {
             </div>
 
             {error && (
-              <p className="text-xs text-red-300 bg-red-950/60 border border-red-800 rounded-xl p-2.5">
+              <p className="text-xs text-red-300 bg-[#2a191c] border border-[#9b2c37] rounded-lg p-2.5">
                 {error}
               </p>
             )}

@@ -81,13 +81,13 @@ function getExtraFieldConfig(game: string, category: string) {
     return {
       label: 'Options A|B (Tu préfères) ou Sous-texte / Pénalité',
       placeholder: 'Ex: A: Option 1 | B: Option 2',
-      help: 'Pour Tu préfères: A: ... | B: ... — sinon sous-texte avec {sips}.',
+      help: 'Pour Tu préfères: A: ... | B: ... (sinon sous-texte avec {sips}).',
     }
   }
   return {
     label: 'Champ Extra (optionnel)',
-    placeholder: 'Optionnel — laisser vide pour ce type de carte',
-    help: 'Optionnel — laisser vide pour ce type de carte.',
+    placeholder: 'Optionnel, laisser vide pour ce type de carte',
+    help: 'Optionnel, laisser vide pour ce type de carte.',
   }
 }
 
@@ -753,7 +753,7 @@ export function AdminConsole({ onClose }: Props) {
           <span className="text-xl">⚜️</span>
           <div>
             <h1 className="font-display font-bold text-sm sm:text-base leading-tight">
-              Scout Game — Console d'Administration V2
+              Scout Game : Console d'Administration V2
             </h1>
             <p className="text-[10px] text-gray-400">
               Inspiré du scoutisme vaudois · Projet 100% indépendant

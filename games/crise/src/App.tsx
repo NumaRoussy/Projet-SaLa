@@ -11,6 +11,8 @@ import { VictoryModal } from './components/VictoryModal'
 import { ProposeModal } from './components/ProposeModal'
 import { useWakeLock } from './hooks/useWakeLock'
 
+const HISTORY_KEY = 'scoutgame_history_crise'
+
 const FALLBACK_CARDS: Card[] = [
   { id: 1, game: 'crise', mode: 'crise', category: 'attaque', title: 'Bidon d\'eau sous les pneus', content: '{p1} place un jerrican d\'eau sous les pneus de la voiture de {p2}. Le véhicule s\'embourbe sur le terrain : la cible prend +1.0% et boit {sips} gorgées.', extra: 'Cible désignée', sips: 3, loss_percent: 1.0, min_players: 3 },
   { id: 2, game: 'crise', mode: 'crise', category: 'attaque', title: 'Piment d\'intendance', content: 'Une marmite piégée par {p1} provoque une épidémie de dysenterie. {p2} doit désigner 2 acolytes qui mangent avec lui : ils prennent chacun +1.0% de perte et boivent {sips} gorgées.', extra: 'Attaque groupée', sips: 3, loss_percent: 1.0, min_players: 3 },
@@ -22,6 +24,63 @@ const FALLBACK_CARDS: Card[] = [
   { id: 8, game: 'crise', mode: 'crise', category: 'dilemme', title: 'Contrôle de la Malle de Maîtrise', content: 'Quelqu\'un a oublié de verrouiller la Malle avant le week-end de maîtrise à Froideville. Votez pour le responsable le plus suspect : il prend +1.5% ou distribue {sips} gorgées.', extra: 'Dilemme d\'audit', sips: 4, loss_percent: 1.5, min_players: 3 },
 ]
 
+function shuffleArray<T>(arr: readonly T[]): T[] {
+  const copy = [...arr]
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[copy[i], copy[j]] = [copy[j], copy[i]]
+  }
+  return copy
+}
+
+function readHistory(): string[] {
+  try {
+    const raw = localStorage.getItem(HISTORY_KEY)
+    return raw ? (JSON.parse(raw) as string[]) : []
+  } catch {
+    return []
+  }
+}
+
+function writeHistory(items: string[]): void {
+  try {
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(items))
+  } catch {
+    // Ignore storage errors
+  }
+}
+
+function getCardKey(card: Card): string {
+  return (card.content || card.title || String(card.id)).trim().toLowerCase()
+}
+
+function buildOrderedDeck(pool: Card[]): Card[] {
+  const uniqueMap = new Map<string, Card>()
+  for (const c of pool) {
+    const k = getCardKey(c)
+    if (!uniqueMap.has(k)) uniqueMap.set(k, c)
+  }
+  const uniqueCards = Array.from(uniqueMap.values())
+  const history = readHistory()
+  const historySet = new Set(history)
+  const unseen = uniqueCards.filter(c => !historySet.has(getCardKey(c)))
+  if (unseen.length > 0) return shuffleArray(unseen)
+
+  const lastKey = history.length > 0 ? history[history.length - 1] : null
+  const nextHistory = lastKey && uniqueCards.length > 1 ? [lastKey] : []
+  writeHistory(nextHistory)
+  const resetSet = new Set(nextHistory)
+  const fresh = uniqueCards.filter(c => !resetSet.has(getCardKey(c)))
+  return shuffleArray(fresh.length > 0 ? fresh : uniqueCards)
+}
+
+function markCardSeen(card: Card | undefined): void {
+  if (!card) return
+  const key = getCardKey(card)
+  const prev = readHistory()
+  writeHistory([...prev.filter(k => k !== key), key])
+}
+
 export default function App() {
   useWakeLock()
   const [isVerifying, setIsVerifying] = useState(true)
@@ -31,7 +90,8 @@ export default function App() {
   const [initialPlayers, setInitialPlayers] = useState<CrisisPlayer[]>(() => loadPlayers())
 
   const [phase, setPhase] = useState<CrisisPhase>('setup')
-  const [cards, setCards] = useState<Card[]>([])
+  const [allCards, setAllCards] = useState<Card[]>(FALLBACK_CARDS)
+  const [deck, setDeck] = useState<Card[]>([])
   const [currentCardIndex, setCurrentCardIndex] = useState(0)
 
   const crisis = useCrisisStore(initialPlayers)
@@ -73,10 +133,10 @@ export default function App() {
   useEffect(() => {
     fetchCrisisCards()
       .then(data => {
-        if (data && data.length > 0) setCards(shuffleArray(data))
-        else setCards(shuffleArray(FALLBACK_CARDS))
+        if (data && data.length > 0) setAllCards(data)
+        else setAllCards(FALLBACK_CARDS)
       })
-      .catch(() => setCards(shuffleArray(FALLBACK_CARDS)))
+      .catch(() => setAllCards(FALLBACK_CARDS))
   }, [])
 
   useEffect(() => {
@@ -86,21 +146,10 @@ export default function App() {
     }
   }, [])
 
-  function shuffleArray<T>(arr: T[]): T[] {
-    const copy = [...arr]
-    for (let i = copy.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1))
-      ;[copy[i], copy[j]] = [copy[j], copy[i]]
-    }
-    return copy
-  }
-
   const handleAddPlayer = (name: string) => {
-    const avatars = ['👮', '🦺', '📋', '🚨', '🎒', '🔦', '📻', '🛠️']
     const newPlayer: CrisisPlayer = {
-      id: `p_${Date.now()}`,
+      id: `p_${Date.now()}_${Math.random().toString(36).slice(2, 5)}`,
       name,
-      avatar: avatars[initialPlayers.length % avatars.length],
       lossPercent: 0,
       isEliminated: false,
       activeDebuffs: [],
@@ -128,12 +177,17 @@ export default function App() {
   const handleStartGame = () => {
     if (initialPlayers.length < 2) return
     savePlayers(initialPlayers)
-    crisis.resetGame(initialPlayers)
+    const shuffledPlayers = shuffleArray(initialPlayers)
+    crisis.resetGame(shuffledPlayers)
+
+    const orderedDeck = buildOrderedDeck(allCards.length > 0 ? allCards : FALLBACK_CARDS)
+    setDeck(orderedDeck)
     setCurrentCardIndex(0)
+    markCardSeen(orderedDeck[0])
     setPhase('playing')
   }
 
-  const currentCard = cards[currentCardIndex % (cards.length || 1)]
+  const currentCard = deck[currentCardIndex % (deck.length || 1)]
 
   const handleExecuteAction = (
     targetId: string,
@@ -153,15 +207,24 @@ export default function App() {
       crisis.addDebuff(targetId, debuffTitle)
     }
 
-    setCurrentCardIndex(prev => prev + 1)
+    const nextIdx = currentCardIndex + 1
+    let activeDeck = deck
+    let targetIdx = nextIdx
+    if (nextIdx >= deck.length) {
+      activeDeck = buildOrderedDeck(allCards.length > 0 ? allCards : FALLBACK_CARDS)
+      setDeck(activeDeck)
+      targetIdx = 0
+    }
+    setCurrentCardIndex(targetIdx)
+    markCardSeen(activeDeck[targetIdx])
     crisis.nextTurn()
   }
 
   if (isVerifying) {
     return (
-      <div className="min-h-screen bg-[#0d1016] flex items-center justify-center text-red-500">
+      <div className="min-h-screen bg-[#16181d] flex items-center justify-center text-[#e88c95]">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 border-2 border-red-500/30 border-t-red-500 rounded-full animate-spin" />
+          <div className="w-8 h-8 border-2 border-[#2e323c] border-t-[#9b2c37] rounded-full animate-spin" />
           <span className="text-sm font-semibold">Connexion à la Cellule de Crise...</span>
         </div>
       </div>
@@ -170,12 +233,11 @@ export default function App() {
 
   if (blackoutMessage) {
     return (
-      <div className="fixed inset-0 z-50 bg-[#0d1016] flex items-center justify-center p-6 text-center">
-        <div className="max-w-md w-full p-8 border border-[#2a2f3d] rounded-2xl bg-[#161922] space-y-4">
-          <div className="text-5xl">⛺</div>
-          <h2 className="font-display font-bold text-white text-lg">Période de camp scoute</h2>
-          <p className="text-xs text-gray-300 leading-relaxed">{blackoutMessage}</p>
-          <a href={hubUrl} className="block w-full py-2.5 bg-red-700 rounded-xl font-bold text-sm text-white">
+      <div className="fixed inset-0 z-50 bg-[#16181d] flex items-center justify-center p-6 text-center">
+        <div className="max-w-md w-full p-8 border border-[#9b2c37] rounded-2xl bg-[#1f2229] space-y-4">
+          <h2 className="font-display font-bold text-[#f3f4f6] text-lg">Période de camp scoute</h2>
+          <p className="text-xs text-slate-300 leading-relaxed">{blackoutMessage}</p>
+          <a href={hubUrl} className="btn-primary w-full">
             ← Menu
           </a>
         </div>
@@ -193,26 +255,26 @@ export default function App() {
       : 'attaque'
 
   return (
-    <div className="app-container bg-[#0d1016] text-gray-100">
+    <div className="app-container bg-[#16181d] text-[#f3f4f6]">
       {/* ── En-tête uniforme ──────────────────────────────────────────────── */}
-      <header className="sticky top-0 z-30 bg-[#12151d] border-b border-[#2a2f3d] px-4 py-3">
+      <header className="sticky top-0 z-30 bg-[#1f2229] border-b border-[#9b2c37] px-4 py-3">
         <div className="max-w-lg mx-auto grid grid-cols-3 items-center gap-2">
           <div className="justify-self-start">
             <a
               href={hubUrl}
-              className="inline-flex items-center px-2.5 py-1.5 rounded-lg border border-[#2a2f3d] bg-[#161922] hover:bg-[#1f2330] text-gray-200 text-xs font-semibold transition-colors"
+              className="inline-flex items-center px-2.5 py-1.5 rounded-lg border border-[#2e323c] bg-[#16181d] hover:bg-[#262a33] text-[#f3f4f6] text-xs font-semibold transition-colors"
             >
               ← Menu
             </a>
           </div>
-          <h1 className="justify-self-center font-display font-bold text-base text-white truncate">
+          <h1 className="justify-self-center font-display font-bold text-base text-[#f3f4f6] truncate">
             Cellule de crise
           </h1>
           <div className="justify-self-end">
             <button
               type="button"
               onClick={() => setProposeOpen(true)}
-              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-amber-500/40 bg-amber-950/50 hover:bg-amber-900/60 text-amber-200 text-xs font-semibold transition-colors"
+              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-[#b5892e] bg-[#1f2229] hover:bg-[#262a33] text-[#f3f4f6] text-xs font-semibold transition-colors"
             >
               <span>💡</span>
               <span>Proposer</span>
@@ -263,8 +325,8 @@ export default function App() {
         </div>
       )}
 
-      <footer className="py-3 px-4 text-center border-t border-[#1c202c] text-[11px] text-gray-500">
-        Projet indépendant — Non affilié à l'ASVd, au MSdS, à J+S ou à toute autre organisation.
+      <footer className="py-3 px-4 text-center border-t border-[#2e323c] bg-[#1f2229] text-[11px] text-slate-400">
+        Projet indépendant. Non affilié à l'ASVd, au MSdS, à J+S ou à toute autre organisation.
       </footer>
 
       <ProposeModal

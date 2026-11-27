@@ -25,6 +25,13 @@ export type GameMode = 'pepere' | 'commando' | 'mixte'
 export type GamePhase = 'setup' | 'playing' | 'stats'
 export type ActiveMiniGame = 'none' | 'flamme_bleue' | 'sens_du_temps' | 'tir_corde' | 'sauvetage_tente'
 
+export interface ActiveRule {
+  id: string
+  title: string
+  content: string
+  remainingTurns: number
+}
+
 export interface MiniGameResult {
   winnerId: string | null
   loserId: string | null

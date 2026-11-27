@@ -23,7 +23,7 @@ import aiosqlite
 
 from app.database import get_db, init_db, DB_PATH
 from app.models import CardOut, TelemetryEvent
-from app.routers import auth, reports, feedback, admin
+from app.routers import auth, reports, feedback, admin, dev_cards
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("scoutgame.cleanup")
@@ -71,6 +71,7 @@ def _ensure_cleanup_running():
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await init_db()
+    await dev_cards.init_dev_db()
     task = _ensure_cleanup_running()
     try:
         yield
@@ -104,6 +105,7 @@ app = FastAPI(
         {"name": "admin", "description": "Administration (protégé X-Admin-Key)"},
         {"name": "cards", "description": "Catalogue de cartes"},
         {"name": "telemetry", "description": "Métriques anonymisées"},
+        {"name": "dev", "description": "Outil collaboratif de revue de cartes (protégé X-Dev-Key)"},
     ],
 )
 
@@ -123,7 +125,11 @@ ALLOWED_ORIGINS = [
     "https://couvrefeu.scoutgame.ch",
     "https://rondedenuit.scoutgame.ch",
     "https://chrono.scoutgame.ch",
+    "https://vachao.scoutgame.ch",
+    "https://crise.scoutgame.ch",
     "https://api.scoutgame.ch",
+    "https://dev.scoutgame.ch",
+    "http://localhost:3007",
 ]
 
 CORS_ORIGIN_REGEX = (
@@ -174,9 +180,17 @@ async def rate_limit_public_endpoints(request, call_next):
         return await call_next(request)
 
     path = request.url.path
-    # Ne pas limiter les routes admin (déjà protégées par X-Admin-Key),
+    # Ne pas limiter les routes admin/dev (protégées par clé),
     # ni la doc OpenAPI ni le healthcheck
-    if path.startswith("/api/admin") or path.startswith("/docs") or path.startswith("/redoc") or path == "/health" or path == "/openapi.json":
+    if (
+        path.startswith("/api/admin")
+        or path.startswith("/api/dev")
+        or path.startswith("/ws/dev")
+        or path.startswith("/docs")
+        or path.startswith("/redoc")
+        or path == "/health"
+        or path == "/openapi.json"
+    ):
         return await call_next(request)
 
     client_ip = request.client.host if request.client else "unknown"
@@ -212,6 +226,7 @@ app.include_router(auth.router)
 app.include_router(reports.router)
 app.include_router(feedback.router)
 app.include_router(admin.router)
+app.include_router(dev_cards.router)
 
 
 # ---------------------------------------------------------------------------

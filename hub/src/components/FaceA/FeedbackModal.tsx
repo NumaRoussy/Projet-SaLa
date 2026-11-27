@@ -65,36 +65,35 @@ export function FeedbackModal({ onClose }: Props) {
       onClick={onClose}
     >
       <div
-        className="bg-[#162920] border border-[#2d6a4f] rounded-2xl w-full max-w-lg max-h-[90dvh] flex flex-col overflow-hidden"
+        className="bg-[#1f2229] border border-[#2e323c] rounded-2xl w-full max-w-lg max-h-[90dvh] flex flex-col overflow-hidden"
         onClick={e => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between px-5 py-4 border-b border-[#2d6a4f]/50">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-[#2e323c]">
           <h2 className="font-display font-bold text-[#f3f4f6] text-lg">
-            {type === 'PROPOSITION' ? '💡 Proposer une carte' : '✉️ Contact / Légal'}
+            {type === 'PROPOSITION' ? '💡 Proposer une carte' : 'Contact / Légal'}
           </h2>
           <button type="button" onClick={onClose} className="btn-ghost p-1.5 rounded-lg">✕</button>
         </div>
 
         {success ? (
           <div className="flex flex-col items-center justify-center flex-1 gap-4 px-5 py-8">
-            <div className="text-4xl">✅</div>
-            <p className="text-[#8fd4b0] font-semibold text-center">
+            <p className="text-emerald-300 font-semibold text-center">
               Merci pour votre retour !<br />
-              <span className="text-gray-300 font-normal text-sm">Votre message a bien été reçu.</span>
+              <span className="text-slate-300 font-normal text-sm">Votre message a bien été reçu.</span>
             </p>
             <button type="button" className="btn-primary" onClick={onClose}>Fermer</button>
           </div>
         ) : (
           <form onSubmit={submit} className="flex flex-col gap-4 px-5 py-4 overflow-y-auto flex-1">
-            <div className="flex rounded-xl overflow-hidden border border-[#2d6a4f] bg-[#0f1f18]">
+            <div className="flex rounded-lg overflow-hidden border border-[#2e323c] bg-[#16181d]">
               {(['PROPOSITION', 'CONTACT_LEGAL'] as const).map(t => (
                 <button
                   key={t}
                   type="button"
-                  className={`flex-1 py-2.5 text-sm font-semibold transition-colors ${type === t ? 'bg-[#2d6a4f] text-white' : 'text-gray-300 hover:text-white'}`}
+                  className={`flex-1 py-2.5 text-sm font-semibold transition-colors ${type === t ? 'bg-[#2e6f56] text-[#f3f4f6]' : 'text-slate-300 hover:text-[#f3f4f6]'}`}
                   onClick={() => setType(t)}
                 >
-                  {t === 'PROPOSITION' ? '💡 Proposition' : '✉️ Contact'}
+                  {t === 'PROPOSITION' ? '💡 Proposition' : 'Contact'}
                 </button>
               ))}
             </div>
@@ -123,8 +122,8 @@ export function FeedbackModal({ onClose }: Props) {
 
             {error && <p className="text-red-300 text-sm">{error}</p>}
 
-            <p className="text-[11px] text-[#9cb8a8] text-center leading-relaxed px-1">
-              Projet indépendant — Non affilié à l'ASVd, au MSdS, à J+S ou à toute autre organisation.
+            <p className="text-[11px] text-slate-400 text-center leading-relaxed px-1">
+              Projet indépendant. Non affilié à l'ASVd, au MSdS, à J+S ou à toute autre organisation.
             </p>
 
             <button type="submit" disabled={loading} className="btn-primary">

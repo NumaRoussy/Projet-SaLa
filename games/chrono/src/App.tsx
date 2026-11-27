@@ -9,14 +9,42 @@ import { ProposeModal } from './components/ProposeModal'
 const HUB_URL = getHubUrl()
 const MIN_PLAYERS = 4
 const MAX_PLAYERS = 12
+const PREV_TEAMS_KEY = 'scoutgame_prev_teams_chrono'
 
-function shuffleArray<T>(arr: T[]): T[] {
+function shuffleArray<T>(arr: readonly T[]): T[] {
   const copy = [...arr]
   for (let i = copy.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1))
     ;[copy[i], copy[j]] = [copy[j], copy[i]]
   }
   return copy
+}
+
+function readJson<T>(key: string, fallback: T): T {
+  try {
+    const raw = localStorage.getItem(key)
+    return raw ? (JSON.parse(raw) as T) : fallback
+  } catch {
+    return fallback
+  }
+}
+
+function writeJson(key: string, value: unknown): void {
+  try {
+    localStorage.setItem(key, JSON.stringify(value))
+  } catch {
+    // Ignore storage quota or private mode errors
+  }
+}
+
+function getCardKey(card: Card): string {
+  return (card.title || card.content || '').trim().toLowerCase()
+}
+
+function getTeamSignature(teamA: Player[], teamB: Player[]): string {
+  const sigA = teamA.map(p => p.name.trim().toLowerCase()).sort().join(',')
+  const sigB = teamB.map(p => p.name.trim().toLowerCase()).sort().join(',')
+  return [sigA, sigB].sort().join('||')
 }
 
 function pickTwoDistinctGroupNames(): [string, string] {
@@ -26,18 +54,127 @@ function pickTwoDistinctGroupNames(): [string, string] {
 
 function splitIntoBalancedTeams(
   playerList: Player[],
-  names: [string, string]
+  names: [string, string],
+  avoidPrevSplit = false
 ): [Team, Team] {
-  const teamAPlayers: Player[] = []
-  const teamBPlayers: Player[] = []
-  playerList.forEach((p, idx) => {
-    if (idx % 2 === 0) teamAPlayers.push(p)
-    else teamBPlayers.push(p)
-  })
+  const prevSig = avoidPrevSplit && playerList.length >= 4 ? readJson<string>(PREV_TEAMS_KEY, '') : ''
+
+  let bestA: Player[] = []
+  let bestB: Player[] = []
+
+  for (let attempt = 0; attempt < 20; attempt++) {
+    const candidate = attempt === 0 && !avoidPrevSplit ? playerList : shuffleArray(playerList)
+    const a: Player[] = []
+    const b: Player[] = []
+    candidate.forEach((p, idx) => {
+      if (idx % 2 === 0) a.push(p)
+      else b.push(p)
+    })
+    bestA = a
+    bestB = b
+    if (!prevSig || getTeamSignature(a, b) !== prevSig) {
+      break
+    }
+  }
+
+  if (playerList.length >= 4) {
+    writeJson(PREV_TEAMS_KEY, getTeamSignature(bestA, bestB))
+  }
+
   return [
-    { id: 'teamA', name: names[0], color: '#deb07a', score: 0, players: teamAPlayers },
-    { id: 'teamB', name: names[1], color: '#8fd4b0', score: 0, players: teamBPlayers },
+    { id: 'teamA', name: names[0], color: '#e0aa75', score: 0, players: bestA },
+    { id: 'teamB', name: names[1], color: '#7ec4a8', score: 0, players: bestB },
   ]
+}
+
+/**
+ * Pioche sans remise de `deckSize` mots par thème via localStorage + Fisher-Yates.
+ * Réinitialise uniquement les cartes du mode épuisé en conservant la dernière carte jouée.
+ */
+function drawChronoDeckWithoutReplacement(
+  cards: Card[],
+  selectedThemes: ChronoTheme[],
+  deckSize: number
+): Card[] {
+  const unseen: Card[] = []
+  const seen: Card[] = []
+
+  const historyByTheme: Record<ChronoTheme, string[]> = {
+    scout: readJson<string[]>('scoutgame_history_chrono_scout', []),
+    moldu: readJson<string[]>('scoutgame_history_chrono_moldu', []),
+  }
+  const seenSets: Record<ChronoTheme, Set<string>> = {
+    scout: new Set(historyByTheme.scout),
+    moldu: new Set(historyByTheme.moldu),
+  }
+
+  for (const card of cards) {
+    const mode = ((card.mode || 'scout').toLowerCase() === 'moldu' ? 'moldu' : 'scout') as ChronoTheme
+    if (!selectedThemes.includes(mode)) continue
+    const key = getCardKey(card)
+    if (seenSets[mode].has(key)) seen.push(card)
+    else unseen.push(card)
+  }
+
+  const picked: Card[] = []
+  const pickedKeys = new Set<string>()
+
+  for (const c of shuffleArray(unseen)) {
+    if (picked.length >= deckSize) break
+    const k = getCardKey(c)
+    if (!pickedKeys.has(k)) {
+      pickedKeys.add(k)
+      picked.push(c)
+    }
+  }
+
+  // Si les cartes inédites ne suffisent pas, on réinitialise les historiques épuisés en gardant la dernière carte
+  if (picked.length < deckSize) {
+    for (const t of selectedThemes) {
+      const h = historyByTheme[t]
+      const last = h.length > 0 ? [h[h.length - 1]] : []
+      historyByTheme[t] = last
+    }
+
+    const lastKeys = new Set(selectedThemes.flatMap(t => historyByTheme[t]))
+    const restPool = shuffleArray(seen).filter(c => {
+      const k = getCardKey(c)
+      return !pickedKeys.has(k) && !lastKeys.has(k)
+    })
+
+    for (const c of restPool) {
+      if (picked.length >= deckSize) break
+      const k = getCardKey(c)
+      if (!pickedKeys.has(k)) {
+        pickedKeys.add(k)
+        picked.push(c)
+      }
+    }
+
+    // Fallback final si même la dernière carte est nécessaire pour atteindre deckSize
+    if (picked.length < deckSize) {
+      for (const c of shuffleArray(seen)) {
+        if (picked.length >= deckSize) break
+        const k = getCardKey(c)
+        if (!pickedKeys.has(k)) {
+          pickedKeys.add(k)
+          picked.push(c)
+        }
+      }
+    }
+  }
+
+  // Sauvegarder toutes les cartes tirées dans leurs historiques par mode
+  for (const c of picked) {
+    const mode = ((c.mode || 'scout').toLowerCase() === 'moldu' ? 'moldu' : 'scout') as ChronoTheme
+    const key = getCardKey(c)
+    historyByTheme[mode] = [...historyByTheme[mode].filter(k => k !== key), key]
+  }
+  for (const t of selectedThemes) {
+    writeJson(`scoutgame_history_chrono_${t}`, historyByTheme[t])
+  }
+
+  return shuffleArray(picked)
 }
 
 export default function App() {
@@ -53,7 +190,7 @@ export default function App() {
 
   const [teams, setTeams] = useState<[Team, Team]>(() => {
     const initialNames = pickTwoDistinctGroupNames()
-    return splitIntoBalancedTeams(shuffleArray(loadPlayers().slice(0, MAX_PLAYERS)), initialNames)
+    return splitIntoBalancedTeams(shuffleArray(loadPlayers().slice(0, MAX_PLAYERS)), initialNames, true)
   })
 
   const [activeTeamIndex, setActiveTeamIndex] = useState<0 | 1>(0)
@@ -175,9 +312,8 @@ export default function App() {
   }
 
   function handleReshuffleTeams() {
-    const shuffledPlayers = shuffleArray(players)
     const newNames = pickTwoDistinctGroupNames()
-    setTeams(splitIntoBalancedTeams(shuffledPlayers, newNames))
+    setTeams(splitIntoBalancedTeams(players, newNames, true))
   }
 
   function toggleTheme(theme: ChronoTheme) {
@@ -195,11 +331,14 @@ export default function App() {
     ) {
       return
     }
-    const shuffledPool = shuffleArray(filteredCards)
-    const deck = shuffledPool.slice(0, Math.min(players.length * 7, shuffledPool.length))
+    const deck = drawChronoDeckWithoutReplacement(
+      filteredCards,
+      selectedThemes,
+      Math.min(players.length * 7, filteredCards.length)
+    )
 
     setMasterDeck(deck)
-    setRoundQueue(shuffleArray([...deck]))
+    setRoundQueue(shuffleArray(deck))
     setCurrentRound(1)
     setActiveTeamIndex(0)
     setTeams(prev => [
@@ -257,7 +396,7 @@ export default function App() {
   function nextRound() {
     const nextR = (currentRound + 1) as RoundNumber
     setCurrentRound(nextR)
-    setRoundQueue(shuffleArray([...masterDeck]))
+    setRoundQueue(shuffleArray(masterDeck))
     setRoundPointsA(0)
     setRoundPointsB(0)
     setTurnWordsFound(0)
@@ -277,14 +416,14 @@ export default function App() {
     selectedThemes.length === 1 ? selectedThemes[0] : 'scout'
 
   return (
-    <div className="app-container bg-[#1c1611] text-[#f3f4f6]">
+    <div className="app-container bg-[#16181d] text-[#f3f4f6]">
       {/* ── En-tête uniforme ──────────────────────────────────────────────── */}
-      <header className="sticky top-0 z-30 bg-[#17120e] border-b border-[#785127] px-4 py-3">
+      <header className="sticky top-0 z-30 bg-[#1f2229] border-b border-[#9c6631] px-4 py-3">
         <div className="max-w-lg mx-auto grid grid-cols-3 items-center gap-2">
           <div className="justify-self-start">
             <a
               href={HUB_URL}
-              className="inline-flex items-center px-2.5 py-1.5 rounded-lg border border-[#785127] bg-[#261e17] hover:bg-[#33271d] text-[#f3f4f6] text-xs font-semibold transition-colors"
+              className="inline-flex items-center px-2.5 py-1.5 rounded-lg border border-[#2e323c] bg-[#16181d] hover:bg-[#262a33] text-[#f3f4f6] text-xs font-semibold transition-colors"
             >
               ← Menu
             </a>
@@ -296,7 +435,7 @@ export default function App() {
             <button
               type="button"
               onClick={() => setProposeOpen(true)}
-              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-[#785127] bg-[#261e17] hover:bg-[#33271d] text-[#deb07a] text-xs font-semibold transition-colors"
+              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-[#b5892e] bg-[#1f2229] hover:bg-[#262a33] text-[#f3f4f6] text-xs font-semibold transition-colors"
             >
               <span>💡</span>
               <span>Proposer</span>
@@ -311,25 +450,25 @@ export default function App() {
           <div className="glass-card p-5 space-y-5">
             <div className="text-center space-y-1">
               <h2 className="font-display font-bold text-2xl text-[#f3f4f6]">Préparez le Défi Chrono</h2>
-              <p className="text-xs text-[#c9b7a2]">
+              <p className="text-xs text-slate-400">
                 3 manches avec les mêmes mots, 2 équipes tirées au sort
               </p>
             </div>
 
             {/* Gestionnaire de joueurs (déplié par défaut) */}
-            <div className="p-3.5 rounded-xl bg-[#1c1611] border border-[#785127] space-y-3">
+            <div className="p-3.5 rounded-xl bg-[#16181d] border border-[#2e323c] space-y-3">
               <div className="flex items-center justify-between gap-2">
                 <div>
-                  <span className="text-xs font-bold text-[#deb07a] uppercase tracking-wider">
+                  <span className="text-xs font-bold text-slate-200 uppercase tracking-wider">
                     Joueurs ({players.length} / {MAX_PLAYERS})
                   </span>
-                  <span className="block text-[11px] text-[#b09d87]">4 à 12 joueurs</span>
+                  <span className="block text-[11px] text-slate-400">4 à 12 joueurs</span>
                 </div>
                 {players.length > 0 && (
                   <button
                     type="button"
                     onClick={handleClearPlayers}
-                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#3a1b20] hover:bg-[#4e2229] border border-[#8c2d38] text-red-200 text-xs font-semibold transition-colors"
+                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#1f2229] hover:bg-[#262a33] border border-[#9b2c37] text-red-200 text-xs font-semibold transition-colors"
                   >
                     <span>🗑️</span>
                     <span>Vider</span>
@@ -339,19 +478,19 @@ export default function App() {
 
               <div className="flex flex-wrap gap-1.5 max-h-32 overflow-y-auto">
                 {players.length === 0 ? (
-                  <p className="text-xs text-gray-400 py-1">Aucun joueur enregistré.</p>
+                  <p className="text-xs text-slate-400 py-1">Aucun joueur enregistré.</p>
                 ) : (
                   players.map(p => (
                     <div
                       key={p.id}
-                      className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#261e17] border border-[#785127] text-xs font-medium text-[#f3f4f6]"
+                      className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#1f2229] border border-[#2e323c] text-xs font-medium text-[#f3f4f6]"
                     >
                       <span>{p.name}</span>
                       <button
                         type="button"
                         onClick={() => handleRemovePlayer(p.id)}
                         aria-label={`Supprimer ${p.name}`}
-                        className="text-[#c9b7a2] hover:text-red-300 text-sm leading-none ml-0.5"
+                        className="text-slate-400 hover:text-red-300 text-sm leading-none ml-0.5"
                       >
                         ×
                       </button>
@@ -379,10 +518,10 @@ export default function App() {
               </form>
 
               {players.length >= MAX_PLAYERS && (
-                <p className="text-xs text-[#deb07a] text-center font-semibold">Maximum 12 joueurs atteint</p>
+                <p className="text-xs text-[#e0aa75] text-center font-semibold">Maximum 12 joueurs atteint</p>
               )}
               {players.length < MIN_PLAYERS && (
-                <p className="text-xs text-[#deb07a] text-center">
+                <p className="text-xs text-[#e0aa75] text-center">
                   Minimum 4 joueurs requis (2 contre 2)
                 </p>
               )}
@@ -394,7 +533,7 @@ export default function App() {
                 {teams.map(t => (
                   <div
                     key={t.id}
-                    className="p-3 rounded-xl bg-[#1c1611] border border-[#785127] flex flex-col justify-between gap-2"
+                    className="p-3 rounded-xl bg-[#16181d] border border-[#2e323c] flex flex-col justify-between gap-2"
                   >
                     <div className="text-center font-bold text-xs leading-snug" style={{ color: t.color }}>
                       {t.name}
@@ -404,13 +543,13 @@ export default function App() {
                         t.players.map(p => (
                           <span
                             key={p.id}
-                            className="text-[11px] px-2 py-0.5 rounded-full bg-[#261e17] border border-[#785127] text-gray-200"
+                            className="text-[11px] px-2 py-0.5 rounded-full bg-[#1f2229] border border-[#2e323c] text-slate-200"
                           >
                             {p.name}
                           </span>
                         ))
                       ) : (
-                        <span className="text-[11px] text-gray-400 italic">Aucun joueur</span>
+                        <span className="text-[11px] text-slate-400 italic">Aucun joueur</span>
                       )}
                     </div>
                   </div>
@@ -420,28 +559,27 @@ export default function App() {
               <button
                 type="button"
                 onClick={handleReshuffleTeams}
-                className="w-full py-2 px-3 rounded-xl bg-[#1c1611] hover:bg-[#33271d] border border-[#785127] text-xs font-semibold text-[#deb07a] flex items-center justify-center gap-1.5 transition-colors"
+                className="w-full py-2 px-3 rounded-lg bg-[#16181d] hover:bg-[#262a33] border border-[#9c6631] text-xs font-semibold text-[#f3f4f6] transition-colors"
               >
-                <span>🔀</span>
-                <span>Remélanger les équipes</span>
+                Remélanger les équipes
               </button>
             </div>
 
             {/* Thèmes */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-[#deb07a] uppercase tracking-wider">
+                <span className="text-xs font-bold text-slate-300 uppercase tracking-wider">
                   Thèmes des mots
                 </span>
-                <span className="text-[11px] text-[#b09d87]">
+                <span className="text-[11px] text-slate-400">
                   {filteredCards.length} disponibles
                 </span>
               </div>
               <div className="grid grid-cols-2 gap-2.5">
                 {(
                   [
-                    { id: 'scout', label: 'Scout', icon: '🏕️' },
-                    { id: 'moldu', label: 'Moldu', icon: '🏙️' },
+                    { id: 'scout', label: 'Scout' },
+                    { id: 'moldu', label: 'Moldu' },
                   ] as const
                 ).map(theme => {
                   const isChecked = selectedThemes.includes(theme.id)
@@ -454,12 +592,19 @@ export default function App() {
                       onClick={() => toggleTheme(theme.id)}
                       className={`p-3 rounded-xl border text-xs font-bold flex items-center justify-center gap-2 transition-colors ${
                         isChecked
-                          ? 'bg-[#36281c] border-[#966530] text-[#f3f4f6]'
-                          : 'bg-[#1c1611] border-[#785127] text-gray-400 hover:text-white'
+                          ? 'bg-[#1f2229] border-[#9c6631] text-[#f3f4f6]'
+                          : 'bg-[#16181d] border-[#2e323c] text-slate-400 hover:text-[#f3f4f6]'
                       }`}
                     >
-                      <span>{isChecked ? '☑️' : '⬜'}</span>
-                      <span>{theme.icon}</span>
+                      <span
+                        className={`w-4 h-4 rounded border flex items-center justify-center text-[10px] ${
+                          isChecked
+                            ? 'bg-[#9c6631] border-[#9c6631] text-[#f3f4f6]'
+                            : 'bg-[#16181d] border-[#2e323c] text-transparent'
+                        }`}
+                      >
+                        ✓
+                      </span>
                       <span>{theme.label}</span>
                     </button>
                   )
@@ -473,8 +618,8 @@ export default function App() {
             </div>
 
             {/* Durée */}
-            <div className="flex items-center justify-between bg-[#1c1611] p-3 rounded-xl border border-[#785127]">
-              <span className="text-xs text-gray-200 font-medium">Durée d'un tour</span>
+            <div className="flex items-center justify-between bg-[#16181d] p-3 rounded-xl border border-[#2e323c]">
+              <span className="text-xs text-slate-200 font-medium">Durée d'un tour</span>
               <div className="flex gap-1.5">
                 {([45, 60] as const).map(sec => (
                   <button
@@ -483,8 +628,8 @@ export default function App() {
                     onClick={() => setTurnDuration(sec)}
                     className={`px-3.5 py-1.5 rounded-lg text-xs font-bold border transition-colors ${
                       turnDuration === sec
-                        ? 'bg-[#966530] border-[#b0783b] text-[#f3f4f6]'
-                        : 'bg-[#261e17] border-[#785127] text-gray-300 hover:text-white'
+                        ? 'bg-[#9c6631] border-[#9c6631] text-[#f3f4f6]'
+                        : 'bg-[#1f2229] border-[#2e323c] text-slate-300 hover:text-[#f3f4f6]'
                     }`}
                   >
                     {sec}s
@@ -493,16 +638,16 @@ export default function App() {
               </div>
             </div>
 
-            <div className="p-2.5 rounded-xl bg-[#1c1611] border border-[#785127] text-center text-xs text-[#deb07a] font-semibold">
+            <div className="p-2.5 rounded-xl bg-[#16181d] border border-[#2e323c] text-center text-xs text-[#e0aa75] font-semibold">
               Paquet : {targetDeckSize} mots (7 par joueur)
-              <span className="block text-[#b09d87] font-normal">(28 à 84 mots pour 4 à 12 joueurs)</span>
+              <span className="block text-slate-400 font-normal">(28 à 84 mots pour 4 à 12 joueurs)</span>
             </div>
 
             <button
               type="button"
               onClick={startChronoGame}
               disabled={!canStart}
-              className="btn-primary w-full py-3.5 text-base font-bold"
+              className="btn-primary w-full"
             >
               Lancer la 1ère Manche ({effectiveDeckSize} mots)
             </button>
@@ -512,27 +657,25 @@ export default function App() {
         {/* ── Phase 2: Round Intro ────────────────────────────────────────── */}
         {phase === 'round_intro' && (
           <div className="glass-card p-6 text-center space-y-6">
-            <div className="text-4xl">{ROUND_RULES[currentRound].icon}</div>
-
             <div>
-              <span className="text-xs font-bold uppercase tracking-widest text-[#deb07a]">
+              <span className="text-xs font-bold uppercase tracking-widest text-[#e0aa75]">
                 Manche {currentRound} sur 3
               </span>
               <h2 className="font-display font-black text-2xl text-[#f3f4f6] mt-1">
                 {ROUND_RULES[currentRound].title}
               </h2>
-              <p className="text-sm text-[#c9b7a2] font-semibold mt-1">
+              <p className="text-sm text-slate-300 font-semibold mt-1">
                 {ROUND_RULES[currentRound].subtitle}
               </p>
             </div>
 
-            <div className="p-4 rounded-2xl bg-[#1c1611] border border-[#785127] text-xs text-gray-200 leading-relaxed text-left">
+            <div className="p-4 rounded-xl bg-[#16181d] border border-[#2e323c] text-xs text-slate-200 leading-relaxed text-left">
               {ROUND_RULES[currentRound].rule}
             </div>
 
             <div className="grid grid-cols-2 gap-3 py-1">
               {teams.map(t => (
-                <div key={t.id} className="p-2.5 rounded-xl bg-[#1c1611] border border-[#785127]">
+                <div key={t.id} className="p-2.5 rounded-xl bg-[#16181d] border border-[#2e323c]">
                   <div className="text-xs truncate font-semibold" style={{ color: t.color }}>
                     {t.name}
                   </div>
@@ -541,16 +684,16 @@ export default function App() {
               ))}
             </div>
 
-            <div className="p-3 rounded-xl bg-[#1c1611] border border-[#966530] text-xs text-gray-200">
+            <div className="p-3 rounded-xl bg-[#16181d] border border-[#9c6631] text-xs text-slate-200">
               À l'équipe de commencer :{' '}
               <strong style={{ color: activeTeam.color }}>{activeTeam.name}</strong>
-              <span className="text-[#b09d87] block mt-0.5">
+              <span className="text-slate-400 block mt-0.5">
                 ({roundQueue.length} mots à faire deviner)
               </span>
             </div>
 
-            <button type="button" onClick={startTurn} className="btn-primary w-full py-3.5 text-base font-bold">
-              ⏱️ C'est parti ! ({turnDuration}s)
+            <button type="button" onClick={startTurn} className="btn-primary w-full">
+              C'est parti ! ({turnDuration}s)
             </button>
           </div>
         )}
@@ -558,29 +701,29 @@ export default function App() {
         {/* ── Phase 3: Play ───────────────────────────────────────────────── */}
         {phase === 'play' && currentCard && (
           <div className="space-y-4">
-            <div className="flex items-center justify-between p-3 rounded-xl bg-[#261e17] border border-[#785127]">
+            <div className="flex items-center justify-between p-3 rounded-xl bg-[#1f2229] border border-[#2e323c]">
               <div className="flex items-center gap-2 min-w-0">
                 <span className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: activeTeam.color }} />
                 <span className="font-bold text-xs truncate" style={{ color: activeTeam.color }}>
                   {activeTeam.name}
                 </span>
               </div>
-              <div className="text-xs text-[#c9b7a2] shrink-0">
-                Manche {currentRound}/3 • Restants : <strong className="text-white">{roundQueue.length}</strong>
+              <div className="text-xs text-slate-300 shrink-0">
+                Manche {currentRound}/3 • Restants : <strong className="text-[#f3f4f6]">{roundQueue.length}</strong>
               </div>
             </div>
 
             <div className="glass-card p-4 text-center space-y-2">
               <div
                 className={`font-mono font-black text-5xl ${
-                  timeLeft <= 5 ? 'text-red-400' : 'text-[#deb07a]'
+                  timeLeft <= 5 ? 'text-[#e88c95]' : 'text-[#e0aa75]'
                 }`}
               >
                 {timeLeft}s
               </div>
-              <div className="w-full h-2 bg-[#1c1611] rounded-full overflow-hidden border border-[#785127]/50">
+              <div className="w-full h-2 bg-[#16181d] rounded-full overflow-hidden border border-[#2e323c]">
                 <div
-                  className="h-full rounded-full transition-all duration-1000 bg-[#966530]"
+                  className="h-full rounded-full transition-all duration-1000 bg-[#9c6631]"
                   style={{ width: `${(timeLeft / turnDuration) * 100}%` }}
                 />
               </div>
@@ -601,17 +744,17 @@ export default function App() {
                 <button
                   type="button"
                   onClick={handlePassCard}
-                  className="btn-ghost py-4 text-sm font-semibold border border-[#785127] bg-[#261e17]"
+                  className="btn-ghost py-3 px-5 text-sm font-semibold border border-[#9c6631] bg-[#1f2229]"
                 >
-                  ⏭️ Passer
+                  Passer
                 </button>
               )}
               <button
                 type="button"
                 onClick={handleCardSuccess}
-                className="btn-success py-4 text-base font-bold"
+                className="btn-success"
               >
-                ✅ Trouvé ! (+1 pt)
+                Trouvé ! (+1 pt)
               </button>
             </div>
           </div>
@@ -620,38 +763,36 @@ export default function App() {
         {/* ── Phase 3b: Turn Transition ───────────────────────────────────── */}
         {phase === 'turn_transition' && (
           <div className="glass-card p-6 text-center space-y-5">
-            <div className="text-4xl">⏰</div>
-
             <div>
-              <span className="text-xs font-bold uppercase tracking-widest text-[#deb07a]">
-                Fin du chrono — Manche {currentRound}/3
+              <span className="text-xs font-bold uppercase tracking-widest text-[#e0aa75]">
+                Fin du chrono : Manche {currentRound}/3
               </span>
               <h2 className="font-display font-black text-2xl text-[#f3f4f6] mt-1">
                 Temps écoulé !
               </h2>
             </div>
 
-            <div className="p-4 rounded-2xl bg-[#1c1611] border border-[#785127] space-y-2 text-xs">
-              <p className="text-gray-200">
+            <div className="p-4 rounded-xl bg-[#16181d] border border-[#2e323c] space-y-2 text-xs">
+              <p className="text-slate-200">
                 <strong style={{ color: previousTurnTeam.color }}>{previousTurnTeam.name}</strong> a
                 trouvé{' '}
-                <strong className="text-white">
+                <strong className="text-[#f3f4f6]">
                   {turnWordsFound} mot{turnWordsFound > 1 ? 's' : ''}
                 </strong>{' '}
                 sur ce tour.
               </p>
-              <p className="text-[#deb07a] font-semibold">
+              <p className="text-[#e0aa75] font-semibold">
                 Il reste {roundQueue.length} mot{roundQueue.length > 1 ? 's' : ''} dans cette manche.
               </p>
             </div>
 
-            <div className="p-3.5 rounded-xl bg-[#1c1611] border border-[#966530] text-xs text-gray-200">
+            <div className="p-3.5 rounded-xl bg-[#16181d] border border-[#9c6631] text-xs text-slate-200">
               C'est au tour de :{' '}
               <strong style={{ color: activeTeam.color }}>{activeTeam.name}</strong>
             </div>
 
-            <button type="button" onClick={startTurn} className="btn-primary w-full py-3.5 text-base font-bold">
-              ⏱️ C'est parti ! ({turnDuration}s)
+            <button type="button" onClick={startTurn} className="btn-primary w-full">
+              C'est parti ! ({turnDuration}s)
             </button>
           </div>
         )}
@@ -659,10 +800,8 @@ export default function App() {
         {/* ── Phase 4: Round Recap ────────────────────────────────────────── */}
         {phase === 'round_recap' && (
           <div className="glass-card p-6 text-center space-y-5">
-            <div className="text-4xl">🏁</div>
-
             <div>
-              <span className="text-xs font-bold uppercase tracking-widest text-[#deb07a]">
+              <span className="text-xs font-bold uppercase tracking-widest text-[#e0aa75]">
                 Fin de la Manche {currentRound}
               </span>
               <h2 className="font-display font-black text-2xl text-[#f3f4f6] mt-1">
@@ -672,34 +811,33 @@ export default function App() {
 
             <div className="grid grid-cols-2 gap-3">
               {teams.map(t => (
-                <div key={t.id} className="p-3.5 rounded-2xl bg-[#1c1611] border border-[#785127]">
+                <div key={t.id} className="p-3.5 rounded-xl bg-[#16181d] border border-[#2e323c]">
                   <div className="text-xs truncate font-bold" style={{ color: t.color }}>
                     {t.name}
                   </div>
                   <div className="text-3xl font-black mt-1 text-[#f3f4f6]">{t.score} pts</div>
-                  <div className="text-xs text-[#deb07a] mt-1">
+                  <div className="text-xs text-[#e0aa75] mt-1">
                     +{t.id === 'teamA' ? roundPointsA : roundPointsB} pts cette manche
                   </div>
                 </div>
               ))}
             </div>
 
-            <div className="p-3.5 rounded-2xl bg-[#1c1611] border border-[#785127] text-left space-y-1 text-xs">
-              <div className="font-bold text-[#deb07a]">
-                {ROUND_RULES[(currentRound + 1) as RoundNumber].icon}{' '}
+            <div className="p-3.5 rounded-xl bg-[#16181d] border border-[#2e323c] text-left space-y-1 text-xs">
+              <div className="font-bold text-[#e0aa75]">
                 {ROUND_RULES[(currentRound + 1) as RoundNumber].title}
               </div>
-              <p className="text-gray-200 leading-relaxed">
+              <p className="text-slate-200 leading-relaxed">
                 {ROUND_RULES[(currentRound + 1) as RoundNumber].rule}
               </p>
-              <p className="text-[#b09d87] pt-1">
+              <p className="text-slate-400 pt-1">
                 Équipe qui démarre :{' '}
                 <strong style={{ color: activeTeam.color }}>{activeTeam.name}</strong>
               </p>
             </div>
 
-            <button type="button" onClick={nextRound} className="btn-primary w-full py-3.5 text-base font-bold">
-              Passer à la Manche {currentRound + 1} ➔
+            <button type="button" onClick={nextRound} className="btn-primary w-full">
+              Passer à la Manche {currentRound + 1} →
             </button>
           </div>
         )}
@@ -707,13 +845,11 @@ export default function App() {
         {/* ── Phase 5: Game Over ──────────────────────────────────────────── */}
         {phase === 'gameover' && (
           <div className="glass-card p-6 text-center space-y-5">
-            <div className="text-5xl">🏆</div>
-
             <div>
               <h2 className="font-display font-black text-3xl text-[#f3f4f6]">
                 Fin du Grand Défi Chrono !
               </h2>
-              <p className="text-sm text-[#deb07a] font-semibold mt-1">
+              <p className="text-sm text-[#e0aa75] font-semibold mt-1">
                 {teams[0].score > teams[1].score
                   ? `Victoire de ${teams[0].name} !`
                   : teams[1].score > teams[0].score
@@ -724,26 +860,26 @@ export default function App() {
 
             <div className="grid grid-cols-2 gap-3 py-2">
               {teams.map(t => (
-                <div key={t.id} className="p-4 rounded-2xl bg-[#1c1611] border border-[#785127]">
+                <div key={t.id} className="p-4 rounded-xl bg-[#16181d] border border-[#2e323c]">
                   <div className="text-xs font-bold truncate" style={{ color: t.color }}>
                     {t.name}
                   </div>
                   <div className="text-4xl font-black mt-2 text-[#f3f4f6]">{t.score}</div>
-                  <div className="text-xs text-[#b09d87] mt-1">points au total</div>
+                  <div className="text-xs text-slate-400 mt-1">points au total</div>
                 </div>
               ))}
             </div>
 
             <div className="space-y-2 pt-2">
-              <button type="button" onClick={startChronoGame} className="btn-primary w-full py-3 text-sm font-bold">
-                🔄 Rejouer avec ces équipes
+              <button type="button" onClick={startChronoGame} className="btn-primary w-full">
+                Rejouer avec ces équipes
               </button>
               <button
                 type="button"
                 onClick={() => setPhase('setup')}
-                className="btn-ghost w-full py-2 text-xs font-semibold border border-[#785127]"
+                className="btn-ghost w-full py-2 text-xs font-semibold border border-[#2e323c]"
               >
-                ⚙️ Modifier équipes &amp; thèmes
+                Modifier équipes &amp; thèmes
               </button>
               <a href={HUB_URL} className="btn-ghost w-full block text-center text-xs py-2">
                 ← Menu
@@ -753,8 +889,8 @@ export default function App() {
         )}
       </main>
 
-      <footer className="py-3 px-4 text-center border-t border-[#3b2916] bg-[#17120e] text-[11px] text-[#b09d87]">
-        Projet indépendant — Non affilié à l'ASVd, au MSdS, à J+S ou à toute autre organisation.
+      <footer className="py-3 px-4 text-center border-t border-[#2e323c] bg-[#1f2229] text-[11px] text-slate-400">
+        Projet indépendant. Non affilié à l'ASVd, au MSdS, à J+S ou à toute autre organisation.
       </footer>
 
       <ProposeModal
